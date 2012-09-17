@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.aragaer.reminder.DrawDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <com.aragaer.reminder.DrawView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:id="@+id/draw" />
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/extra"
+        android:text="@string/add_extra" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn"
+        android:text="@android:string/ok" />
+</com.aragaer.reminder.DrawDialogLayout>

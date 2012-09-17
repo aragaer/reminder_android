@@ -10,14 +10,17 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.app.Activity;
+import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 
 public class ReminderListActivity extends Activity {
+	static final int GLYPH_DIALOG_ID = 1;
 	static class ReminderItem {
 		Bitmap glyph;
 		String text;
@@ -48,7 +51,7 @@ public class ReminderListActivity extends Activity {
     	list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
 				if (id + 1 == adapter.getCount()) {
-					(new GlyphDrawDialog(ReminderListActivity.this)).show();
+					showDialog(GLYPH_DIALOG_ID, null);
 				} else {
 					Log.d("Reminder", "clickety " + id);
 				}
@@ -73,11 +76,18 @@ public class ReminderListActivity extends Activity {
         Rect bounds = new Rect();
         p.getTextBounds("+", 0, 1, bounds);
         c.drawText("+", 25 - bounds.centerX(), 25 - bounds.centerY(), p);
-        p.setStrokeWidth(1.3f);
-        p.setColor(Color.GREEN);
-        c.drawLines(new float[]{0, 0, 0, 50, 0, 50, 50, 50, 50, 50, 50, 0, 50, 0, 0, 0}, p);
+        Drawable d = getResources().getDrawable(R.drawable.new_glyph);
+        d.setBounds(0, 0, 50, 50);
+        d.draw(c);
 
         adapter.add(new ReminderItem(b, getString(R.string.add_new)));
         setContentView(list);
+    }
+
+    protected Dialog onCreateDialog(int id, Bundle data) {
+    	Dialog dlg = new Dialog(this);
+    	dlg.setTitle(R.string.add_new);
+    	dlg.setContentView(R.layout.drawing);
+    	return dlg;
     }
 }
