@@ -47,7 +47,13 @@ class DrawView extends View implements OnTouchListener {
 
 		super.onMeasure(size+1, size+1);
 		setMeasuredDimension(size+1, size+1);
-		Log.d("DrawView", "Size is "+size);
+	}
+
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		if (!changed)
+			return;
+		int px = (right - left - size) / 2, py = (bottom - top - size) / 2;
+		super.onLayout(changed, px, py, px + size, py + size);
 	}
 
 	public void onDraw(Canvas canvas) {

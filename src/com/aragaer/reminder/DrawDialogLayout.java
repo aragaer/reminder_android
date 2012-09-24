@@ -70,6 +70,7 @@ public class DrawDialogLayout extends ViewGroup {
 			right -= px;
 			top += py;
 			bottom -= py;
+			h -= padding_y;
 			grid.layout(left, top, left + h, bottom);
 			left += px;
 			chk.layout(left + h, top + py, right, top + chk_h);
@@ -79,6 +80,7 @@ public class DrawDialogLayout extends ViewGroup {
 			left += px;
 			right -= px;
 			top += py;
+			w -= padding_x;
 			grid.layout(left, top, right, top + w);
 			top += py;
 			chk.layout(left, top + w, right, top + w + chk_h);
