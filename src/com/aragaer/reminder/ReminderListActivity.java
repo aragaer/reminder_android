@@ -1,5 +1,8 @@
 package com.aragaer.reminder;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +14,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -20,51 +25,55 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 public class ReminderListActivity extends Activity {
-	static final int GLYPH_DIALOG_ID = 1;
-	static class ReminderItem {
-		Bitmap glyph;
-		String text;
-		public ReminderItem(Bitmap b, String s) {
-			glyph = b;
-			text = s;
-		}
-	}
+    static final int GLYPH_DIALOG_ID = 1;
+    static final SimpleDateFormat df = new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss");
+    static class ReminderItem {
+        Bitmap glyph;
+        String text;
+        public ReminderItem(Bitmap b, String s) {
+            glyph = b;
+            text = s;
+        }
+        public static ReminderItem createNow(Bitmap b) {
+            return new ReminderItem(b, df.format(new Date()));
+        }
+    }
 
-	ArrayAdapter<ReminderItem> adapter;
-	ListView list;
+    ArrayAdapter<ReminderItem> adapter;
+    ListView list;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         list = new ListView(this);
         adapter = new ArrayAdapter<ReminderItem>(this, android.R.layout.activity_list_item) {
-    		public View getView(int position, View convertView, ViewGroup parent) {
-    			ReminderItem item = getItem(position);
-    			if (item == null)
-    				return null;
-    			if (convertView == null)
-    				convertView = ViewGroup.inflate(parent.getContext(), android.R.layout.activity_list_item, null);
-    			((ImageView) convertView.findViewById(android.R.id.icon)).setImageBitmap(item.glyph);
-    			((TextView) convertView.findViewById(android.R.id.text1)).setText(item.text);
-    			
-    			return convertView;
-    		};
-    	};
-    	list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
-				if (id + 1 == adapter.getCount()) {
-					showDialog(GLYPH_DIALOG_ID, null);
-				} else {
-					Log.d("Reminder", "clickety " + id);
-				}
-			}
-		});
-    	list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
-				if (id + 1 == adapter.getCount())
-					return false;
-				Log.d("Reminder", "long clickety " + id);
-				return true;
-			}
-		});
+            public View getView(int position, View convertView, ViewGroup parent) {
+                ReminderItem item = getItem(position);
+                if (item == null)
+                    return null;
+                if (convertView == null)
+                    convertView = ViewGroup.inflate(parent.getContext(), android.R.layout.activity_list_item, null);
+                ((ImageView) convertView.findViewById(android.R.id.icon)).setImageBitmap(item.glyph);
+                ((TextView) convertView.findViewById(android.R.id.text1)).setText(item.text);
+
+                return convertView;
+            };
+        };
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
+                if (id + 1 == adapter.getCount()) {
+                    showDialog(GLYPH_DIALOG_ID, null);
+                } else {
+                    Log.d("Reminder", "clickety " + id);
+                }
+            }
+        });
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
+                if (id + 1 == adapter.getCount())
+                    return false;
+                Log.d("Reminder", "long clickety " + id);
+                return true;
+            }
+        });
         list.setAdapter(adapter);
 
         Bitmap b = Bitmap.createBitmap(50, 50, Config.ARGB_8888);
@@ -85,9 +94,13 @@ public class ReminderListActivity extends Activity {
     }
 
     protected Dialog onCreateDialog(int id, Bundle data) {
-    	Dialog dlg = new Dialog(this);
-    	dlg.setTitle(R.string.add_new);
-    	dlg.setContentView(R.layout.drawing);
-    	return dlg;
+        Dialog dlg = new DrawDialog(this);
+        dlg.setOnDismissListener(new OnDismissListener() {
+            public void onDismiss(DialogInterface dialog) {
+                Bitmap res = ((DrawView) ((Dialog) dialog).findViewById(R.id.draw)).getBitmap();
+                adapter.add(ReminderItem.createNow(res));
+            }
+        });
+        return dlg;
     }
 }
