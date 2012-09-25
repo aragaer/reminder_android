@@ -30,7 +30,7 @@ public class ReminderDB {
 
         File sdcard = Environment.getExternalStorageDirectory();
         File dir = new File(sdcard, "Android");
-        dir = new File(new File(dir, "data"), ReminderDB.class.getClass().getPackage().getName());
+        dir = new File(new File(dir, "data"), ReminderDB.class.getPackage().getName());
         if (!dir.exists() && !dir.mkdirs())
             return;
 
