@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -86,10 +87,15 @@ public class ReminderListActivity extends Activity {
     }
 
     protected Dialog onCreateDialog(int id, Bundle data) {
-        Dialog dlg = new DrawDialog(this);
-        dlg.setOnDismissListener(new OnDismissListener() {
-            public void onDismiss(DialogInterface dialog) {
-                Bitmap res = ((DrawView) ((Dialog) dialog).findViewById(R.id.draw)).getBitmap();
+        final Dialog dlg = new Dialog(this);
+        dlg.setTitle(R.string.add_new);
+        dlg.setContentView(R.layout.drawing);
+        dlg.findViewById(R.id.btn).setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                dlg.dismiss();
+                DrawView dv = (DrawView) dlg.findViewById(R.id.draw);
+                Bitmap res = dv.getBitmap();
+                dv.reset();
                 ReminderItem item = new ReminderItem(res);
                 db.storeMemo(item);
                 adapter.insert(item, 0);

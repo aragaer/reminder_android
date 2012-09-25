@@ -36,6 +36,7 @@ class DrawView extends View implements OnTouchListener {
         setFocusable(true);
         setFocusableInTouchMode(true);
         setOnTouchListener(this);
+        reset();
     }
 
     public void reset() {
