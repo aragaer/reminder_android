@@ -1,7 +1,6 @@
 package com.aragaer.reminder;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -25,20 +24,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 public class ReminderListActivity extends Activity {
-    static final int GLYPH_DIALOG_ID = 1;
-    static final SimpleDateFormat df = new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss");
-    static class ReminderItem {
-        Bitmap glyph;
-        String text;
-        public ReminderItem(Bitmap b, String s) {
-            glyph = b;
-            text = s;
-        }
-        public static ReminderItem createNow(Bitmap b) {
-            return new ReminderItem(b, df.format(new Date()));
-        }
-    }
+    ReminderDB db;
 
+    static final int GLYPH_DIALOG_ID = 1;
     ArrayAdapter<ReminderItem> adapter;
     ListView list;
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +40,7 @@ public class ReminderListActivity extends Activity {
                 if (convertView == null)
                     convertView = ViewGroup.inflate(parent.getContext(), android.R.layout.activity_list_item, null);
                 ((ImageView) convertView.findViewById(android.R.id.icon)).setImageBitmap(item.glyph);
-                ((TextView) convertView.findViewById(android.R.id.text1)).setText(item.text);
+                ((TextView) convertView.findViewById(android.R.id.text1)).setText(item.getText());
 
                 return convertView;
             };
@@ -89,6 +77,10 @@ public class ReminderListActivity extends Activity {
         d.setBounds(0, 0, 50, 50);
         d.draw(c);
 
+        db = new ReminderDB(this);
+        for (ReminderItem item : db.getAllMemos())
+            adapter.add(item);
+
         adapter.add(new ReminderItem(b, getString(R.string.add_new)));
         setContentView(list);
     }
@@ -98,7 +90,9 @@ public class ReminderListActivity extends Activity {
         dlg.setOnDismissListener(new OnDismissListener() {
             public void onDismiss(DialogInterface dialog) {
                 Bitmap res = ((DrawView) ((Dialog) dialog).findViewById(R.id.draw)).getBitmap();
-                adapter.insert(ReminderItem.createNow(res), 0);
+                ReminderItem item = new ReminderItem(res);
+                db.storeMemo(item);
+                adapter.insert(item, 0);
             }
         });
         return dlg;
