@@ -36,6 +36,9 @@ class DrawView extends View implements OnTouchListener {
         setFocusable(true);
         setFocusableInTouchMode(true);
         setOnTouchListener(this);
+    }
+
+    public void reset() {
         bmp = Bitmap.createBitmap(BITMAP_SIZE, BITMAP_SIZE, Config.ARGB_8888);
         c = new Canvas(bmp);
     }

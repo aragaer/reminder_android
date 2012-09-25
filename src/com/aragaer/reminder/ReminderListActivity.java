@@ -98,7 +98,7 @@ public class ReminderListActivity extends Activity {
         dlg.setOnDismissListener(new OnDismissListener() {
             public void onDismiss(DialogInterface dialog) {
                 Bitmap res = ((DrawView) ((Dialog) dialog).findViewById(R.id.draw)).getBitmap();
-                adapter.add(ReminderItem.createNow(res));
+                adapter.insert(ReminderItem.createNow(res), 0);
             }
         });
         return dlg;
