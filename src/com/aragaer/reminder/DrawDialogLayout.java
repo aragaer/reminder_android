@@ -2,13 +2,12 @@ package com.aragaer.reminder;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
 public class DrawDialogLayout extends ViewGroup {
     boolean horizontal;
-    int padding_x = 0, padding_y = 0;
+    int padding_x = 0, padding_y = 0, grid_s = 0;
 
     public DrawDialogLayout(Context context) {
         this(context, null);
@@ -47,10 +46,12 @@ public class DrawDialogLayout extends ViewGroup {
             spec = MeasureSpec.makeMeasureSpec(space_w, MeasureSpec.AT_MOST);
             my_w = space_w + extra_w;
             my_h = Math.max(space_w, extra_h);
+            grid_s = space_w;
         } else {
             spec = MeasureSpec.makeMeasureSpec(space_h, MeasureSpec.AT_MOST);
             my_w = Math.max(space_h, extra_w);
             my_h = space_h + extra_h;
+            grid_s = space_h;
         }
         padding_x = w - my_w;
         padding_y = h - my_h;
@@ -58,7 +59,7 @@ public class DrawDialogLayout extends ViewGroup {
         setMeasuredDimension(w, h);
     }
 
-    protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         if (!changed)
             return;
         final View grid = getChildAt(0), chk = getChildAt(1), btn = getChildAt(2);
@@ -71,20 +72,22 @@ public class DrawDialogLayout extends ViewGroup {
             top += py;
             bottom -= py;
             h -= padding_y;
-            grid.layout(left, top, left + h, bottom);
+            int grid_pad = (h - grid_s) / 2;
+            grid.layout(left, top + grid_pad, left + h, bottom - grid_pad);
             left += px;
-            chk.layout(left + h, top + py, right, top + chk_h);
-            btn.layout(left + h, top + chk_h, right, top + chk_h + btn.getMeasuredHeight());
+            chk.layout(left + grid_s, top + py, right, top + chk_h);
+            btn.layout(left + grid_s, top + chk_h, right, top + chk_h + btn.getMeasuredHeight());
         } else {
             int px = padding_x / 2, py = padding_y / 2;
             left += px;
             right -= px;
             top += py;
             w -= padding_x;
-            grid.layout(left, top, right, top + w);
+            int grid_pad = (w - grid_s) / 2;
+            grid.layout(left + grid_pad, top, right - grid_pad, top + w);
             top += py;
-            chk.layout(left, top + w, right, top + w + chk_h);
-            btn.layout(left, top + w + chk_h, right, bottom);
+            chk.layout(left, top + grid_s, right, top + grid_s + chk_h);
+            btn.layout(left, top + grid_s + chk_h, right, bottom);
         }
     }
 }
