@@ -16,6 +16,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -33,6 +36,7 @@ public class ReminderListActivity extends Activity {
     ListView list;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startService(new Intent(this, ReminderService.class));
         list = new ListView(this);
         adapter = new ArrayAdapter<ReminderItem>(this, android.R.layout.activity_list_item) {
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -58,17 +62,19 @@ public class ReminderListActivity extends Activity {
                 }
             }
         });
-//        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-//            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
-//                if (id + 1 == adapter.getCount())
-//                    return false;
-//                Log.d("Reminder", "long clickety " + id);
-//                return true;
-//            }
-//        });
+
         registerForContextMenu(list);
         list.setAdapter(adapter);
 
+        db = new ReminderDB(this);
+        for (ReminderItem item : db.getAllMemos())
+            adapter.add(item);
+
+        adapter.add(new ReminderItem(add_new_bmp(this), getString(R.string.add_new)));
+        setContentView(list);
+    }
+
+    static public Bitmap add_new_bmp(Context ctx) {
         Bitmap b = Bitmap.createBitmap(50, 50, Config.ARGB_8888);
         Canvas c = new Canvas(b);
         Paint p = new Paint(0x07);
@@ -78,16 +84,10 @@ public class ReminderListActivity extends Activity {
         Rect bounds = new Rect();
         p.getTextBounds("+", 0, 1, bounds);
         c.drawText("+", 25 - bounds.centerX(), 25 - bounds.centerY(), p);
-        Drawable d = getResources().getDrawable(R.drawable.new_glyph);
-        d.setBounds(0, 0, 50, 50);
+        Drawable d = ctx.getResources().getDrawable(R.drawable.new_glyph);
+        d.setBounds(0, 0, 49, 49);
         d.draw(c);
-
-        db = new ReminderDB(this);
-        for (ReminderItem item : db.getAllMemos())
-            adapter.add(item);
-
-        adapter.add(new ReminderItem(b, getString(R.string.add_new)));
-        setContentView(list);
+        return b;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

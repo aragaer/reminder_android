@@ -22,6 +22,7 @@ public class ReminderViewActivity extends Activity {
         super.onCreate(savedInstanceState);
         db = new ReminderDB(this);
 
+        Log.d("VIEW", "Got "+getIntent().getLongExtra("reminder_id", -1));
         if (savedInstanceState != null)
             memo = db.getMemo(savedInstanceState.getLong("reminder_id"));
         else
