@@ -1,10 +1,12 @@
 package com.aragaer.reminder;
 
-import java.text.SimpleDateFormat;
-
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -14,8 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -47,22 +48,25 @@ public class ReminderListActivity extends Activity {
             };
         };
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
-                if (id + 1 == adapter.getCount()) {
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position,	long id) {
+                if (id + 1 == adapter.getCount())
                     showDialog(GLYPH_DIALOG_ID, null);
-                } else {
-                    Log.d("Reminder", "clickety " + id);
+                else {
+                    Intent i = new Intent(ReminderListActivity.this, ReminderViewActivity.class);
+                    i.putExtra("reminder_id", adapter.getItem(position)._id);
+                    startActivityForResult(i, 0);
                 }
             }
         });
-        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
-                if (id + 1 == adapter.getCount())
-                    return false;
-                Log.d("Reminder", "long clickety " + id);
-                return true;
-            }
-        });
+//        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,	long id) {
+//                if (id + 1 == adapter.getCount())
+//                    return false;
+//                Log.d("Reminder", "long clickety " + id);
+//                return true;
+//            }
+//        });
+        registerForContextMenu(list);
         list.setAdapter(adapter);
 
         Bitmap b = Bitmap.createBitmap(50, 50, Config.ARGB_8888);
@@ -86,6 +90,33 @@ public class ReminderListActivity extends Activity {
         setContentView(list);
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == ReminderViewActivity.MEMO_DELETED) {
+            long id = data.getLongExtra("reminder_id", 0);
+            for (int i = 0; i < adapter.getCount(); i++) {
+                final ReminderItem item = adapter.getItem(i);
+                if (item._id == id) {
+                    adapter.remove(item);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuItem item = menu.add(R.string.delete);
+        final View view = v;
+        item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.d("LONG", view.toString());
+                return true;
+            }
+        });
+    }
+
     protected Dialog onCreateDialog(int id, Bundle data) {
         final Dialog dlg = new Dialog(this);
         dlg.setTitle(R.string.add_new);
@@ -102,5 +133,11 @@ public class ReminderListActivity extends Activity {
             }
         });
         return dlg;
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+
+        db.close();
     }
 }

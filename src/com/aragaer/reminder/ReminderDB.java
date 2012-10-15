@@ -61,6 +61,10 @@ public class ReminderDB {
         }
     }
 
+    public void close() {
+        db.close();
+    }
+
     public synchronized List<ReminderItem> getAllMemos() {
         List<ReminderItem> result = new ArrayList<ReminderItem>();
         Cursor c = db.query("memo", null, null, null, null, null, null);
@@ -69,7 +73,21 @@ public class ReminderDB {
         while (c.moveToNext()) {
             byte bb[] = c.getBlob(1);
             Bitmap glyph = BitmapFactory.decodeByteArray(bb, 0, bb.length);
-            result.add(new ReminderItem(glyph, c.getString(2), new Date(c.getLong(3))));
+            result.add(new ReminderItem(c.getLong(0), glyph, c.getString(2), new Date(c.getLong(3))));
+        }
+        c.close();
+        return result;
+    }
+
+    public synchronized ReminderItem getMemo(long id) {
+        ReminderItem result = null;
+        Cursor c = db.query("memo", null, "_id=?", new String[] {String.format("%d", id)}, null, null, null);
+        if (c == null)
+            return null;
+        if (c.moveToNext()) {
+            byte bb[] = c.getBlob(1);
+            Bitmap glyph = BitmapFactory.decodeByteArray(bb, 0, bb.length);
+            result = new ReminderItem(c.getLong(0), glyph, c.getString(2), new Date(c.getLong(3)));
         }
         c.close();
         return result;
@@ -82,7 +100,15 @@ public class ReminderDB {
         row.put("glyph", bos.toByteArray());
         row.put("comment", item.text);
         row.put("date", item.when.getTime());
-        db.insert("memo", null, row);
+        item._id = db.insert("memo", null, row);
+    }
+
+    public synchronized void deleteMemo(ReminderItem item) {
+        deleteMemo(item._id);
+    }
+
+    public synchronized void deleteMemo(long id) {
+        db.delete("memo", "_id=?", new String[] {String.format("%d", id)});
     }
 
     static boolean createDB(SQLiteDatabase db) {

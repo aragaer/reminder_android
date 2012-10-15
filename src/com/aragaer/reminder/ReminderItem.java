@@ -6,6 +6,7 @@ import java.util.Date;
 import android.graphics.Bitmap;
 
 class ReminderItem {
+    long _id = -1;
     Bitmap glyph;
     String text;
     Date when;
@@ -21,6 +22,13 @@ class ReminderItem {
     }
 
     public ReminderItem(Bitmap b, String s, Date w) {
+        glyph = b;
+        text = s;
+        when = w;
+    }
+
+    public ReminderItem(long id, Bitmap b, String s, Date w) {
+        _id = id;
         glyph = b;
         text = s;
         when = w;
