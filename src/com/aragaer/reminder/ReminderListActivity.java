@@ -38,6 +38,7 @@ public class ReminderListActivity extends Activity {
         super.onCreate(savedInstanceState);
         startService(new Intent(this, ReminderService.class));
         list = new ListView(this);
+        list.setId(1);
         adapter = new ArrayAdapter<ReminderItem>(this, android.R.layout.activity_list_item) {
             public View getView(int position, View convertView, ViewGroup parent) {
                 ReminderItem item = getItem(position);
@@ -45,7 +46,7 @@ public class ReminderListActivity extends Activity {
                     return null;
                 if (convertView == null)
                     convertView = ViewGroup.inflate(parent.getContext(), android.R.layout.activity_list_item, null);
-                ((ImageView) convertView.findViewById(android.R.id.icon)).setImageBitmap(item.glyph);
+                ((ImageView) convertView.findViewById(android.R.id.icon)).setImageBitmap(item.getGlyph(30));
                 ((TextView) convertView.findViewById(android.R.id.text1)).setText(item.getText());
 
                 return convertView;

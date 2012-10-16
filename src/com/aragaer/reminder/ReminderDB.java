@@ -1,6 +1,5 @@
 package com.aragaer.reminder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,8 +12,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
@@ -70,11 +67,8 @@ public class ReminderDB {
         Cursor c = db.query("memo", null, null, null, null, null, null);
         if (c == null)
             return null;
-        while (c.moveToNext()) {
-            byte bb[] = c.getBlob(1);
-            Bitmap glyph = BitmapFactory.decodeByteArray(bb, 0, bb.length);
-            result.add(new ReminderItem(c.getLong(0), glyph, c.getString(2), new Date(c.getLong(3))));
-        }
+        while (c.moveToNext())
+            result.add(new ReminderItem(c.getLong(0), c.getBlob(1), c.getString(2), new Date(c.getLong(3))));
         c.close();
         return result;
     }
@@ -84,20 +78,15 @@ public class ReminderDB {
         Cursor c = db.query("memo", null, "_id=?", new String[] {String.format("%d", id)}, null, null, null);
         if (c == null)
             return null;
-        if (c.moveToNext()) {
-            byte bb[] = c.getBlob(1);
-            Bitmap glyph = BitmapFactory.decodeByteArray(bb, 0, bb.length);
-            result = new ReminderItem(c.getLong(0), glyph, c.getString(2), new Date(c.getLong(3)));
-        }
+        if (c.moveToNext())
+            result = new ReminderItem(c.getLong(0), c.getBlob(1), c.getString(2), new Date(c.getLong(3)));
         c.close();
         return result;
     }
 
     public void storeMemo(ReminderItem item) {
         ContentValues row = new ContentValues();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        item.glyph.compress(Bitmap.CompressFormat.PNG, 100, bos);
-        row.put("glyph", bos.toByteArray());
+        row.put("glyph", item.glyph_data);
         row.put("comment", item.text);
         row.put("date", item.when.getTime());
         item._id = db.insert("memo", null, row);

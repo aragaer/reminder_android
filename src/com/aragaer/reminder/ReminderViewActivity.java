@@ -10,13 +10,14 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
 
 public class ReminderViewActivity extends Activity {
     public static final int MEMO_DELETED = 10;
 
     ReminderDB db;
     ReminderItem memo = null;
-    View glyph_view;
+    ImageView glyph_view;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,8 +28,8 @@ public class ReminderViewActivity extends Activity {
             memo = db.getMemo(savedInstanceState.getLong("reminder_id"));
         else
             memo = db.getMemo(getIntent().getLongExtra("reminder_id", 0));
-        glyph_view = new View(this);
-        glyph_view.setBackgroundDrawable(new BitmapDrawable(memo.glyph));
+        glyph_view = new ImageView(this);
+        glyph_view.setImageBitmap(memo.getGlyph(100));
         glyph_view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         setContentView(glyph_view);
