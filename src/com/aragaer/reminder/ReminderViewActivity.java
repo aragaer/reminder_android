@@ -52,6 +52,7 @@ public class ReminderViewActivity extends Activity {
         delete.setOnMenuItemClickListener(new OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
                 db.deleteMemo(memo);
+                startService(new Intent("com.aragaer.reminder.ReminderUpdate"));
                 Intent i = new Intent();
                 i.putExtra("reminder_id", memo._id);
                 ReminderViewActivity.this.setResult(MEMO_DELETED, i);

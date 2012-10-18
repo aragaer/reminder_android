@@ -131,6 +131,7 @@ public class ReminderListActivity extends Activity {
                 ReminderItem item = new ReminderItem(res);
                 db.storeMemo(item);
                 adapter.insert(item, 0);
+                startService(new Intent("com.aragaer.reminder.ReminderUpdate"));
             }
         });
         return dlg;
