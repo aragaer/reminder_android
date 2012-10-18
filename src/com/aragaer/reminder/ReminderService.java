@@ -8,16 +8,20 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.RemoteViews;
 
-public class ReminderService extends Service {
-    private static final boolean multiple_intents = Build.VERSION.SDK_INT > 13; // ICS+
+public class ReminderService extends Service implements View.OnTouchListener {
     private static final int intent_flags = Intent.FLAG_ACTIVITY_NEW_TASK
             | Intent.FLAG_ACTIVITY_CLEAR_TOP
             | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
+    static boolean window_created = false;
 
     public IBinder onBind(Intent i) {
         return null;
@@ -34,11 +38,13 @@ public class ReminderService extends Service {
         return START_STICKY;
     }
 
+    private static View click_catcher;
+    static float x = -1;
     private void handleCommand(Intent command) {
+        int color = Color.BLACK; // FIXME: remove this later
         Notification n = new Notification(R.drawable.new_glyph,
                 getString(R.string.app_name), System.currentTimeMillis());
-        RemoteViews rv = new RemoteViews(getPackageName(),
-                R.layout.notification);
+        RemoteViews rv = new RemoteViews(getPackageName(), R.layout.notification);
         rv.removeAllViews(R.id.wrap);
 
         final List<ReminderItem> list = new ReminderDB(this).getAllMemos();
@@ -48,26 +54,27 @@ public class ReminderService extends Service {
         for (ReminderItem item : list) {
             final RemoteViews image = new RemoteViews(getPackageName(),
                     R.layout.image);
-            if (multiple_intents) {
-                final Intent i = new Intent(this, ReminderViewActivity.class);
-                i.addFlags(intent_flags);
-                i.putExtra("reminder_id", item._id);
-                i.setAction("View " + item._id);
-                final PendingIntent pi = PendingIntent.getActivity(this, 0, i,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-                image.setOnClickPendingIntent(R.id.image, pi);
-            }
             image.setImageViewBitmap(R.id.image, item.getGlyph(40));
+            image.setInt(R.id.image, "setColorFilter", color);
             rv.addView(R.id.wrap, image);
         }
         n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
         n.contentView = rv;
-        if (!multiple_intents) {
-            final Intent i = new Intent(this, ReminderListActivity.class);
-            i.addFlags(intent_flags);
-            n.contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+        final Intent i = new Intent(this, ReminderListActivity.class);
+        i.addFlags(intent_flags);
+        n.contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+        if (!window_created) {
+//          WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+//          WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+//          WindowManager.LayoutParams
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams(1, 1, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, 0x50128, -3);
+            lp.gravity = Gravity.LEFT | Gravity.TOP;
+            lp.x = 0;
+            click_catcher = new View(this);
+            click_catcher.setOnTouchListener(this);
+            ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).addView(click_catcher, lp);
+            window_created = true;
         }
-
         final String action = command.getAction();
         if (action == null
                 || action.equals("com.aragaer.reminder.ServiceStart")) {
@@ -76,5 +83,14 @@ public class ReminderService extends Service {
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
                     .notify(1, n);
         }
+    }
+
+    public void onDestroy() {
+        ((WindowManager) getSystemService("window")).removeView(click_catcher);
+    }
+
+    public boolean onTouch(View v, MotionEvent event) {
+        x = event.getX();
+        return false;
     }
 }
