@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="notification_glyph_size">64dip</dimen>
+    <dimen name="notification_glyph_margin">2dip</dimen>
+    <dimen name="notification_height">64dip</dimen>
 </resources>

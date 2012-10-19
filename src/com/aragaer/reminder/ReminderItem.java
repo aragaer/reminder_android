@@ -14,8 +14,7 @@ class ReminderItem {
 	String text;
 	Date when;
 
-	static final SimpleDateFormat df = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
+	static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public ReminderItem(Bitmap b) {
 		this(b, null, new Date());

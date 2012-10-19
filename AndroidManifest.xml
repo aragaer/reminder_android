@@ -40,6 +40,9 @@
                 <action android:name="com.aragaer.reminder.ReminderUpdate" />
             </intent-filter>
         </service>
+        <provider
+            android:name=".ReminderProvider"
+            android:authorities="com.aragaer.reminder.provider" />
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.aragaer.reminder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Notification;
@@ -8,6 +9,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.IBinder;
 import android.util.Log;
@@ -41,14 +44,18 @@ public class ReminderService extends Service implements View.OnTouchListener {
     private static View click_catcher;
     static float x = -1;
     private void handleCommand(Intent command) {
-    	int size = getResources().getDimensionPixelSize(R.dimen.notification_glyph_size);
-        int color = Color.argb(192, 0, 0, 0); // FIXME: remove this later
-        Notification n = new Notification(R.drawable.new_glyph,
+        Resources r = getResources(); 
+    	int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2 * r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
+        int color = Color.parseColor(getString(R.color.simple)); // FIXME: remove this later
+        Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
+        final List<ReminderItem> list = ReminderProvider.getAll(cursor);
+        cursor.close();
+
+        Notification n = new Notification(list.isEmpty() ? R.drawable.notify : R.drawable.notify_reminder,
                 getString(R.string.app_name), System.currentTimeMillis());
         RemoteViews rv = new RemoteViews(getPackageName(), R.layout.notification);
         rv.removeAllViews(R.id.wrap);
 
-        final List<ReminderItem> list = new ReminderDB(this).getAllMemos();
         list.add(new ReminderItem(ReminderListActivity.add_new_bmp(this),
                 getString(R.string.add_new)));
 
@@ -77,7 +84,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
             ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).addView(click_catcher, lp);
             window_created = true;
         }
-        final String action = command.getAction();
+        final String action = command == null ? null : command.getAction();
         if (action == null
                 || action.equals("com.aragaer.reminder.ServiceStart")) {
             startForeground(1, n);

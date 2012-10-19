@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="notification_glyph_size">@android:dimen/notification_large_icon_height</dimen>
+    <dimen name="notification_height">@android:dimen/notification_large_icon_height</dimen>
 </resources>
