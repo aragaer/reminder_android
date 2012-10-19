@@ -55,7 +55,6 @@ class ReminderItem {
 		Bitmap glyph = BitmapFactory.decodeByteArray(glyph_data, 0,
 				glyph_data.length);
 		Bitmap result = Bitmap.createScaledBitmap(glyph, size, size, true);
-		glyph.recycle();
 		return result;
 	}
 

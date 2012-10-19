@@ -76,17 +76,18 @@ public class ReminderListActivity extends Activity {
     }
 
     static public Bitmap add_new_bmp(Context ctx) {
-        Bitmap b = Bitmap.createBitmap(50, 50, Config.ARGB_8888);
+    	int size = ctx.getResources().getDimensionPixelSize(R.dimen.notification_glyph_size);
+        Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
         Canvas c = new Canvas(b);
         Paint p = new Paint(0x07);
-        p.setTextSize(50f);
+        p.setTextSize(size);
         p.setColor(Color.WHITE);
         p.setShadowLayer(1, 0, 0, Color.BLACK);
         Rect bounds = new Rect();
         p.getTextBounds("+", 0, 1, bounds);
-        c.drawText("+", 25 - bounds.centerX(), 25 - bounds.centerY(), p);
+        c.drawText("+", size/2 - bounds.centerX(), size/2 - bounds.centerY(), p);
         Drawable d = ctx.getResources().getDrawable(R.drawable.new_glyph);
-        d.setBounds(0, 0, 49, 49);
+        d.setBounds(0, 0, size, size);
         d.draw(c);
         return b;
     }

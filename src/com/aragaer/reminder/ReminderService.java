@@ -41,7 +41,8 @@ public class ReminderService extends Service implements View.OnTouchListener {
     private static View click_catcher;
     static float x = -1;
     private void handleCommand(Intent command) {
-        int color = Color.BLACK; // FIXME: remove this later
+    	int size = getResources().getDimensionPixelSize(R.dimen.notification_glyph_size);
+        int color = Color.argb(192, 0, 0, 0); // FIXME: remove this later
         Notification n = new Notification(R.drawable.new_glyph,
                 getString(R.string.app_name), System.currentTimeMillis());
         RemoteViews rv = new RemoteViews(getPackageName(), R.layout.notification);
@@ -54,11 +55,12 @@ public class ReminderService extends Service implements View.OnTouchListener {
         for (ReminderItem item : list) {
             final RemoteViews image = new RemoteViews(getPackageName(),
                     R.layout.image);
-            image.setImageViewBitmap(R.id.image, item.getGlyph(40));
+            image.setImageViewBitmap(R.id.image, item.getGlyph(size));
             image.setInt(R.id.image, "setColorFilter", color);
             rv.addView(R.id.wrap, image);
         }
         n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
+
         n.contentView = rv;
         final Intent i = new Intent(this, ReminderListActivity.class);
         i.addFlags(intent_flags);
