@@ -1,27 +1,7 @@
 package com.aragaer.reminder;
 
-import java.sql.Date;
-
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CursorAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -35,11 +15,25 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.CursorAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 
 public class ReminderListActivity extends Activity {
     static final int GLYPH_DIALOG_ID = 1;
-    CursorAdapter adapter;
     ListView list;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startService(new Intent(this, ReminderService.class));
@@ -47,12 +41,14 @@ public class ReminderListActivity extends Activity {
         list.setId(1);
 
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position,	long id) {
-                if (id + 1 == adapter.getCount())
+            public void onItemClick(AdapterView<?> adapter, View arg1,
+                    int position, long id) {
+                if (position + 1 == adapter.getCount())
                     showDialog(GLYPH_DIALOG_ID, null);
                 else {
-                    Intent i = new Intent(ReminderListActivity.this, ReminderViewActivity.class);
-                    i.putExtra("reminder_id", adapter.getItemId(position));
+                    Intent i = new Intent(ReminderListActivity.this,
+                            ReminderViewActivity.class);
+                    i.putExtra("reminder_id", id);
                     startActivityForResult(i, 0);
                 }
             }
@@ -60,38 +56,53 @@ public class ReminderListActivity extends Activity {
 
         registerForContextMenu(list);
 
-        final ReminderItem add_new = new ReminderItem(add_new_bmp(this), getString(R.string.add_new));
-        adapter = new CursorAdapter(this, managedQuery(ReminderProvider.content_uri, null, null, null, null)) {
-            public int getCount() {
-                return getCursor().getCount() + 1;
-            }
-
-            public View getView(int position, View view, ViewGroup parent) {
-                if (view == null)
-                    view = ViewGroup.inflate(parent.getContext(), android.R.layout.activity_list_item, null);
-                ReminderItem item;
-                final Cursor c = getCursor();
-                if (position == c.getCount())
-                    item = add_new;
-                else {
-                    c.moveToPosition(position);
-                    item = ReminderProvider.getItem(c);
-                }
-                ((ImageView) view.findViewById(android.R.id.icon)).setImageBitmap(item.getGlyph(50));
-                ((TextView) view.findViewById(android.R.id.text1)).setText(item.getText());
-                return view;
-            }
-            public void bindView(View view, Context context, Cursor cursor) { }
-            public View newView(Context context, Cursor cursor, ViewGroup parent) { return null; }
-        };
-
-        list.setAdapter(adapter);
+        list.setAdapter(new ExtraAdapter(this, managedQuery(
+                ReminderProvider.content_uri, null, null, null, null)));
         setContentView(list);
+    }
+
+    static class ExtraAdapter extends CursorAdapter {
+        ReminderItem add_new;
+
+        public ExtraAdapter(Context context, Cursor c) {
+            super(context, c);
+            add_new = new ReminderItem(add_new_bmp(context),
+                    context.getString(R.string.add_new));
+        }
+
+        public int getCount() {
+            return getCursor().getCount() + 1;
+        }
+
+        public View getView(int position, View view, ViewGroup parent) {
+            if (view == null)
+                view = ViewGroup.inflate(parent.getContext(),
+                        android.R.layout.activity_list_item, null);
+            ReminderItem item;
+            final Cursor c = getCursor();
+            if (position == c.getCount())
+                item = add_new;
+            else {
+                c.moveToPosition(position);
+                item = ReminderProvider.getItem(c);
+            }
+            ((ImageView) view.findViewById(android.R.id.icon)).setImageBitmap(item.getGlyph(50));
+            ((TextView) view.findViewById(android.R.id.text1)).setText(item.getText());
+            return view;
+        }
+
+        public void bindView(View view, Context context, Cursor cursor) {
+        }
+
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            return null;
+        }
     }
 
     static public Bitmap add_new_bmp(Context ctx) {
         Resources r = ctx.getResources();
-    	int size =  r.getDimensionPixelSize(R.dimen.notification_height) - 2 * r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
+        int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
+                * r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
         Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
         Canvas c = new Canvas(b);
         Paint p = new Paint(0x07);
@@ -100,7 +111,8 @@ public class ReminderListActivity extends Activity {
         p.setShadowLayer(1, 0, 0, Color.BLACK);
         Rect bounds = new Rect();
         p.getTextBounds("+", 0, 1, bounds);
-        c.drawText("+", size/2 - bounds.centerX(), size/2 - bounds.centerY(), p);
+        c.drawText("+", size / 2 - bounds.centerX(),
+                size / 2 - bounds.centerY(), p);
         Drawable d = ctx.getResources().getDrawable(R.drawable.new_glyph);
         d.setBounds(0, 0, size, size);
         d.draw(c);

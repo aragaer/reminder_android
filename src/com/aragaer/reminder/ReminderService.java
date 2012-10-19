@@ -46,7 +46,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
     private void handleCommand(Intent command) {
         Resources r = getResources(); 
     	int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2 * r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
-        int color = Color.parseColor(getString(R.color.simple)); // FIXME: remove this later
+        int color = Color.argb(128, 0, 0, 0); // FIXME: remove this later
         Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
         final List<ReminderItem> list = ReminderProvider.getAll(cursor);
         cursor.close();
