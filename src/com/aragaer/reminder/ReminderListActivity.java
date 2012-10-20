@@ -22,12 +22,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -56,7 +59,13 @@ public class ReminderListActivity extends Activity {
         });
 
         registerForContextMenu(list);
-
+        list.setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> adapter, View v, int position, long id) {
+				if (position + 1 != adapter.getCount())
+					list.showContextMenu();
+				return true;
+			}
+		});
         Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
         list.setAdapter(new ExtraAdapter(this, cursor));
         setContentView(list);
@@ -126,18 +135,28 @@ public class ReminderListActivity extends Activity {
         return b;
     }
 
+    private static final int DELETE = 1;
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        MenuItem item = menu.add(R.string.delete);
-        final View view = v;
-        item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                Log.d("LONG", view.toString());
-                return true;
-            }
-        });
+        menu.add(Menu.NONE, DELETE, Menu.NONE, R.string.delete);
     }
+
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case DELETE:
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
+					.getMenuInfo();
+			if (info == null) {
+				Log.e("WAT", "info is null!!");
+				break;
+			}
+			getContentResolver().delete(ReminderProvider.content_uri, "_id=?",
+					new String[] { String.format("%d", info.id) });
+			break;
+		}
+		return true;
+	}
 
 	public void onDestroy() {
 		super.onDestroy();

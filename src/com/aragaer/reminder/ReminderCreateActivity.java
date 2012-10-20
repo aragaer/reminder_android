@@ -24,6 +24,7 @@ public class ReminderCreateActivity extends Activity {
 
 		chk = new CheckBox(this);
 		chk.setText(R.string.add_extra);
+		chk.setEnabled(false);
 		chk.setId(2);
 
 		Button btn = new Button(this);

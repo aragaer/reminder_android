@@ -62,9 +62,8 @@ public class ReminderService extends Service implements View.OnTouchListener {
 			click_catcher.setOnTouchListener(this);
 			((WindowManager) getSystemService(Context.WINDOW_SERVICE)).addView(click_catcher, lp);
 			window_created = true;
-
-			registerReceiver(update, new IntentFilter(ReminderProvider.UPDATE_ACTION));
 		}
+		registerReceiver(update, new IntentFilter(ReminderProvider.UPDATE_ACTION));
 		startForeground(1, buildNotification(this));
 	}
 
@@ -119,7 +118,6 @@ public class ReminderService extends Service implements View.OnTouchListener {
 			rv.removeAllViews(R.id.wrap);
 
 			final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
-			Log.d("NOTIFICATION", String.format("Height %d, padding %dx2, size %d", height, padding, size));
 			Bitmap bmp = Bitmap.createBitmap(height * list.size() - padding * 2, size, Config.ARGB_8888);
 			Canvas c = new Canvas(bmp);
 			Paint p = new Paint(0x7);

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Back of the Hand</string>
+    <string name="app_name">Fleeting Memo</string>
     <string name="title_activity_main">Reminder</string>
     <string name="add_new">Create new reminder</string>
     <string name="add_extra">Add extra description</string>

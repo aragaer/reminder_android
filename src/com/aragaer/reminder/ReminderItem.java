@@ -24,7 +24,7 @@ class ReminderItem {
 		this(b, s, new Date());
 	}
 
-	private byte[] bitmap_to_bytes(Bitmap b) {
+	private static byte[] bitmap_to_bytes(Bitmap b) {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		b.compress(Bitmap.CompressFormat.PNG, 100, bos);
 		byte bb[] = bos.toByteArray();
