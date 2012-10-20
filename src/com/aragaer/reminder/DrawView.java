@@ -48,6 +48,11 @@ class DrawView extends View implements OnTouchListener {
         return bmp;
     }
 
+	public void setBitmap(Bitmap b) {
+		bmp = b;
+		c = new Canvas(bmp);
+	}
+
     protected void onMeasure(int w, int h) {
         size = Math.min(MeasureSpec.getSize(w), MeasureSpec.getSize(h)) - 1;
         size -= size % 4;

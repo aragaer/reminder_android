@@ -9,6 +9,7 @@ import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -21,6 +22,10 @@ import android.util.Log;
 
 public class ReminderProvider extends ContentProvider {
     private static final int DATABASE_VERSION = 1;
+
+    public static final String UPDATE_ACTION = "com.aragaer.reminder.ReminderUpdate";
+
+    static final Intent update_broadcast = new Intent(UPDATE_ACTION);
 
     public static final Uri content_uri =  Uri.parse("content://com.aragaer.reminder.provider/reminder");
 
@@ -36,17 +41,25 @@ public class ReminderProvider extends ContentProvider {
         uri_matcher.addURI("com.aragaer.reminder.provider", "reminder", REMINDER_CODE);
         uri_matcher.addURI("com.aragaer.reminder.provider", "reminder/#", REMINDER_WITH_ID);
     }
-    
-    public int delete(Uri uri, String arg1, String[] arg2) {
-        switch (uri_matcher.match(uri)) {
-        case REMINDER_WITH_ID:
-            Log.d(TAG, "Deleting item "+ContentUris.parseId(uri));
-        default:
-            Log.e(TAG, "Unknown URI requested: "+uri);
-            break;
-        }
-        return 0;
+
+    void notifyChange() {
+        getContext().sendBroadcast(update_broadcast);
     }
+
+	public int delete(Uri uri, String arg1, String[] arg2) {
+		int result = 0;
+		switch (uri_matcher.match(uri)) {
+		case REMINDER_CODE:
+			result = db.delete("memo", arg1 == null ? "1" : arg1, arg2);
+			if (result != 0)
+				notifyChange();
+			break;
+		default:
+			Log.e(TAG, "Unknown URI requested: " + uri);
+			break;
+		}
+		return result;
+	}
 
     public String getType(Uri arg0) {
         return null;
@@ -56,6 +69,8 @@ public class ReminderProvider extends ContentProvider {
         switch (uri_matcher.match(uri)) {
         case REMINDER_CODE:
             long id = db.insert("memo", null, arg1);
+            if (id != -1)
+				notifyChange();
             return ContentUris.withAppendedId(content_uri, id);
         default:
             Log.e(TAG, "Unknown URI requested: "+uri);

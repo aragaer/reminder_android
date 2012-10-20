@@ -1,0 +1,29 @@
+package com.aragaer.reminder;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+
+public class ReminderCatcher extends Activity {
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		int glyph_width = getResources().getDimensionPixelSize(R.dimen.notification_height);
+		int position = (int) ReminderService.x / glyph_width;
+		Log.d("CATCH", String.format("Got x = %f, width = %d, position = %d", ReminderService.x, glyph_width, position));
+		Intent i;
+		if (ReminderService.list == null || position > ReminderService.list.size())
+			i = new Intent(this, ReminderListActivity.class);
+		else {
+			final ReminderItem item = ReminderService.list.get(position);
+			if (item._id == -1)
+				i = new Intent(this, ReminderCreateActivity.class);
+			else {
+				i = new Intent(this, ReminderViewActivity.class);
+                i.putExtra("reminder_id", item._id);
+			}
+		}
+		startActivity(i);
+		finish();
+	}
+}

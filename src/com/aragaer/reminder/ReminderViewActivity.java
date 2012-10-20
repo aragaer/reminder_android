@@ -1,15 +1,12 @@
 package com.aragaer.reminder;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
@@ -23,7 +20,6 @@ public class ReminderViewActivity extends Activity {
         long id;
         super.onCreate(savedInstanceState);
 
-        Log.d("VIEW", "Got "+getIntent().getLongExtra("reminder_id", -1));
         if (savedInstanceState != null)
             id = savedInstanceState.getLong("reminder_id");
         else
@@ -32,8 +28,10 @@ public class ReminderViewActivity extends Activity {
         c.moveToFirst();
         memo = ReminderProvider.getItem(c);
         c.close();
+
+        DisplayMetrics dm = getResources().getDisplayMetrics();
         glyph_view = new ImageView(this);
-        glyph_view.setImageBitmap(memo.getGlyph(100));
+        glyph_view.setImageBitmap(memo.getGlyph(dm.widthPixels));
         glyph_view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         setContentView(glyph_view);
@@ -41,8 +39,7 @@ public class ReminderViewActivity extends Activity {
 
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (memo != null)
-            outState.putLong("reminder_id", memo._id);
+        outState.putLong("reminder_id", memo._id);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -50,10 +47,6 @@ public class ReminderViewActivity extends Activity {
         delete.setOnMenuItemClickListener(new OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
                 getContentResolver().delete(ReminderProvider.content_uri, "_id=?", new String[] {String.format("%d", memo._id)});
-                startService(new Intent("com.aragaer.reminder.ReminderUpdate"));
-                Intent i = new Intent();
-                i.putExtra("reminder_id", memo._id);
-                ReminderViewActivity.this.setResult(MEMO_DELETED, i);
                 ReminderViewActivity.this.finish();
                 return true;
             }

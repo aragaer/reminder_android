@@ -2,6 +2,7 @@ package com.aragaer.reminder;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -65,6 +66,11 @@ public class DrawDialogLayout extends ViewGroup {
         final View grid = getChildAt(0), chk = getChildAt(1), btn = getChildAt(2);
         int w = right - left, h = bottom - top;
         int chk_h = chk.getMeasuredHeight();
+
+        // I'm really expecting top to be 0!
+        bottom -= top;
+        top = 0;
+
         if (horizontal) {
             int px = padding_x / 3, py = padding_y / 2;
             left += px;
@@ -85,9 +91,12 @@ public class DrawDialogLayout extends ViewGroup {
             w -= padding_x;
             int grid_pad = (w - grid_s) / 2;
             grid.layout(left + grid_pad, top, right - grid_pad, top + w);
+            Log.d("LAYOUT", String.format("Grid took %d:%d-%d:%d", left + grid_pad, top, right - grid_pad, top + w));
             top += py;
             chk.layout(left, top + grid_s, right, top + grid_s + chk_h);
+            Log.d("LAYOUT", String.format("Chk took %d:%d-%d:%d", left, top + grid_s, right, top + grid_s + chk_h));
             btn.layout(left, top + grid_s + chk_h, right, bottom);
+            Log.d("LAYOUT", String.format("Btn took %d:%d-%d:%d", left, top + grid_s + chk_h, right, bottom));
         }
     }
 }
