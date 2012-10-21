@@ -54,10 +54,8 @@ public class ReminderListActivity extends Activity {
 
         registerForContextMenu(list);
         list.setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> adapter, View v, int position, long id) {
-				if (position + 1 != adapter.getCount())
-					list.showContextMenu();
-				return true;
+			public boolean onItemLongClick(AdapterView<?> list, View v, int position, long id) {
+				return position + 1 == list.getCount(); // intercept long press for "add new"
 			}
 		});
         Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
@@ -141,10 +139,6 @@ public class ReminderListActivity extends Activity {
 		case DELETE:
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
 					.getMenuInfo();
-			if (info == null) {
-				Log.e("WAT", "info is null!!");
-				break;
-			}
 			getContentResolver().delete(ReminderProvider.content_uri, "_id=?",
 					new String[] { String.format("%d", info.id) });
 			break;
