@@ -91,12 +91,9 @@ public class DrawDialogLayout extends ViewGroup {
             w -= padding_x;
             int grid_pad = (w - grid_s) / 2;
             grid.layout(left + grid_pad, top, right - grid_pad, top + w);
-            Log.d("LAYOUT", String.format("Grid took %d:%d-%d:%d", left + grid_pad, top, right - grid_pad, top + w));
             top += py;
             chk.layout(left, top + grid_s, right, top + grid_s + chk_h);
-            Log.d("LAYOUT", String.format("Chk took %d:%d-%d:%d", left, top + grid_s, right, top + grid_s + chk_h));
             btn.layout(left, top + grid_s + chk_h, right, bottom);
-            Log.d("LAYOUT", String.format("Btn took %d:%d-%d:%d", left, top + grid_s + chk_h, right, bottom));
         }
     }
 }
