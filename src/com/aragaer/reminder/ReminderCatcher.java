@@ -21,6 +21,9 @@ public class ReminderCatcher extends Activity {
                 i.putExtra("reminder_id", item._id);
 			}
 		}
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+				| Intent.FLAG_ACTIVITY_CLEAR_TOP
+				| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 		startActivity(i);
 		finish();
 	}
