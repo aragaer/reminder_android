@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -75,9 +76,13 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		int padding = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		int size = height - padding * 2;
 		int color = Color.argb(128, 0, 0, 0); // FIXME: remove this later
+
+		DisplayMetrics dm = r.getDisplayMetrics();
+		int num = dm.widthPixels / height;
+
 		Cursor cursor = ctx.getContentResolver()
 				.query(ReminderProvider.content_uri, null, null, null, null);
-		list = ReminderProvider.getAll(cursor);
+		list = ReminderProvider.getAllSublist(cursor, num - 2);
 		cursor.close();
 
 		Notification n = new Notification(
@@ -88,24 +93,31 @@ public class ReminderService extends Service implements View.OnTouchListener {
 				System.currentTimeMillis());
 		RemoteViews rv;
 
-		list.add(new ReminderItem(ReminderListActivity.add_new_bmp(ctx),
-				ctx.getString(R.string.add_new)));
+		list.add(new ReminderItem(ReminderListActivity.add_new_bmp(ctx), ""));
+		list.add(new ReminderItem(ReminderListActivity.list_bmp(ctx), ""));
 
 		if (multiple_intents) {
 			rv = new RemoteViews(PKG_NAME, R.layout.notification);
 			rv.removeAllViews(R.id.wrap);
-			for (ReminderItem item : list) {
+			for (int i = 0; i < list.size(); i++) {
+				final ReminderItem item = list.get(i);
 				final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
-				Intent i;
-				if (item._id == -1)
-					i = new Intent(ctx, ReminderCreateActivity.class);
-				else {
-					i = new Intent(ctx, ReminderViewActivity.class);
-					i.putExtra("reminder_id", item._id);
-					i.setAction("View " + item._id);
+				Intent intent;
+				switch (list.size() - i) {
+				case 1:
+					intent = new Intent(ctx, ReminderListActivity.class);
+					break;
+				case 2:
+					intent = new Intent(ctx, ReminderCreateActivity.class);
+					break;
+				default:
+					intent = new Intent(ctx, ReminderViewActivity.class);
+					intent.putExtra("reminder_id", item._id);
+					intent.setAction("View " + item._id);
+					break;
 				}
-				i.addFlags(intent_flags);
-				final PendingIntent pi = PendingIntent.getActivity(ctx, 0, i,
+				intent.addFlags(intent_flags);
+				final PendingIntent pi = PendingIntent.getActivity(ctx, 0, intent,
 						PendingIntent.FLAG_UPDATE_CURRENT);
 				image.setOnClickPendingIntent(R.id.image, pi);
 				image.setImageViewBitmap(R.id.image, item.getGlyph(size));

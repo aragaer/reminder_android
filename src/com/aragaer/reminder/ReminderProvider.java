@@ -157,4 +157,11 @@ public class ReminderProvider extends ContentProvider {
             result.add(getItem(c));
         return result;
     }
+
+    public static List<ReminderItem> getAllSublist(Cursor c, int n) {
+        ArrayList<ReminderItem> result = new ArrayList<ReminderItem>();
+        while (c.moveToNext() && n-- > 0)
+            result.add(getItem(c));
+        return result;
+    }
 }

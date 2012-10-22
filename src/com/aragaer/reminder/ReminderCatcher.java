@@ -11,7 +11,7 @@ public class ReminderCatcher extends Activity {
 		int position = (int) ReminderService.x / glyph_width;
 		Intent i;
 		if (ReminderService.list == null
-				|| position >= ReminderService.list.size())
+				|| position + 1 >= ReminderService.list.size())
 			i = new Intent(this, ReminderListActivity.class);
 		else {
 			final ReminderItem item = ReminderService.list.get(position);

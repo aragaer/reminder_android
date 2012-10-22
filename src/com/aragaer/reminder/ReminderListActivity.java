@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -102,10 +103,25 @@ public class ReminderListActivity extends Activity {
 		p.setShadowLayer(1, 0, 0, Color.BLACK);
 		Rect bounds = new Rect();
 		p.getTextBounds("+", 0, 1, bounds);
-		c.drawText("+", size / 2 - bounds.centerX(), size / 2 - bounds.centerY(), p);
 		Drawable d = ctx.getResources().getDrawable(R.drawable.new_glyph);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
+		c.drawText("+", size / 2 - bounds.centerX(), size / 2 - bounds.centerY(), p);
+		return b;
+	}
+
+	static public Bitmap list_bmp(Context ctx) {
+		Resources r = ctx.getResources();
+		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
+				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
+		Bitmap t = BitmapFactory.decodeResource(r, R.drawable.list64x64);
+		Bitmap t2 = Bitmap.createScaledBitmap(t, size, size, true);
+		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
+		Canvas c = new Canvas(b);
+		Drawable d = ctx.getResources().getDrawable(R.drawable.new_glyph);
+		d.setBounds(0, 0, size, size);
+		d.draw(c);
+		c.drawBitmap(t2, 0, 0, new Paint(0x07));
 		return b;
 	}
 
