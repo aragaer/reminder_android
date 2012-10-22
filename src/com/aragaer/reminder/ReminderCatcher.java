@@ -10,7 +10,8 @@ public class ReminderCatcher extends Activity {
 		int glyph_width = getResources().getDimensionPixelSize(R.dimen.notification_height);
 		int position = (int) ReminderService.x / glyph_width;
 		Intent i;
-		if (ReminderService.list == null || position > ReminderService.list.size())
+		if (ReminderService.list == null
+				|| position >= ReminderService.list.size())
 			i = new Intent(this, ReminderListActivity.class);
 		else {
 			final ReminderItem item = ReminderService.list.get(position);
@@ -18,7 +19,7 @@ public class ReminderCatcher extends Activity {
 				i = new Intent(this, ReminderCreateActivity.class);
 			else {
 				i = new Intent(this, ReminderViewActivity.class);
-                i.putExtra("reminder_id", item._id);
+				i.putExtra("reminder_id", item._id);
 			}
 		}
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
