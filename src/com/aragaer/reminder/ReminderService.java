@@ -1,5 +1,6 @@
 package com.aragaer.reminder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Notification;
@@ -15,7 +16,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Bitmap.Config;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.IBinder;
@@ -67,7 +67,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		startForeground(1, buildNotification(this));
 	}
 
-	public static List<ReminderItem> list;
+	public static List<Glyph2Intent> list = new ArrayList<Glyph2Intent>();
 
 	private static final String PKG_NAME = ReminderService.class.getPackage().getName();
 	private static Notification buildNotification(Context ctx) {
@@ -81,9 +81,20 @@ public class ReminderService extends Service implements View.OnTouchListener {
 
 		Cursor cursor = ctx.getContentResolver()
 				.query(ReminderProvider.content_uri, null, null, null, null);
-		list = ReminderProvider.getAllSublist(cursor, num - 2);
-		int lost = cursor.getCount() - list.size();
+		List<ReminderItem> items = ReminderProvider.getAllSublist(cursor, num - 2);
+		int lost = cursor.getCount() - items.size();
 		cursor.close();
+
+		list.clear();
+
+		for (ReminderItem item : items) {
+			Intent intent = new Intent(ctx, ReminderViewActivity.class);
+			intent.putExtra("reminder_id", item._id);
+			intent.setAction("View " + item._id);
+			intent.addFlags(intent_flags);
+			list.add(new Glyph2Intent(Bitmaps.memo_bmp(ctx, item), intent));
+		}
+		items.clear();
 
 		Notification n = new Notification(
 				list.isEmpty()
@@ -91,50 +102,33 @@ public class ReminderService extends Service implements View.OnTouchListener {
 					: R.drawable.notify_reminder,
 				ctx.getString(R.string.app_name),
 				System.currentTimeMillis());
-		RemoteViews rv;
 
-		list.add(new ReminderItem(Bitmaps.list_bmp(ctx, lost), ""));
-		list.get(list.size() - 1)._id = ReminderItem.ID_LIST;
-		list.add(new ReminderItem(Bitmaps.add_new_bmp(ctx), ""));
+		Intent intent = new Intent(ctx, ReminderListActivity.class);
+		intent.addFlags(intent_flags);
+		list.add(new Glyph2Intent(Bitmaps.list_bmp(ctx, lost), intent));
+		intent = new Intent(ctx, ReminderCreateActivity.class);
+		intent.addFlags(intent_flags);
+		list.add(new Glyph2Intent(Bitmaps.add_new_bmp(ctx), intent));
 
+		RemoteViews rv = new RemoteViews(PKG_NAME, R.layout.notification);
+		rv.removeAllViews(R.id.wrap);
 		if (multiple_intents) {
-			rv = new RemoteViews(PKG_NAME, R.layout.notification);
-			rv.removeAllViews(R.id.wrap);
-			for (int i = 0; i < list.size(); i++) {
-				final ReminderItem item = list.get(i);
+			for (Glyph2Intent g2i : list) {
 				final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
-				Intent intent;
-				switch (list.size() - i) {
-				case 1:
-					intent = new Intent(ctx, ReminderCreateActivity.class);
-					break;
-				case 2:
-					intent = new Intent(ctx, ReminderListActivity.class);
-					break;
-				default:
-					intent = new Intent(ctx, ReminderViewActivity.class);
-					intent.putExtra("reminder_id", item._id);
-					intent.setAction("View " + item._id);
-					break;
-				}
-				intent.addFlags(intent_flags);
-				final PendingIntent pi = PendingIntent.getActivity(ctx, 0, intent,
+				final PendingIntent pi = PendingIntent.getActivity(ctx, 0, g2i.intent,
 						PendingIntent.FLAG_UPDATE_CURRENT);
 				image.setOnClickPendingIntent(R.id.image, pi);
-				image.setImageViewBitmap(R.id.image, item.getGlyph(size));
+				image.setImageViewBitmap(R.id.image, g2i.image);
 				rv.addView(R.id.wrap, image);
 			}
 		} else {
-			rv = new RemoteViews(PKG_NAME, R.layout.notification);
-			rv.removeAllViews(R.id.wrap);
-
 			final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
 			Bitmap bmp = Bitmap.createBitmap(height * list.size() - padding * 2, size, Config.ARGB_8888);
 			Canvas c = new Canvas(bmp);
 			Paint p = new Paint(0x7);
 			for (int i = 0; i < list.size(); i++) {
-				final ReminderItem item = list.get(i);
-				c.drawBitmap(item.getGlyph(size), i * height, 0, p);
+				final Glyph2Intent item = list.get(i);
+				c.drawBitmap(item.image, i * height, 0, p);
 			}
 			image.setImageViewBitmap(R.id.image, bmp);
 			rv.addView(R.id.wrap, image);
@@ -163,5 +157,14 @@ public class ReminderService extends Service implements View.OnTouchListener {
 	public boolean onTouch(View v, MotionEvent event) {
 		x = event.getRawX();
 		return false;
+	}
+
+	public static final class Glyph2Intent {
+		public Bitmap image;
+		public Intent intent;
+		public Glyph2Intent (Bitmap b, Intent i) {
+			image = b;
+			intent = i;
+		}
 	}
 }

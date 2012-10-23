@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 
 class DrawView extends View implements OnTouchListener {
-    static final int BITMAP_SIZE = 500;
+    static final int BITMAP_SIZE = 480;
 
     static Paint p_grid = new Paint(0x7), p = new Paint(0x7);
     int size;
@@ -23,7 +23,7 @@ class DrawView extends View implements OnTouchListener {
 
     static {
         p_grid.setColor(Color.LTGRAY);
-        p.setColor(Color.WHITE);
+        p.setColor(Color.BLACK);
     }
 
     public DrawView(Context context) {
@@ -76,7 +76,7 @@ class DrawView extends View implements OnTouchListener {
             canvas.drawLine(cell * i, 0, cell * i, size, p_grid);
         }
         if (bmp != null)
-            canvas.drawBitmap(bmp, m, p);
+            canvas.drawBitmap(bmp, m, Bitmaps.inv80p);
     }
 
     float x, y;
