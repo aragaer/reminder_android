@@ -11,12 +11,20 @@ public class ReminderCatcher extends Activity {
 		int position = (int) ReminderService.x / glyph_width;
 		Intent i;
 		if (ReminderService.list == null
-				|| position + 1 >= ReminderService.list.size())
+				|| position >= ReminderService.list.size())
 			i = new Intent(this, ReminderListActivity.class);
 		else {
 			final ReminderItem item = ReminderService.list.get(position);
-			if (item._id == -1)
-				i = new Intent(this, ReminderCreateActivity.class);
+			if (item._id < 0)
+				switch ((int) item._id) {
+				case ReminderItem.ID_NEW:
+					i = new Intent(this, ReminderCreateActivity.class);
+					break;
+				default:
+				case ReminderItem.ID_LIST:
+					i = new Intent(this, ReminderListActivity.class);
+					break;
+				}
 			else {
 				i = new Intent(this, ReminderViewActivity.class);
 				i.putExtra("reminder_id", item._id);

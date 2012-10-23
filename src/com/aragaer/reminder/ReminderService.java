@@ -75,7 +75,6 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 		int padding = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		int size = height - padding * 2;
-		int color = Color.argb(128, 0, 0, 0); // FIXME: remove this later
 
 		DisplayMetrics dm = r.getDisplayMetrics();
 		int num = dm.widthPixels / height;
@@ -83,6 +82,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		Cursor cursor = ctx.getContentResolver()
 				.query(ReminderProvider.content_uri, null, null, null, null);
 		list = ReminderProvider.getAllSublist(cursor, num - 2);
+		int lost = cursor.getCount() - list.size();
 		cursor.close();
 
 		Notification n = new Notification(
@@ -93,8 +93,9 @@ public class ReminderService extends Service implements View.OnTouchListener {
 				System.currentTimeMillis());
 		RemoteViews rv;
 
-		list.add(new ReminderItem(ReminderListActivity.add_new_bmp(ctx), ""));
-		list.add(new ReminderItem(ReminderListActivity.list_bmp(ctx), ""));
+		list.add(new ReminderItem(Bitmaps.list_bmp(ctx, lost), ""));
+		list.get(list.size() - 1)._id = ReminderItem.ID_LIST;
+		list.add(new ReminderItem(Bitmaps.add_new_bmp(ctx), ""));
 
 		if (multiple_intents) {
 			rv = new RemoteViews(PKG_NAME, R.layout.notification);
@@ -105,10 +106,10 @@ public class ReminderService extends Service implements View.OnTouchListener {
 				Intent intent;
 				switch (list.size() - i) {
 				case 1:
-					intent = new Intent(ctx, ReminderListActivity.class);
+					intent = new Intent(ctx, ReminderCreateActivity.class);
 					break;
 				case 2:
-					intent = new Intent(ctx, ReminderCreateActivity.class);
+					intent = new Intent(ctx, ReminderListActivity.class);
 					break;
 				default:
 					intent = new Intent(ctx, ReminderViewActivity.class);
@@ -121,7 +122,6 @@ public class ReminderService extends Service implements View.OnTouchListener {
 						PendingIntent.FLAG_UPDATE_CURRENT);
 				image.setOnClickPendingIntent(R.id.image, pi);
 				image.setImageViewBitmap(R.id.image, item.getGlyph(size));
-				image.setInt(R.id.image, "setColorFilter", color);
 				rv.addView(R.id.wrap, image);
 			}
 		} else {
@@ -137,7 +137,6 @@ public class ReminderService extends Service implements View.OnTouchListener {
 				c.drawBitmap(item.getGlyph(size), i * height, 0, p);
 			}
 			image.setImageViewBitmap(R.id.image, bmp);
-			image.setInt(R.id.image, "setColorFilter", color);
 			rv.addView(R.id.wrap, image);
 		}
 		n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;

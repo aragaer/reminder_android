@@ -9,7 +9,10 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 class ReminderItem {
-	long _id = -1;
+	public static final int ID_NEW = -1;
+	public static final int ID_LIST = -2;
+
+	long _id = ID_NEW;
 	byte glyph_data[];
 	String text;
 	Date when;
