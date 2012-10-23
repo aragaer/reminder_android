@@ -13,6 +13,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 
 public class Bitmaps {
@@ -27,7 +28,6 @@ public class Bitmaps {
 	}
 	
 	static public Bitmap list_bmp(Context ctx, int extra) {
-		Paint p = new Paint(0x07);
 		Resources r = ctx.getResources();
 		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
@@ -35,14 +35,15 @@ public class Bitmaps {
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
 
-		p.setTextSize(size / 5);
-		p.setColor(Color.WHITE);
-
 		Drawable d = ctx.getResources().getDrawable(R.drawable.new_glyph);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
 		c.drawBitmap(t, 0, 0, inv80p);
 		if (extra > 0) {
+			Paint p = new Paint(0x07);
+			p.setTextSize(size / 5);
+			p.setColor(Color.WHITE);
+			p.setTypeface(Typeface.DEFAULT_BOLD);
 			String draw = String.format("+%d", extra);
 			Rect bounds = new Rect();
 			p.getTextBounds(draw, 0, draw.length(), bounds);
