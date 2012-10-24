@@ -4,4 +4,9 @@
     <string name="add_new">Create new reminder</string>
     <string name="add_extra">Add extra description</string>
     <string name="delete">Delete</string>
+    <string name="menu_settings">Settings</string>
+
+    <string name="pref_cat_appearance">Look and feel</string>
+    <string name="pref_invert_notif">Dark colors in notification</string>
+    <string name="pref_invert_notif_ex">Check this if your notification background is light</string>
 </resources>

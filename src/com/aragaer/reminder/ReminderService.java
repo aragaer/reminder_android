@@ -14,12 +14,14 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,7 +29,8 @@ import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 public class ReminderService extends Service implements View.OnTouchListener {
-	private static final boolean multiple_intents = Build.VERSION.SDK_INT > 13; // ICS+
+	private static final boolean multiple_intents = Build.VERSION.SDK_INT > 10; // Honeycomb+
+	private static final boolean need_collapse = multiple_intents && Build.VERSION.SDK_INT < 16; // Honeycomb and ICS
 	private static final int intent_flags = Intent.FLAG_ACTIVITY_NEW_TASK
 			| Intent.FLAG_ACTIVITY_CLEAR_TOP
 			| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
@@ -52,10 +55,12 @@ public class ReminderService extends Service implements View.OnTouchListener {
 	static float x = -1;
 	private void handleCommand(Intent command) {
 		if (!multiple_intents && !window_created) {
-//          WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
-//          WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-//          WindowManager.LayoutParams
-			WindowManager.LayoutParams lp = new WindowManager.LayoutParams(1, 1, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, 0x50128, -3);
+			WindowManager.LayoutParams lp = new WindowManager.LayoutParams(1,
+					1, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+					WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+							| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+							| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+					PixelFormat.TRANSLUCENT);
 			lp.gravity = Gravity.LEFT | Gravity.TOP;
 			lp.x = 0;
 			click_catcher = new View(this);
@@ -64,12 +69,13 @@ public class ReminderService extends Service implements View.OnTouchListener {
 			window_created = true;
 		}
 		registerReceiver(update, new IntentFilter(ReminderProvider.UPDATE_ACTION));
+		registerReceiver(catcher, new IntentFilter(catcher_action));
 		startForeground(1, buildNotification(this));
 	}
 
 	public static List<Glyph2Intent> list = new ArrayList<Glyph2Intent>();
 
-	private static final String PKG_NAME = ReminderService.class.getPackage().getName();
+	private static final String PKG_NAME = ReminderService.class.getPackage().getName(); 
 	private static Notification buildNotification(Context ctx) {
 		Resources r = ctx.getResources();
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
@@ -88,10 +94,9 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		list.clear();
 
 		for (ReminderItem item : items) {
-			Intent intent = new Intent(ctx, ReminderViewActivity.class);
-			intent.putExtra("reminder_id", item._id);
-			intent.setAction("View " + item._id);
-			intent.addFlags(intent_flags);
+			Intent intent = new Intent(ctx, ReminderViewActivity.class)
+				.putExtra("reminder_id", item._id)
+				.setAction("View " + item._id);
 			list.add(new Glyph2Intent(Bitmaps.memo_bmp(ctx, item), intent));
 		}
 		items.clear();
@@ -113,10 +118,11 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		RemoteViews rv = new RemoteViews(PKG_NAME, R.layout.notification);
 		rv.removeAllViews(R.id.wrap);
 		if (multiple_intents) {
-			for (Glyph2Intent g2i : list) {
+			for (int i = 0; i < list.size(); i++) {
+				final Glyph2Intent g2i = list.get(i);
 				final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
-				final PendingIntent pi = PendingIntent.getActivity(ctx, 0, g2i.intent,
-						PendingIntent.FLAG_UPDATE_CURRENT);
+				final PendingIntent pi = PendingIntent.getBroadcast(ctx, i,
+						new Intent(catcher_action).putExtra("what", i), 0);
 				image.setOnClickPendingIntent(R.id.image, pi);
 				image.setImageViewBitmap(R.id.image, g2i.image);
 				rv.addView(R.id.wrap, image);
@@ -136,9 +142,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
 
 		n.contentView = rv;
-		final Intent i = new Intent(ctx, multiple_intents ? ReminderListActivity.class : ReminderCatcher.class);
-		i.addFlags(intent_flags);
-		n.contentIntent = PendingIntent.getActivity(ctx, 0, i, 0);
+		n.contentIntent = PendingIntent.getBroadcast(ctx, 0, new Intent(catcher_action), 0);
 
 		return n;
 	}
@@ -146,6 +150,29 @@ public class ReminderService extends Service implements View.OnTouchListener {
 	private final BroadcastReceiver update = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, buildNotification(context));
+		}
+	};
+
+	public static final String catcher_action = "com.aragaer.reminder.CATCH_ACTION";
+	private final BroadcastReceiver catcher = new BroadcastReceiver() {
+		public void onReceive(Context context, Intent intent) {
+			int glyph_width = context.getResources().getDimensionPixelSize(R.dimen.notification_height);
+			int position = intent.getIntExtra("what", (int) ReminderService.x / glyph_width);
+			Log.d("CATCH", "Clickety in position "+position+" on x " + ReminderService.x);
+			Intent i;
+			if (ReminderService.list == null
+					|| position >= ReminderService.list.size()) {
+				i = new Intent(context, ReminderListActivity.class);
+			} else
+				i = ReminderService.list.get(position).intent;
+			if (need_collapse)
+				try {
+					Object obj = context.getSystemService("statusbar");
+				    Class.forName("android.app.StatusBarManager").getMethod("collapse", new Class[0]).invoke(obj, (Object[]) null);
+				} catch (Exception e) {
+					// do nothing, it's OK
+				}
+			context.startActivity(i.addFlags(intent_flags));
 		}
 	};
 
