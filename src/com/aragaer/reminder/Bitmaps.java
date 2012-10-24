@@ -7,7 +7,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
@@ -17,14 +16,38 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 
 public class Bitmaps {
-	static final ColorFilter wb2wt = new ColorMatrixColorFilter(new float[] {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0.8f, 0, 0, 0, 0});
-	static final Paint wb2wtp = new Paint(0x07);
-	static final ColorFilter wb2bt = new ColorMatrixColorFilter(new float[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6f, 0, 0, 0, 0});
-	static final Paint wb2btp = new Paint(0x07);
+	public static final int COLOR_WHITE = 0;
+	public static final int COLOR_BLUE = 1;
+	public static final int COLOR_PURPLE = 2;
+	public static final int COLOR_GREEN = 3;
+	public static final int COLOR_YELLOW = 4;
+	public static final int COLOR_RED = 5;
 
+	public static final int N_COLORS = 6;
+
+	static final float filters[][] = {
+		{1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, .8f, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, .6f, 0, 0, 0, 0, 0, 0, .8f, 0, 1, 0, 0, 0, 0},
+		{.6f, 0, 0, 0, 0, 0, .2f, 0, 0, 0, 0, 0, 0, .8f, 0, 1, 0, 0, 0, 0},
+		{.4f, 0, 0, 0, 0, 0, .6f, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0, .5f, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+		{.8f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+	};
+	static final float filters_inv[][] = {
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .6f, 0, 0, 0, 0},
+		{.2f, 0, 0, 0, 0, 0, .7f, 0, 0, 0, 0, 0, 0, .9f, 0, 1, 0, 0, 0, 0},
+		{.66f, 0, 0, 0, 0, 0, .4f, 0, 0, 0, 0, 0, 0, .8f, 0, 1, 0, 0, 0, 0},
+		{.6f, 0, 0, 0, 0, 0, .8f, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0, .7f, 0, 0, 0, 0, 0, 0, .2f, 0, 1, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0, .25f, 0, 0, 0, 0, 0, 0, .25f, 0, 1, 0, 0, 0, 0},
+	};
+	static final Paint paints[] = new Paint[] {new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07)};
+	static final Paint darker[] = new Paint[] {new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07)};
 	static {
-		wb2wtp.setColorFilter(wb2wt);
-		wb2btp.setColorFilter(wb2bt);
+		for (int i = 0; i < N_COLORS; i++) {
+			paints[i].setColorFilter(new ColorMatrixColorFilter(filters[i]));
+			darker[i].setColorFilter(new ColorMatrixColorFilter(filters_inv[i]));
+		}
 	}
 	
 	static public Bitmap list_bmp(Context ctx, int extra, boolean invert) {
@@ -34,7 +57,7 @@ public class Bitmaps {
 		Bitmap t = BitmapFactory.decodeResource(r, R.drawable.list);
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		c.drawBitmap(t, 0, 0, invert ? wb2btp : wb2wtp);
+		c.drawBitmap(t, 0, 0, (invert ? darker : paints)[0]);
 
 		Drawable d = r.getDrawable(invert ? R.drawable.glyph_border_light : R.drawable.glyph_border);
 		d.setBounds(0, 0, size, size);
@@ -83,7 +106,7 @@ public class Bitmaps {
 		Drawable d = r.getDrawable(invert ? R.drawable.glyph_border_light : R.drawable.glyph_border);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
-		c.drawBitmap(draw_char("+", size), 0, 0, invert ? wb2btp : wb2wtp);
+		c.drawBitmap(draw_char("+", size), 0, 0, (invert ? darker : paints)[0]);
 		return b;
 	}
 
@@ -97,7 +120,7 @@ public class Bitmaps {
 
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		c.drawBitmap(result, 0, 0, invert ? wb2btp : wb2wtp);
+		c.drawBitmap(result, 0, 0, (invert ? darker : paints)[item.color]);
 		return b;
 	}
 }

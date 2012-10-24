@@ -29,7 +29,7 @@ import android.widget.RemoteViews;
 
 public class ReminderService extends Service implements View.OnTouchListener {
 	private static final boolean multiple_intents = Build.VERSION.SDK_INT > 10; // Honeycomb+
-	private static final boolean need_collapse = Build.VERSION.SDK_INT > 13 && Build.VERSION.SDK_INT < 16; // ICS
+	private static final boolean need_collapse = Build.VERSION.SDK_INT > 13; // ICS+
 	private static final int intent_flags = Intent.FLAG_ACTIVITY_NEW_TASK
 			| Intent.FLAG_ACTIVITY_CLEAR_TOP
 			| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;

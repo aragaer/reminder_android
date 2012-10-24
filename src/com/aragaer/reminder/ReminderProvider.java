@@ -21,7 +21,7 @@ import android.os.Environment;
 import android.util.Log;
 
 public class ReminderProvider extends ContentProvider {
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	public static final String UPDATE_ACTION = "com.aragaer.reminder.ReminderUpdate";
 
@@ -93,7 +93,7 @@ public class ReminderProvider extends ContentProvider {
 	static boolean createDB(SQLiteDatabase db) {
 		Log.d(TAG, "creating DB");
 		try {
-			db.execSQL("CREATE TABLE memo (_id integer primary key autoincrement, glyph blob, comment text, date integer)");
+			db.execSQL("CREATE TABLE memo (_id integer primary key autoincrement, glyph blob, comment text, date integer, color integer)");
 			return true;
 		} catch (SQLException e) {
 			Log.e(TAG, e.toString());
@@ -102,7 +102,13 @@ public class ReminderProvider extends ContentProvider {
 	}
 
 	static boolean upgradeDB(SQLiteDatabase db, int old_version) {
-		return false;
+		switch (old_version) {
+		case 1:
+			db.execSQL("ALTER TABLE memo ADD color integer not null default 0");
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	boolean openDB() {
@@ -170,7 +176,7 @@ public class ReminderProvider extends ContentProvider {
 
 	public static ReminderItem getItem(Cursor c) {
 		return new ReminderItem(c.getLong(0), c.getBlob(1), c.getString(2),
-				new Date(c.getLong(3)));
+				new Date(c.getLong(3)), c.getInt(4));
 	}
 
 	public static List<ReminderItem> getAll(Cursor c) {

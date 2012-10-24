@@ -9,13 +9,11 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 class ReminderItem {
-	public static final int ID_NEW = -1;
-	public static final int ID_LIST = -2;
-
-	long _id = ID_NEW;
+	long _id = -1;
 	byte glyph_data[];
 	String text;
 	Date when;
+	int color = Bitmaps.COLOR_WHITE;
 
 	static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -27,7 +25,7 @@ class ReminderItem {
 		this(b, s, new Date());
 	}
 
-	private static byte[] bitmap_to_bytes(Bitmap b) {
+	public static byte[] bitmap_to_bytes(Bitmap b) {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		b.compress(Bitmap.CompressFormat.PNG, 100, bos);
 		byte bb[] = bos.toByteArray();
@@ -46,11 +44,12 @@ class ReminderItem {
 		when = w;
 	}
 
-	public ReminderItem(long id, byte bb[], String s, Date w) {
+	public ReminderItem(long id, byte bb[], String s, Date w, int c) {
 		_id = id;
 		glyph_data = bb;
 		text = s;
 		when = w;
+		color = c;
 	}
 
 	public Bitmap getGlyph(int size) {

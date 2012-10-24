@@ -52,6 +52,11 @@ class DrawView extends View implements OnTouchListener {
 		c = new Canvas(bmp);
 	}
 
+	ColorSwitch sw = null;
+	public void setColorSwitch(ColorSwitch sw) {
+		this.sw = sw;
+	}
+
     protected void onMeasure(int w, int h) {
         size = Math.min(MeasureSpec.getSize(w), MeasureSpec.getSize(h)) - 1;
         size -= size % 4;
@@ -76,7 +81,7 @@ class DrawView extends View implements OnTouchListener {
             canvas.drawLine(cell * i, 0, cell * i, size, p_grid);
         }
         if (bmp != null)
-            canvas.drawBitmap(bmp, m, Bitmaps.wb2wtp);
+            canvas.drawBitmap(bmp, m, Bitmaps.paints[sw.getValue()]);
     }
 
     float x, y;
