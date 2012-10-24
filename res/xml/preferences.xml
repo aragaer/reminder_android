@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
+
+    <PreferenceCategory android:title="@string/pref_cat_appearance" >
+        <CheckBoxPreference
+            android:defaultValue="@bool/invert_notification"
+            android:key="notification_invert"
+            android:summary="@string/pref_invert_notif_ex"
+            android:title="@string/pref_invert_notif" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

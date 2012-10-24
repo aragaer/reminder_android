@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <bool name="invert_notification">false</bool>
+
+    <style name="ReminderDark" parent="android:style/Theme.Holo" />
+
+</resources>

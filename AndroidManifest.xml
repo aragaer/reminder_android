@@ -27,6 +27,7 @@
         <activity android:name=".ReminderCreateActivity" />
         <activity android:name=".ReminderViewActivity" />
         <activity android:name=".ReminderCatcher" />
+        <activity android:name=".ReminderSettings" android:theme="@style/ReminderDark" />
         <receiver android:name=".BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

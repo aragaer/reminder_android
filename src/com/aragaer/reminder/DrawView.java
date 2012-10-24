@@ -23,7 +23,7 @@ class DrawView extends View implements OnTouchListener {
 
     static {
         p_grid.setColor(Color.LTGRAY);
-        p.setColor(Color.BLACK);
+        p.setColor(Color.WHITE);
     }
 
     public DrawView(Context context) {
@@ -39,7 +39,7 @@ class DrawView extends View implements OnTouchListener {
     }
 
     public void reset() {
-        bmp = Bitmap.createBitmap(BITMAP_SIZE, BITMAP_SIZE, Config.ARGB_8888);
+        bmp = Bitmap.createBitmap(BITMAP_SIZE, BITMAP_SIZE, Config.RGB_565);
         c = new Canvas(bmp);
     }
 
@@ -76,7 +76,7 @@ class DrawView extends View implements OnTouchListener {
             canvas.drawLine(cell * i, 0, cell * i, size, p_grid);
         }
         if (bmp != null)
-            canvas.drawBitmap(bmp, m, Bitmaps.inv80p);
+            canvas.drawBitmap(bmp, m, Bitmaps.wb2wtp);
     }
 
     float x, y;

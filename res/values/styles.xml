@@ -14,4 +14,8 @@
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
+    <bool name="invert_notification">true</bool>
+
+    <style name="ReminderDark" parent="android:style/Theme.NoTitleBar" />
+    
 </resources>

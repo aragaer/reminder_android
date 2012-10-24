@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,7 +47,7 @@ public class ReminderListActivity extends Activity {
 		});
 
 		View add_new = ViewGroup.inflate(this, android.R.layout.activity_list_item, null);
-		((ImageView) add_new.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.add_new_bmp(this));
+		((ImageView) add_new.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.add_new_bmp(this, false));
 		((TextView) add_new.findViewById(android.R.id.text1)).setText(R.string.add_new);
 		list.addFooterView(add_new);
 
@@ -67,7 +68,7 @@ public class ReminderListActivity extends Activity {
 
 			public void bindView(View view, Context context, Cursor cursor) {
 				ReminderItem item = ReminderProvider.getItem(cursor);
-				((ImageView) view.findViewById(android.R.id.icon)).setImageBitmap(item.getGlyph(50));
+				((ImageView) view.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.memo_bmp(context, item, false));
 				((TextView) view.findViewById(android.R.id.text1)).setText(item.getText());
 			}
 		});
@@ -106,4 +107,15 @@ public class ReminderListActivity extends Activity {
 		((CursorAdapter) ((WrapperListAdapter) list.getAdapter())
 				.getWrappedAdapter()).getCursor().close();
 	}
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem delete = menu.add(R.string.menu_settings);
+        delete.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+            	startActivity(new Intent(ReminderListActivity.this, ReminderSettings.class));
+                return true;
+            }
+        });
+        return true;
+    }
 }

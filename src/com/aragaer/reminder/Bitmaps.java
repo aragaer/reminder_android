@@ -15,22 +15,19 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 
 public class Bitmaps {
-	static final ColorFilter inv80 = new ColorMatrixColorFilter(new float[] {-1, 0, 0, 0, 255, 0, -1, 0, 0, 255, 0, 0, -1, 0, 255, 0, 0, 0, 0.8f, 0});
-	static final Paint inv80p = new Paint(0x07);
-	static final ColorFilter d80 = new ColorMatrixColorFilter(new float[] {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0.6f, 0});
-	static final Paint d80p = new Paint(0x07);
-	private static boolean do_invert = Build.VERSION.SDK_INT > 10;
-	static final Paint p80 = do_invert ? inv80p : d80p;
+	static final ColorFilter wb2wt = new ColorMatrixColorFilter(new float[] {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0.8f, 0, 0, 0, 0});
+	static final Paint wb2wtp = new Paint(0x07);
+	static final ColorFilter wb2bt = new ColorMatrixColorFilter(new float[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6f, 0, 0, 0, 0});
+	static final Paint wb2btp = new Paint(0x07);
 
 	static {
-		inv80p.setColorFilter(inv80);
-		d80p.setColorFilter(d80);
+		wb2wtp.setColorFilter(wb2wt);
+		wb2btp.setColorFilter(wb2bt);
 	}
 	
-	static public Bitmap list_bmp(Context ctx, int extra) {
+	static public Bitmap list_bmp(Context ctx, int extra, boolean invert) {
 		Resources r = ctx.getResources();
 		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
@@ -41,7 +38,7 @@ public class Bitmaps {
 		Drawable d = ctx.getResources().getDrawable(R.drawable.glyph_border);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
-		c.drawBitmap(t, 0, 0, p80);
+		c.drawBitmap(t, 0, 0, invert ? wb2btp : wb2wtp);
 		if (extra > 0) {
 			Paint p = new Paint(0x07);
 			p.setTextSize(size / 5);
@@ -65,25 +62,32 @@ public class Bitmaps {
 		return b;
 	}
 
-	static public Bitmap add_new_bmp(Context ctx) {
+	static public Bitmap draw_char(String str, int size) {
+		Bitmap b = Bitmap.createBitmap(size, size, Config.RGB_565);
+		Canvas c = new Canvas(b);
+		Paint p = new Paint(0x07);
+		p.setTextSize(size);
+		p.setColor(Color.WHITE);
+		Rect bounds = new Rect();
+		p.getTextBounds(str, 0, str.length(), bounds);
+		c.drawText(str, size / 2 - bounds.centerX(), size / 2 - bounds.centerY(), p);
+		return b;
+	}
+
+	static public Bitmap add_new_bmp(Context ctx, boolean invert) {
 		Resources r = ctx.getResources();
 		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		Paint p = new Paint(p80);
-		p.setTextSize(size);
-		p.setColor(Color.BLACK);
-		Rect bounds = new Rect();
-		p.getTextBounds("+", 0, 1, bounds);
 		Drawable d = ctx.getResources().getDrawable(R.drawable.glyph_border);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
-		c.drawText("+", size / 2 - bounds.centerX(), size / 2 - bounds.centerY(), p);
+		c.drawBitmap(draw_char("+", size), 0, 0, invert ? wb2btp : wb2wtp);
 		return b;
 	}
 
-	static public Bitmap memo_bmp(Context ctx, ReminderItem item) {
+	static public Bitmap memo_bmp(Context ctx, ReminderItem item, boolean invert) {
 		Resources r = ctx.getResources();
 		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
@@ -93,7 +97,7 @@ public class Bitmaps {
 
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		c.drawBitmap(result, 0, 0, p80);
+		c.drawBitmap(result, 0, 0, invert ? wb2btp : wb2wtp);
 		return b;
 	}
 }
