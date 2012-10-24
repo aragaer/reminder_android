@@ -34,11 +34,11 @@ public class Bitmaps {
 		Bitmap t = BitmapFactory.decodeResource(r, R.drawable.list);
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
+		c.drawBitmap(t, 0, 0, invert ? wb2btp : wb2wtp);
 
-		Drawable d = ctx.getResources().getDrawable(R.drawable.glyph_border);
+		Drawable d = r.getDrawable(invert ? R.drawable.glyph_border_light : R.drawable.glyph_border);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
-		c.drawBitmap(t, 0, 0, invert ? wb2btp : wb2wtp);
 		if (extra > 0) {
 			Paint p = new Paint(0x07);
 			p.setTextSize(size / 5);
@@ -80,7 +80,7 @@ public class Bitmaps {
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		Drawable d = ctx.getResources().getDrawable(R.drawable.glyph_border);
+		Drawable d = r.getDrawable(invert ? R.drawable.glyph_border_light : R.drawable.glyph_border);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
 		c.drawBitmap(draw_char("+", size), 0, 0, invert ? wb2btp : wb2wtp);
