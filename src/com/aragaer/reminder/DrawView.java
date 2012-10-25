@@ -88,12 +88,14 @@ class DrawView extends View implements OnTouchListener {
 	float x, y;
 
 	public boolean onTouch(View view, MotionEvent event) {
+		final int r = BITMAP_SIZE / 40;
 		final float scale = 1f * BITMAP_SIZE / size;
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			x = event.getX() * scale;
 			y = event.getY() * scale;
-			c.drawCircle(x, y, BITMAP_SIZE / 40, p);
+			c.drawCircle(x, y, r, p);
+			invalidate((int) x - r, (int) y - r, (int) x + r, (int) y + r);
 			break;
 		case MotionEvent.ACTION_MOVE:
 			float ox = x;
@@ -101,12 +103,27 @@ class DrawView extends View implements OnTouchListener {
 			x = event.getX() * scale;
 			y = event.getY() * scale;
 			c.drawLine(ox, oy, x, y, p);
-			c.drawCircle(x, y, BITMAP_SIZE / 40, p);
+			c.drawCircle(x, y, r, p);
+			int fx,	fy,	tx, ty;
+			if (x > ox) {
+				fx = (int) ox - r;
+				tx = (int) x + r;
+			} else {
+				fx = (int) x - r;
+				tx = (int) ox + r;
+			}
+			if (y > oy) {
+				fy = (int) oy - r;
+				ty = (int) y + r;
+			} else {
+				fy = (int) y - r;
+				ty = (int) oy + r;
+			}
+			invalidate(fx, fy, tx, ty);
 			break;
 		default:
 			return false;
 		}
-		invalidate();
 		return true;
 	}
 }
