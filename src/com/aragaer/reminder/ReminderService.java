@@ -56,11 +56,13 @@ public class ReminderService extends Service implements View.OnTouchListener {
 	static float x = -1, size;
 	private void handleCommand(Intent command) {
 		if (!multiple_intents && !window_created) {
-			WindowManager.LayoutParams lp = new WindowManager.LayoutParams(1,
-					1, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
-					WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-							| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-							| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+			WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+					1, 1, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+					WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+//							| WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+//							| WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
+//							| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+							| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
 					PixelFormat.TRANSLUCENT);
 			lp.gravity = Gravity.LEFT | Gravity.TOP;
 			lp.x = 0;
@@ -162,7 +164,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 	private final BroadcastReceiver catcher = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			int glyph_width = context.getResources().getDimensionPixelSize(R.dimen.notification_height);
-			int position = multiple_intents ? intent.getIntExtra("what", 99) : (int) ReminderService.x / glyph_width;
+			int position = multiple_intents ? intent.getIntExtra("what", 99) : (int) x / glyph_width;
 			Intent i = ReminderService.list == null
 					|| position >= ReminderService.list.size()
 				? new Intent(context, ReminderListActivity.class)
