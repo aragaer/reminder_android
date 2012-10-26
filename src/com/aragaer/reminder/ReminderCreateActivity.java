@@ -16,39 +16,40 @@ public class ReminderCreateActivity extends Activity {
 	DrawView dv;
 	CheckBox chk;
 	ColorSwitch cs;
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		DrawDialogLayout layout = new DrawDialogLayout(this);
-		LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		
+		LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT);
+
 		cs = new ColorSwitch(this);
 		cs.setId(3);
 
 		dv = new DrawView(this);
-		dv.setColorSwitch(cs);
+		dv.setPaint(Bitmaps.paints[cs.getValue()]);
 		dv.setId(1);
 
 		chk = new CheckBox(this);
 		chk.setText(R.string.add_extra);
-		chk.setEnabled(false);
 		chk.setId(2);
 
 		Button btn = new Button(this);
 		btn.setText(android.R.string.ok);
 		btn.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                Bitmap res = dv.getBitmap();
-                dv.reset();
+			public void onClick(View v) {
+				Bitmap res = dv.getBitmap();
+				dv.reset();
 
-                ContentValues row = new ContentValues();
-                row.put("glyph", ReminderItem.bitmap_to_bytes(res));
-                row.put("date", System.currentTimeMillis());
-                row.put("color", cs.getValue());
-                getContentResolver().insert(ReminderProvider.content_uri, row);
-                ReminderCreateActivity.this.finish();
-            }
-        });
+				ContentValues row = new ContentValues();
+				row.put("glyph", ReminderItem.bitmap_to_bytes(res));
+				row.put("date", System.currentTimeMillis());
+				row.put("color", cs.getValue());
+				getContentResolver().insert(ReminderProvider.content_uri, row);
+				ReminderCreateActivity.this.finish();
+			}
+		});
 		btn.setId(3);
 
 		if (savedInstanceState == null)
@@ -63,7 +64,8 @@ public class ReminderCreateActivity extends Activity {
 
 		cs.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				dv.invalidate();
+				dv.setPaint(Bitmaps.paints[cs.getValue()]);
+				dv.postInvalidate();
 			}
 		});
 		setContentView(layout, lp);
