@@ -26,19 +26,19 @@ public class Bitmaps {
 	public static final int N_COLORS = 6;
 
 	static final float filters[][] = {
-			{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, .8f, 0, 0, 0, 0 },
-			{ .2f, 0, 0, 0, 0, 0, .7f, 0, 0, 0, 0, 0, 0, .9f, 0, 1, 0, 0, 0, 0 },
-			{ .66f, 0, 0, 0, 0, 0, .4f, 0, 0, 0, 0, 0, 0, .8f, 0, 1, 0, 0, 0, 0 },
-			{ .6f, 0, 0, 0, 0, 0, .8f, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
-			{ 1, 0, 0, 0, 0, 0, .7f, 0, 0, 0, 0, 0, 0, .2f, 0, 1, 0, 0, 0, 0 },
-			{ 1, 0, 0, 0, 0, 0, .25f, 0, 0, 0, 0, 0, 0, .25f, 0, 1, 0, 0, 0, 0 }, };
+			{ 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0xFF, .8f, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0x33, 0, 0, 0, 0, 0xB5, 0, 0, 0, 0, 0xE5, 1, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0xAA, 0, 0, 0, 0, 0x66, 0, 0, 0, 0, 0xCC, 1, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0x99, 0, 0, 0, 0, 0xCC, 0, 0, 0, 0, 0x00, 1, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0xBB, 0, 0, 0, 0, 0x33, 1, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0x44, 0, 0, 0, 0, 0x44, 1, 0, 0, 0, 0x00 }, };
 	static final float filters_inv[][] = {
-			{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .6f, 0, 0, 0, 0 },
-			{ 0, 0, 0, 0, 0, 0, .6f, 0, 0, 0, 0, 0, 0, .8f, 0, 1, 0, 0, 0, 0 },
-			{ .6f, 0, 0, 0, 0, 0, .2f, 0, 0, 0, 0, 0, 0, .8f, 0, 1, 0, 0, 0, 0 },
-			{ .4f, 0, 0, 0, 0, 0, .6f, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
-			{ 1, 0, 0, 0, 0, 0, .5f, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
-			{ .8f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 }, };
+			{ 0, 0, 0, 0, 0x00, 0, 0, 0, 0, 0x00, 0, 0, 0, 0, 0x00, .6f, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0x00, 0, 0, 0, 0, 0x99, 0, 0, 0, 0, 0xCC, 1, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0x99, 0, 0, 0, 0, 0x33, 0, 0, 0, 0, 0xCC, 1, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0x66, 0, 0, 0, 0, 0x99, 0, 0, 0, 0, 0x00, 1, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0x88, 0, 0, 0, 0, 0x00, 1, 0, 0, 0, 0x00 },
+			{ 0, 0, 0, 0, 0xCC, 0, 0, 0, 0, 0x00, 0, 0, 0, 0, 0x00, 1, 0, 0, 0, 0x00 }, };
 	static final Paint paints[] = new Paint[] {new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07)};
 	static final Paint darker[] = new Paint[] {new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07), new Paint(0x07)};
 	static {
@@ -114,7 +114,7 @@ public class Bitmaps {
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		Bitmap glyph = BitmapFactory.decodeByteArray(item.glyph_data, 0,
 				item.glyph_data.length);
-		Bitmap result = Bitmap.createScaledBitmap(glyph, size, size, false);
+		Bitmap result = Bitmap.createScaledBitmap(glyph, size, size, true);
 
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
