@@ -1,6 +1,7 @@
 package com.aragaer.reminder;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -11,8 +12,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 public class ReminderViewActivity extends Activity {
-    public static final int MEMO_DELETED = 10;
-
     ReminderItem memo = null;
     ImageView glyph_view;
 
@@ -24,7 +23,7 @@ public class ReminderViewActivity extends Activity {
             id = savedInstanceState.getLong("reminder_id");
         else
             id = getIntent().getLongExtra("reminder_id", 0);
-        Cursor c = getContentResolver().query(ReminderProvider.content_uri, null, "_id=?", new String[] {String.format("%d", id)}, null);
+        Cursor c = getContentResolver().query(ContentUris.withAppendedId(ReminderProvider.content_uri, id), null, null, null, null);
         c.moveToFirst();
         memo = ReminderProvider.getItem(c);
         c.close();
@@ -46,7 +45,7 @@ public class ReminderViewActivity extends Activity {
         MenuItem delete = menu.add(R.string.delete);
         delete.setOnMenuItemClickListener(new OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-                getContentResolver().delete(ReminderProvider.content_uri, "_id=?", new String[] {String.format("%d", memo._id)});
+                getContentResolver().delete(ContentUris.withAppendedId(ReminderProvider.content_uri, memo._id), null, null);
                 ReminderViewActivity.this.finish();
                 return true;
             }

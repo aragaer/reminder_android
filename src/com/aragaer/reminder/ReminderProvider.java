@@ -39,10 +39,8 @@ public class ReminderProvider extends ContentProvider {
 	private static final String TAG = ReminderProvider.class.getSimpleName();
 
 	static {
-		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder",
-				REMINDER_CODE);
-		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder/#",
-				REMINDER_WITH_ID);
+		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder",	REMINDER_CODE);
+		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder/#", REMINDER_WITH_ID);
 	}
 
 	void notifyChange() {
@@ -56,13 +54,16 @@ public class ReminderProvider extends ContentProvider {
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
 			result = db.delete("memo", arg1 == null ? "1" : arg1, arg2);
-			if (result != 0)
-				notifyChange();
+			break;
+		case REMINDER_WITH_ID:
+			result = db.delete("memo", "_id=?", uri2selection(uri));
 			break;
 		default:
 			Log.e(TAG, "Unknown URI requested: " + uri);
 			break;
 		}
+		if (result > 0)
+			notifyChange();
 		return result;
 	}
 
@@ -114,8 +115,7 @@ public class ReminderProvider extends ContentProvider {
 	boolean openDB() {
 		if (db != null)
 			return true;
-		SharedPreferences prefs = getContext().getSharedPreferences("DB",
-				Context.MODE_PRIVATE);
+		SharedPreferences prefs = getContext().getSharedPreferences("DB", Context.MODE_PRIVATE);
 		int current_version = prefs.getInt("DATABASE_VERSION", 0);
 
 		File sdcard = Environment.getExternalStorageDirectory();
@@ -159,15 +159,21 @@ public class ReminderProvider extends ContentProvider {
 			String arg4) {
 		if (!openDB())
 			return null;
-		Log.d(TAG, "DB = " + db.toString());
+//		Log.d(TAG, "DB = " + db.toString());
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
 			return db.query("memo", arg1, arg2, arg3, null, null, arg4);
+		case REMINDER_WITH_ID:
+			return db.query("memo", arg1, "_id=?", uri2selection(uri), null, null, arg4);
 		default:
 			Log.e(TAG, "Unknown URI requested: " + uri);
 			break;
 		}
 		return null;
+	}
+
+	String[] uri2selection(Uri uri) {
+		return new String[] { Long.toString(ContentUris.parseId(uri)) };
 	}
 
 	public int update(Uri arg0, ContentValues arg1, String arg2, String[] arg3) {

@@ -2,6 +2,7 @@ package com.aragaer.reminder;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -79,7 +80,7 @@ public class ReminderListActivity extends Activity {
 	private final BroadcastReceiver update = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			((CursorAdapter) ((WrapperListAdapter) list.getAdapter()).getWrappedAdapter())
-					.changeCursor(getContentResolver().query(ReminderProvider.content_uri, null, null, null, null));
+			.changeCursor(getContentResolver().query(ReminderProvider.content_uri, null, null, null, null));
 		}
 	};
 
@@ -94,8 +95,7 @@ public class ReminderListActivity extends Activity {
 		switch (item.getItemId()) {
 		case DELETE:
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-			getContentResolver().delete(ReminderProvider.content_uri, "_id=?",
-					new String[] { String.format("%d", info.id) });
+			getContentResolver().delete(ContentUris.withAppendedId(ReminderProvider.content_uri, info.id), null, null);
 			break;
 		}
 		return true;
@@ -108,14 +108,14 @@ public class ReminderListActivity extends Activity {
 				.getWrappedAdapter()).getCursor().close();
 	}
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem delete = menu.add(R.string.menu_settings);
-        delete.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-            	startActivity(new Intent(ReminderListActivity.this, ReminderSettings.class));
-                return true;
-            }
-        });
-        return true;
-    }
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuItem delete = menu.add(R.string.menu_settings);
+		delete.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			public boolean onMenuItemClick(MenuItem item) {
+				startActivity(new Intent(ReminderListActivity.this, ReminderSettings.class));
+				return true;
+			}
+		});
+		return true;
+	}
 }
