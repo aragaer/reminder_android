@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Region.Op;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -17,7 +18,7 @@ class DrawView extends View implements OnTouchListener {
 	static final int BITMAP_SIZE = 480;
 
 	static Paint p_grid = new Paint(0x7), p = new Paint(0x7), visible;
-	int size, m_size, radius;
+	int size, radius;
 	Bitmap bmp, cache;
 	Canvas c = new Canvas(), cc = new Canvas();
 	Matrix m = new Matrix();
@@ -61,18 +62,11 @@ class DrawView extends View implements OnTouchListener {
 	}
 
 	protected void onMeasure(int w, int h) {
-		m_size = Math.min(MeasureSpec.getSize(w), MeasureSpec.getSize(h)) - 1;
+		int m_size = Math.min(MeasureSpec.getSize(w), MeasureSpec.getSize(h)) - 1;
 		m_size -= m_size % 4 - 1;
 
 		super.onMeasure(m_size, m_size);
 		setMeasuredDimension(m_size, m_size);
-	}
-
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		if (!changed)
-			return;
-		int px = (r - l - m_size) / 2, py = (b - t - m_size) / 2;
-		super.onLayout(changed, px, py, px + m_size, py + m_size);
 	}
 
 	public void onDraw(Canvas canvas) {

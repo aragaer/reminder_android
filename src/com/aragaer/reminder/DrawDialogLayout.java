@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 public class DrawDialogLayout extends ViewGroup {
 	boolean horizontal;
-	int padding_x = 0, padding_y = 0, grid_s = 0, cs_s = 0;
+	int padding_x = 0, padding_y = 0, cs_s = 0;
 
 	public DrawDialogLayout(Context context) {
 		this(context, null);
@@ -53,12 +53,10 @@ public class DrawDialogLayout extends ViewGroup {
 			grid_spec = MeasureSpec.makeMeasureSpec(space_w, MeasureSpec.AT_MOST);
 			my_w = space_w + extra_w;
 			my_h = Math.max(space_w, extra_h);
-			grid_s = space_w;
 		} else {
 			grid_spec = MeasureSpec.makeMeasureSpec(space_h, MeasureSpec.AT_MOST);
 			my_w = Math.max(space_h, extra_w);
 			my_h = space_h + extra_h;
-			grid_s = space_h;
 		}
 		padding_x = w - my_w;
 		padding_y = h - my_h;
@@ -85,6 +83,7 @@ public class DrawDialogLayout extends ViewGroup {
 		final View cs = getChildAt(0), grid = getChildAt(1), chk = getChildAt(2), btn = getChildAt(3);
 		int w = right - left, h = bottom - top;
 		int chk_h = chk.getMeasuredHeight();
+		int grid_s = grid.getMeasuredHeight();
 
 		// I'm really expecting top to be 0!
 		bottom -= top;
@@ -100,7 +99,7 @@ public class DrawDialogLayout extends ViewGroup {
 			cs.layout(left, top, left + cs_s, bottom);
 			left += cs_s + px;
 			int grid_pad = (h - grid_s) / 2;
-			grid.layout(left, top + grid_pad, left + h, bottom - grid_pad);
+			grid.layout(left, top + grid_pad, left + grid_s, top + grid_pad + grid_s);
 			left += px;
 			chk.layout(left + grid_s, top + py, right, top + chk_h);
 			btn.layout(left + grid_s, top + chk_h, right,
@@ -114,7 +113,7 @@ public class DrawDialogLayout extends ViewGroup {
 			cs.layout(left, top, right, top + cs_s);
 			top += cs_s + py;
 			int grid_pad = (w - grid_s) / 2;
-			grid.layout(left + grid_pad, top, right - grid_pad, top + w);
+			grid.layout(left + grid_pad, top, left + grid_pad + grid_s, top + grid_s);
 			top += py;
 			chk.layout(left, top + grid_s, right, top + grid_s + chk_h);
 			btn.layout(left, top + grid_s + chk_h, right, bottom);
