@@ -65,7 +65,6 @@ public class ReminderCreateActivity extends Activity {
 		cs.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				dv.setPaint(Bitmaps.paints[cs.getValue()]);
-				dv.postInvalidate();
 			}
 		});
 		setContentView(layout, lp);

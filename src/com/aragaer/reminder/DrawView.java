@@ -59,6 +59,12 @@ class DrawView extends View implements OnTouchListener {
 
 	public void setPaint(Paint paint) {
 		visible = paint;
+		final int w = getWidth();
+		final int h = getHeight();
+		if (w > 0 && h > 0)
+			cc.clipRect(0, 0, w, h, Op.REPLACE);
+		draw_into_cache();
+		postInvalidate();
 	}
 
 	protected void onMeasure(int w, int h) {
