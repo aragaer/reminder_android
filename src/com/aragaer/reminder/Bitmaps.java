@@ -1,5 +1,7 @@
 package com.aragaer.reminder;
 
+import java.io.ByteArrayInputStream;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -13,6 +15,7 @@ import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
 
 public class Bitmaps {
@@ -134,6 +137,12 @@ public class Bitmaps {
 		Canvas c = new Canvas(b);
 		c.drawBitmap(result, 0, 0, (invert ? darker : paints)[item.color]);
 		return b;
+	}
+
+	static public BitmapDrawable memo_drawable(Context ctx, ReminderItem item, boolean invert) {
+		BitmapDrawable result = new BitmapDrawable(ctx.getResources(), new ByteArrayInputStream(item.glyph_data));
+		result.setColorFilter(new ColorMatrixColorFilter((invert ? filters_inv : filters)[item.color]));
+		return result;
 	}
 
 	static GradientDrawable border(int stroke, int color) {
