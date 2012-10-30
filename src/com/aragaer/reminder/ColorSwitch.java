@@ -21,11 +21,10 @@ public class ColorSwitch extends RadioGroup {
 		LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1);
 		lp.setMargins(margin, margin, margin, margin);
 		for (int i = 0; i < Bitmaps.N_COLORS; i++) {
-			RadioButton rb = new RadioButton(context);
-			GradientDrawable border = Bitmaps.border();
-			rb.setId(ADD + i);
 			final int c = Bitmaps.colors[i];
-			border.setStroke(margin, c);
+			RadioButton rb = new RadioButton(context);
+			GradientDrawable border = Bitmaps.border(margin, c);
+			rb.setId(ADD + i);
 			border.setColor(Color.argb(192, Color.red(c), Color.green(c), Color.blue(c)));
 			rb.setBackgroundDrawable(border);
 			rb.setButtonDrawable(android.R.color.transparent);

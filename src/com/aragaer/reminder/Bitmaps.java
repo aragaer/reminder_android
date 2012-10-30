@@ -65,8 +65,7 @@ public class Bitmaps {
 		Canvas c = new Canvas(b);
 		c.drawBitmap(t, 0, 0, (invert ? darker : paints)[0]);
 
-		GradientDrawable d = border();
-		d.setStroke(r.getDimensionPixelSize(R.dimen.border_width),
+		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width),
 				invert ? Color.argb(255, 0x99, 0xcc, 0x00)
 						: colors[COLOR_GREEN]);
 		d.setBounds(0, 0, size, size);
@@ -114,8 +113,7 @@ public class Bitmaps {
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		GradientDrawable d = border();
-		d.setStroke(r.getDimensionPixelSize(R.dimen.border_width),
+		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width),
 				invert ? Color.argb(255, 0x99, 0xcc, 0x00)
 						: colors[COLOR_GREEN]);
 		d.setBounds(0, 0, size, size);
@@ -138,11 +136,12 @@ public class Bitmaps {
 		return b;
 	}
 
-	static GradientDrawable border() {
+	static GradientDrawable border(int stroke, int color) {
 		GradientDrawable result = new GradientDrawable();
 		result.setCornerRadius(7);
 		result.setSize(60, 60);
 		result.setColor(Color.TRANSPARENT);
+		result.setStroke(stroke, color);
 		return result;
 	}
 }
