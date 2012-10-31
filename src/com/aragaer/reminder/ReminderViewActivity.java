@@ -54,7 +54,10 @@ public class ReminderViewActivity extends Activity {
 		if (!new_text.equals(memo.text)) {
 			memo.text = new_text;
 			ContentValues row = new ContentValues();
-			row.put("comment", new_text);
+			if (new_text.length() > 0)
+				row.put("comment", new_text);
+			else
+				row.putNull("comment");
 			getContentResolver().update(ContentUris.withAppendedId(ReminderProvider.content_uri, memo._id), row, null, null);
 		}
 		super.onBackPressed();
