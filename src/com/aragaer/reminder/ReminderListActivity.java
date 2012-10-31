@@ -109,8 +109,8 @@ public class ReminderListActivity extends Activity {
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem delete = menu.add(R.string.menu_settings);
-		delete.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		MenuItem settings = menu.add(R.string.menu_settings);
+		settings.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			public boolean onMenuItemClick(MenuItem item) {
 				startActivity(new Intent(ReminderListActivity.this, ReminderSettings.class));
 				return true;

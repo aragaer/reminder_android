@@ -19,6 +19,7 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 public class ReminderProvider extends ContentProvider {
 	private static final int DATABASE_VERSION = 2;
@@ -62,8 +63,10 @@ public class ReminderProvider extends ContentProvider {
 			Log.e(TAG, "Unknown URI requested: " + uri);
 			break;
 		}
-		if (result > 0)
+		if (result > 0) {
 			notifyChange();
+			Toast.makeText(getContext(), R.string.toast_deleted, Toast.LENGTH_LONG).show();
+		}
 		return result;
 	}
 
@@ -77,8 +80,10 @@ public class ReminderProvider extends ContentProvider {
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
 			long id = db.insert("memo", null, arg1);
-			if (id != -1)
+			if (id != -1) {
 				notifyChange();
+				Toast.makeText(getContext(), R.string.toast_created, Toast.LENGTH_LONG).show();
+			}
 			return ContentUris.withAppendedId(content_uri, id);
 		default:
 			Log.e(TAG, "Unknown URI requested: " + uri);
@@ -191,8 +196,10 @@ public class ReminderProvider extends ContentProvider {
 			Log.e(TAG, "Unknown URI requested: " + uri);
 			break;
 		}
-		if (result > 0)
+		if (result > 0) {
 			notifyChange();
+			Toast.makeText(getContext(), R.string.toast_saved, Toast.LENGTH_LONG).show();
+		}
 		return result;
 	}
 

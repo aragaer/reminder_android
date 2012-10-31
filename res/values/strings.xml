@@ -13,4 +13,8 @@
 
     <string name="pref_notification_left">Buttons on the left</string>
     <string name="pref_notification_left_ex">Put "list" and "add" buttons on the left side of notification</string>
+
+    <string name="toast_created">Reminder created</string>
+    <string name="toast_saved">Reminder saved</string>
+    <string name="toast_deleted">Reminder deleted</string>
 </resources>
