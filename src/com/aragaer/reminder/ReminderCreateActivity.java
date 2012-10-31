@@ -1,8 +1,11 @@
 package com.aragaer.reminder;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,7 +49,10 @@ public class ReminderCreateActivity extends Activity {
 				row.put("glyph", ReminderItem.bitmap_to_bytes(res));
 				row.put("date", System.currentTimeMillis());
 				row.put("color", cs.getValue());
-				getContentResolver().insert(ReminderProvider.content_uri, row);
+				Uri result_uri = getContentResolver().insert(ReminderProvider.content_uri, row);
+				if (chk.isChecked())
+					startActivity(new Intent(ReminderCreateActivity.this,ReminderViewActivity.class)
+							.putExtra("reminder_id", ContentUris.parseId(result_uri)));
 				ReminderCreateActivity.this.finish();
 			}
 		});

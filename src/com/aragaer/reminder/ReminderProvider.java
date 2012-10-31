@@ -176,8 +176,24 @@ public class ReminderProvider extends ContentProvider {
 		return new String[] { Long.toString(ContentUris.parseId(uri)) };
 	}
 
-	public int update(Uri arg0, ContentValues arg1, String arg2, String[] arg3) {
-		return 0;
+	public int update(Uri uri, ContentValues arg1, String arg2, String[] arg3) {
+		if (!openDB())
+			return 0;
+		int result = 0;
+		switch (uri_matcher.match(uri)) {
+		case REMINDER_CODE:
+			result = db.update("memo", arg1, arg2, arg3);
+			break;
+		case REMINDER_WITH_ID:
+			result = db.update("memo", arg1, "_id=?", uri2selection(uri));
+			break;
+		default:
+			Log.e(TAG, "Unknown URI requested: " + uri);
+			break;
+		}
+		if (result > 0)
+			notifyChange();
+		return result;
 	}
 
 	public static ReminderItem getItem(Cursor c) {
