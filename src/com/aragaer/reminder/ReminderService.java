@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -84,7 +85,9 @@ public class ReminderService extends Service implements View.OnTouchListener {
 
 	private static final String PKG_NAME = ReminderService.class.getPackage().getName(); 
 	private static Notification buildNotification(Context ctx) {
-		boolean invert = PreferenceManager.getDefaultSharedPreferences(ctx).getBoolean("notification_invert", !multiple_intents);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
+		boolean invert = pref.getBoolean("notification_invert", !multiple_intents);
+		boolean buttons_on_left = pref.getBoolean("notification_btn_left", false);
 		Resources r = ctx.getResources();
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 		int padding = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
@@ -118,10 +121,17 @@ public class ReminderService extends Service implements View.OnTouchListener {
 
 		Intent intent = new Intent(ctx, ReminderListActivity.class);
 		intent.addFlags(intent_flags);
-		list.add(new Glyph2Intent(Bitmaps.list_bmp(ctx, lost, invert), intent));
+		Glyph2Intent list_btn = new Glyph2Intent(Bitmaps.list_bmp(ctx, lost, invert), intent);
 		intent = new Intent(ctx, ReminderCreateActivity.class);
 		intent.addFlags(intent_flags);
-		list.add(new Glyph2Intent(Bitmaps.add_new_bmp(ctx, invert), intent));
+		Glyph2Intent new_btn = new Glyph2Intent(Bitmaps.add_new_bmp(ctx, invert), intent);
+		if (buttons_on_left) {
+			list.add(0, list_btn);
+			list.add(0, new_btn);
+		} else {
+			list.add(list_btn);
+			list.add(new_btn);
+		}
 
 		RemoteViews rv = new RemoteViews(PKG_NAME, R.layout.notification);
 		rv.removeAllViews(R.id.wrap);

@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <PreferenceCategory android:title="@string/pref_cat_appearance" >
+    <PreferenceCategory android:title="@string/pref_cat_notification" >
         <CheckBoxPreference
             android:defaultValue="@bool/invert_notification"
             android:key="notification_invert"
             android:summary="@string/pref_invert_notif_ex"
             android:title="@string/pref_invert_notif" />
-    </PreferenceCategory>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="notification_btn_left"
+            android:summary="@string/pref_notification_left_ex"
+            android:title="@string/pref_notification_left" />
+        </PreferenceCategory>
 
 </PreferenceScreen>
