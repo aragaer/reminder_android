@@ -53,10 +53,14 @@ public class Bitmaps {
 	static {
 		for (int i = 0; i < N_COLORS; i++) {
 			paints[i] = new Paint(0x07);
-			paints[i].setColorFilter(new ColorMatrixColorFilter(filters[i]));
+			paints[i].setColorFilter(filter(i, false));
 			darker[i] = new Paint(0x07);
-			darker[i].setColorFilter(new ColorMatrixColorFilter(filters_inv[i]));
+			darker[i].setColorFilter(filter(i, true));
 		}
+	}
+
+	static ColorMatrixColorFilter filter(int color_num, boolean invert) {
+		return new ColorMatrixColorFilter((invert ? filters_inv : filters)[color_num]);
 	}
 
 	static public Bitmap list_bmp(Context ctx, int extra, boolean invert) {
@@ -141,7 +145,7 @@ public class Bitmaps {
 
 	static public BitmapDrawable memo_drawable(Context ctx, ReminderItem item, boolean invert) {
 		BitmapDrawable result = new BitmapDrawable(ctx.getResources(), new ByteArrayInputStream(item.glyph_data));
-		result.setColorFilter(new ColorMatrixColorFilter((invert ? filters_inv : filters)[item.color]));
+		result.setColorFilter(filter(item.color, invert));
 		return result;
 	}
 
