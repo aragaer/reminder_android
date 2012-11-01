@@ -49,7 +49,7 @@ public class ReminderViewActivity extends Activity {
 		outState.putLong("reminder_id", memo._id);
 	}
 
-	public void onBackPressed() {
+	public void onPause() {
 		String new_text = comment.getText().toString();
 		if (!new_text.equals(memo.text)) {
 			memo.text = new_text;
@@ -60,7 +60,7 @@ public class ReminderViewActivity extends Activity {
 				row.putNull("comment");
 			getContentResolver().update(ContentUris.withAppendedId(ReminderProvider.content_uri, memo._id), row, null, null);
 		}
-		super.onBackPressed();
+		super.onPause();
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
