@@ -51,6 +51,6 @@
         android:gravity="left|top"
         android:inputType="textMultiLine"
         android:padding="5dp"
-        android:textColor="@android:color/primary_text_dark" />
+        android:textColor="@android:color/white" />
 
 </RelativeLayout>
