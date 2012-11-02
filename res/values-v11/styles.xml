@@ -3,6 +3,4 @@
 
     <bool name="invert_notification">false</bool>
 
-    <style name="ReminderDark" parent="android:style/Theme.Holo" />
-
 </resources>

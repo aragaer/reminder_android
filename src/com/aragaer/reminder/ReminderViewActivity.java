@@ -3,6 +3,7 @@ package com.aragaer.reminder;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
@@ -23,6 +24,7 @@ public class ReminderViewActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		long id;
 		super.onCreate(savedInstanceState);
+		Resources r = getResources();
 
 		if (savedInstanceState != null)
 			id = savedInstanceState.getLong("reminder_id");
@@ -35,10 +37,12 @@ public class ReminderViewActivity extends Activity {
 
 		setContentView(R.layout.view);
 		glyph_view = (ImageView) findViewById(R.id.glyph);
-		glyph_view.setImageBitmap(memo.getGlyph(getResources().getDimensionPixelSize(R.dimen.view_glyph_size)));
+		glyph_view.setImageBitmap(memo.getGlyph(r.getDimensionPixelSize(R.dimen.view_glyph_size)));
 		glyph_view.setColorFilter(new ColorMatrixColorFilter(Bitmaps.filters[memo.color]));
 		comment = (EditText) findViewById(R.id.comment);
-		comment.setBackgroundDrawable(Bitmaps.border(5, Color.LTGRAY));
+		comment.setBackgroundDrawable(Bitmaps.border(
+				r.getDimensionPixelSize(R.dimen.notification_glyph_margin),
+				Color.LTGRAY));
 		comment.setText(memo.text);
 		((TextView) findViewById(R.id.date)).setText(DateFormat.getDateFormat(this).format(memo.when));
 		((TextView) findViewById(R.id.time)).setText(DateFormat.getTimeFormat(this).format(memo.when));

@@ -81,13 +81,15 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		startForeground(1, buildNotification(this));
 	}
 
-	public static List<Glyph2Intent> list = new ArrayList<Glyph2Intent>();
+	static List<Glyph2Intent> list = new ArrayList<Glyph2Intent>();
+	static int n_sym;	// number of icons on the left
 
+	static boolean buttons_on_left;
 	private static final String PKG_NAME = ReminderService.class.getPackage().getName(); 
 	private static Notification buildNotification(Context ctx) {
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
 		boolean invert = pref.getBoolean("notification_invert", !multiple_intents);
-		boolean buttons_on_left = pref.getBoolean("notification_btn_left", false);
+		buttons_on_left = pref.getBoolean("notification_btn_left", false);
 		Resources r = ctx.getResources();
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 		int padding = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
@@ -95,6 +97,8 @@ public class ReminderService extends Service implements View.OnTouchListener {
 
 		DisplayMetrics dm = r.getDisplayMetrics();
 		int num = dm.widthPixels / height;
+		if (multiple_intents && num > 7) // Hardcoded value, yo!
+			num = 7;
 
 		Cursor cursor = ctx.getContentResolver()
 				.query(ReminderProvider.content_uri, null, null, null, null);
@@ -103,7 +107,6 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		cursor.close();
 
 		list.clear();
-
 		for (ReminderItem item : items) {
 			Intent intent = new Intent(ctx, ReminderViewActivity.class)
 				.putExtra("reminder_id", item._id)
@@ -125,9 +128,11 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		intent = new Intent(ctx, ReminderCreateActivity.class);
 		intent.addFlags(intent_flags);
 		Glyph2Intent new_btn = new Glyph2Intent(Bitmaps.add_new_bmp(ctx, invert), intent);
+		n_sym = list.size();
 		if (buttons_on_left) {
 			list.add(0, list_btn);
 			list.add(0, new_btn);
+			n_sym += 2;
 		} else {
 			list.add(list_btn);
 			list.add(new_btn);
@@ -136,6 +141,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		RemoteViews rv = new RemoteViews(PKG_NAME, R.layout.notification);
 		rv.removeAllViews(R.id.wrap);
 		if (multiple_intents) {
+			rv.removeAllViews(R.id.wrap2);
 			for (int i = 0; i < list.size(); i++) {
 				final Glyph2Intent g2i = list.get(i);
 				final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
@@ -143,20 +149,28 @@ public class ReminderService extends Service implements View.OnTouchListener {
 						new Intent(catcher_action).putExtra("what", i), 0);
 				image.setOnClickPendingIntent(R.id.image, pi);
 				image.setImageViewBitmap(R.id.image, g2i.image);
-				rv.addView(R.id.wrap, image);
+				if (i < n_sym)
+					rv.addView(R.id.wrap, image);
+				else
+					rv.addView(R.id.wrap2, image);
 			}
 		} else {
-			final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
-			Bitmap bmp = Bitmap.createBitmap(height * list.size() - padding * 2, size, Config.ARGB_8888);
+			RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
+			int imgsize = buttons_on_left ? height * list.size() : dm.widthPixels;
+			Bitmap bmp = Bitmap.createBitmap(imgsize - padding * 2, size, Config.ARGB_8888);
 			Canvas c = new Canvas(bmp);
+			int position = 0;
 			for (int i = 0; i < list.size(); i++) {
 				final Glyph2Intent item = list.get(i);
-				c.drawBitmap(item.image, i * height, 0, null);
+				if (i == n_sym)
+					position += dm.widthPixels - height * list.size();
+				c.drawBitmap(item.image, position, 0, null);
+				position += height;
 			}
 			image.setImageViewBitmap(R.id.image, bmp);
 			rv.addView(R.id.wrap, image);
 		}
-		n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
+		n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR | Notification.FLAG_ONLY_ALERT_ONCE;
 
 		n.contentView = rv;
 		n.contentIntent = PendingIntent.getBroadcast(ctx, list.size(), new Intent(catcher_action), 0);
@@ -174,7 +188,16 @@ public class ReminderService extends Service implements View.OnTouchListener {
 	private final BroadcastReceiver catcher = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			int glyph_width = context.getResources().getDimensionPixelSize(R.dimen.notification_height);
-			int position = multiple_intents ? intent.getIntExtra("what", 99) : (int) x / glyph_width;
+			int position;
+				if (multiple_intents)
+					position = intent.getIntExtra("what", 99);
+				else {
+					position = (int) x / glyph_width;
+					if (!buttons_on_left && position >= n_sym) {
+						int scrw = context.getResources().getDisplayMetrics().widthPixels;
+						position = list.size() - (scrw - (int) x) / glyph_width - 1;
+					}
+				}
 			Intent i = ReminderService.list == null
 					|| position >= ReminderService.list.size()
 				? new Intent(context, ReminderListActivity.class)
