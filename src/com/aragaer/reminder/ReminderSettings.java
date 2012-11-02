@@ -7,7 +7,9 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 
 public class ReminderSettings extends PreferenceActivity {
-	private static final String prefs_to_broadcast[] = {"notification_invert", "notification_btn_left"};
+	private static final String prefs_to_broadcast[] = { "notification_invert",
+			"notification_btn_left", "notification_hide_list" };
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 	    addPreferencesFromResource(R.xml.preferences);

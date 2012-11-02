@@ -9,6 +9,7 @@
     <string name="pref_cat_notification">Notification settings</string>
     <string name="pref_invert_notif">Dark colors</string>
     <string name="pref_invert_notif_ex">Check this if your notification background is light</string>
+
     <string name="created_on">Created on:</string>
 
     <string name="pref_notification_left">Buttons on the left</string>
@@ -17,4 +18,7 @@
     <string name="toast_created">Reminder created</string>
     <string name="toast_saved">Reminder saved</string>
     <string name="toast_deleted">Reminder deleted</string>
+
+    <string name="pref_hide_list">Hide list button</string>
+    <string name="pref_hide_list_ex">Only show list button if not all symbols fit into notification</string>
 </resources>
