@@ -1,17 +1,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="ReminderTheme" parent="android:style/Theme.Wallpaper.NoTitleBar">
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:backgroundDimAmount">0.5</item>
-        <item name="android:textColor">@android:color/primary_text_dark</item>
-        <item name="android:shadowColor">@android:color/black</item>
-        <item name="android:shadowRadius">0.5</item>
-        <item name="android:textSize">15dip</item>
-        <item name="android:itemTextAppearance">@style/MenuText</item>
-    </style>
-
-    <style name="MenuText" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
-        <item name="android:textColor">@android:color/primary_text_light</item>
+    <style name="ReminderTheme" parent="android:style/Theme.NoTitleBar">
+        <item name="android:textSize">15sp</item>
     </style>
 
     <bool name="invert_notification">true</bool>

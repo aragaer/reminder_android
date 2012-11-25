@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="ReminderTheme" parent="android:style/Theme.Holo">
+        <item name="android:textSize">15sp</item>
+    </style>
+
     <bool name="invert_notification">false</bool>
+
+    <style name="ReminderDark" parent="android:style/Theme.NoTitleBar" />
 
 </resources>

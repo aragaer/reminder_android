@@ -73,8 +73,8 @@ public class Bitmaps {
 		c.drawBitmap(t, 0, 0, (invert ? darker : paints)[0]);
 
 		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width),
-				invert ? Color.argb(255, 0x66, 0x99, 0x00)
-						: colors[COLOR_GREEN]);
+				invert ? Color.argb(255, 0x33, 0xb5, 0xe5)
+						: colors[COLOR_BLUE]);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
 		if (extra > 0) {
@@ -121,8 +121,8 @@ public class Bitmaps {
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
 		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width),
-				invert ? Color.argb(255, 0x66, 0x99, 0x00)
-						: colors[COLOR_GREEN]);
+				invert ? Color.argb(255, 0x33, 0xb5, 0xe5)
+						: colors[COLOR_BLUE]);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
 		c.drawBitmap(draw_char("+", size), 0, 0, (invert ? darker : paints)[0]);
