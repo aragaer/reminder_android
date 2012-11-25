@@ -15,14 +15,17 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
 public class ReminderProvider extends ContentProvider {
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 1;
+	private SQLiteDatabase db = null;
 
 	public static final String UPDATE_ACTION = "com.aragaer.reminder.ReminderUpdate";
 
@@ -30,8 +33,6 @@ public class ReminderProvider extends ContentProvider {
 
 	public static final Uri content_uri = Uri
 			.parse("content://com.aragaer.reminder.provider/reminder");
-
-	private SQLiteDatabase db = null;
 
 	private static final UriMatcher uri_matcher = new UriMatcher(0);
 	private static final int REMINDER_CODE = 1;
@@ -49,8 +50,6 @@ public class ReminderProvider extends ContentProvider {
 	}
 
 	public int delete(Uri uri, String arg1, String[] arg2) {
-		if (!openDB())
-			return 0;
 		int result = 0;
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
@@ -75,8 +74,6 @@ public class ReminderProvider extends ContentProvider {
 	}
 
 	public Uri insert(Uri uri, ContentValues arg1) {
-		if (!openDB())
-			return null;
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
 			long id = db.insert("memo", null, arg1);
@@ -93,78 +90,66 @@ public class ReminderProvider extends ContentProvider {
 	}
 
 	public boolean onCreate() {
+		db = new ReminderSQLHelper(getContext(), "MEMO", null, DATABASE_VERSION).getWritableDatabase();
+		if (db == null || db.isReadOnly())
+			return false;
+
+		Log.d(TAG, "Created. Checking if we need to move old data");
+
+		SharedPreferences prefs = getContext().getSharedPreferences("DB", Context.MODE_PRIVATE);
+		int current_version = prefs.getInt("DATABASE_VERSION", 0);
+		if (current_version > 0 && moveOldData(db))
+			prefs.edit().putInt("DATABASE_VERSION", 0).commit();
+
 		return true;
 	}
 
-	static boolean createDB(SQLiteDatabase db) {
-		Log.d(TAG, "creating DB");
-		try {
-			db.execSQL("CREATE TABLE memo (_id integer primary key autoincrement, glyph blob, comment text, date integer, color integer)");
-			return true;
-		} catch (SQLException e) {
-			Log.e(TAG, e.toString());
-			return false;
-		}
-	}
-
-	static boolean upgradeDB(SQLiteDatabase db, int old_version) {
-		switch (old_version) {
-		case 1:
-			db.execSQL("ALTER TABLE memo ADD color integer not null default 0");
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	boolean openDB() {
-		if (db != null)
-			return true;
-		SharedPreferences prefs = getContext().getSharedPreferences("DB", Context.MODE_PRIVATE);
-		int current_version = prefs.getInt("DATABASE_VERSION", 0);
-
+	boolean moveOldData(SQLiteDatabase db) {
+		Log.d(TAG, "Converting old database");
 		File sdcard = Environment.getExternalStorageDirectory();
 		File dir = new File(sdcard, "Android");
 		dir = new File(new File(dir, "data"), ReminderProvider.class
 				.getPackage().getName());
-		if (!dir.exists() && !dir.mkdirs())
-			return false;
+		if (!dir.exists())
+			return true;
 
 		File db_file = new File(dir, "memo.db");
-		if (db_file.exists() && current_version == 0)
+
+		if (db_file.exists()) {
+			try {
+				db.execSQL("attach ? as sd", new String[] {db_file.getAbsolutePath()} );
+				db.beginTransaction();
+				db.execSQL("insert into memo select * from sd.memo");
+				db.delete("sd.memo", null, null);
+				db.setTransactionSuccessful();
+			} catch (SQLiteException e) {
+				Log.e(TAG, "Failed to move old DB: "+e);
+				if (db.inTransaction())
+					db.endTransaction();
+				return false;
+			} finally {
+				db.endTransaction();
+			}
+
+			Log.d(TAG, "Data moved");
+
+			try {
+				db.execSQL("detach sd");
+			} catch (SQLiteException e) {
+				Log.w(TAG, "Failed to detach database");
+				return false;
+			}
+
 			db_file.delete();
-		else if (!db_file.exists())
-			current_version = 0;
-
-		try {
-			db = SQLiteDatabase.openOrCreateDatabase(db_file, null);
-		} catch (SQLiteException e) {
-			Log.e(TAG, e.toString());
-			return false;
 		}
 
-		boolean success = false;
-		if (current_version == DATABASE_VERSION)
-			return true;
-		if (current_version == 0)
-			success = createDB(db);
-		else
-			success = upgradeDB(db, current_version);
+		dir.delete();
 
-		if (success)
-			prefs.edit().putInt("DATABASE_VERSION", DATABASE_VERSION).commit();
-		else {
-			db.close();
-			db = null;
-		}
-		return db != null;
+		return true;
 	}
 
 	public Cursor query(Uri uri, String[] arg1, String arg2, String[] arg3,
 			String arg4) {
-		if (!openDB())
-			return null;
-//		Log.d(TAG, "DB = " + db.toString());
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
 			return db.query("memo", arg1, arg2, arg3, null, null, arg4);
@@ -182,8 +167,6 @@ public class ReminderProvider extends ContentProvider {
 	}
 
 	public int update(Uri uri, ContentValues arg1, String arg2, String[] arg3) {
-		if (!openDB())
-			return 0;
 		int result = 0;
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
@@ -221,4 +204,22 @@ public class ReminderProvider extends ContentProvider {
 			result.add(getItem(c));
 		return result;
 	}
+
+	class ReminderSQLHelper extends SQLiteOpenHelper {
+		public ReminderSQLHelper(Context context, String name,
+				CursorFactory factory, int version) {
+			super(context, name, factory, version);
+		}
+
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { }
+		
+		public void onCreate(SQLiteDatabase db) {
+			Log.d(TAG, "creating DB");
+			try {
+				db.execSQL("CREATE TABLE memo (_id integer primary key autoincrement, glyph blob, comment text, date integer, color integer)");
+			} catch (SQLException e) {
+				Log.e(TAG, e.toString());
+			}
+		}
+	};
 }
