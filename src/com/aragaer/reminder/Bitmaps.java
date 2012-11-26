@@ -2,6 +2,7 @@ package com.aragaer.reminder;
 
 import java.io.ByteArrayInputStream;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;

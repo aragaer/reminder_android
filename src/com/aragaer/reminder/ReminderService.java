@@ -115,6 +115,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		}
 		items.clear();
 
+		@SuppressWarnings("deprecation")
 		Notification n = new Notification(
 				list.isEmpty()
 					? R.drawable.notify
