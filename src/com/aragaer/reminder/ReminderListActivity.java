@@ -2,7 +2,6 @@ package com.aragaer.reminder;
 
 import com.markupartist.android.widget.ActionBar;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -35,7 +34,6 @@ public class ReminderListActivity extends Activity {
 	ActionBar ab;
 	ListView list;
 
-	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		startService(new Intent(this, ReminderService.class));
@@ -81,15 +79,15 @@ public class ReminderListActivity extends Activity {
 			}
 		});
 
-			LinearLayout ll = new LinearLayout(this);
-			ll.setOrientation(LinearLayout.VERTICAL);
-			ab = new ActionBar(this, null);
-			ll.addView(ab);
-			ab.setTitle(R.string.title_activity_main);
-			ab.setDisplayUseLogoEnabled(true);
-			ab.setHomeLogo(R.drawable.ic_launcher);
-			ll.addView(list);
-			setContentView(ll);
+		LinearLayout ll = new LinearLayout(this);
+		ll.setOrientation(LinearLayout.VERTICAL);
+		ab = new ActionBar(this, null);
+		ll.addView(ab);
+		ab.setTitle(R.string.title_activity_main);
+		ab.setDisplayUseLogoEnabled(true);
+		ab.setHomeLogo(R.drawable.ic_launcher);
+		ll.addView(list);
+		setContentView(ll);
 		registerReceiver(update, new IntentFilter(ReminderProvider.UPDATE_ACTION));
 	}
 
