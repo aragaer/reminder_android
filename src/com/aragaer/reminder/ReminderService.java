@@ -18,7 +18,6 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.widget.RemoteViews;
 
@@ -27,7 +26,6 @@ public class ReminderService extends Service {
 	private static final int intent_flags = Intent.FLAG_ACTIVITY_NEW_TASK
 			| Intent.FLAG_ACTIVITY_CLEAR_TOP
 			| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
-	static boolean window_created = false;
 
 	public static final String settings_changed = "com.aragaer.reminder.SETTINGS_CHANGE";
 
@@ -41,7 +39,6 @@ public class ReminderService extends Service {
 		return START_STICKY;
 	}
 
-	static float size;
 	private void handleCommand(Intent command) {
 		IntentFilter filter = new IntentFilter(ReminderProvider.UPDATE_ACTION);
 		filter.addAction(settings_changed);
@@ -52,18 +49,15 @@ public class ReminderService extends Service {
 	}
 
 	static List<Pair<Bitmap, Intent>> list = new ArrayList<Pair<Bitmap,Intent>>();
-	static int n_sym;	// number of icons on the left
 
-	static boolean buttons_on_left;
 	private static final String PKG_NAME = ReminderService.class.getPackage().getName(); 
 	private static Notification buildNotification(Context ctx) {
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
-		buttons_on_left = pref.getBoolean("notification_btn_left", false);
+		boolean buttons_on_left = pref.getBoolean("notification_btn_left", false);
 		Resources r = ctx.getResources();
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 
-		DisplayMetrics dm = r.getDisplayMetrics();
-		int num = dm.widthPixels / height;
+		int num = r.getDisplayMetrics().widthPixels / height;
 		if (num > 7) // Hardcoded value, yo!
 			num = 7;
 
@@ -74,12 +68,12 @@ public class ReminderService extends Service {
 		cursor.close();
 
 		list.clear();
-		for (ReminderItem item : items) {
-			Intent intent = new Intent(ctx, ReminderViewActivity.class)
-				.putExtra("reminder_id", item._id)
-				.setAction("View " + item._id);
-			list.add(Pair.create(Bitmaps.memo_bmp(ctx, item), intent));
-		}
+		for (ReminderItem item : items)
+			list.add(Pair.create(
+					Bitmaps.memo_bmp(ctx, item),
+					new Intent(ctx, ReminderViewActivity.class).putExtra(
+							"reminder_id", item._id).setAction(
+							"View " + item._id)));
 		items.clear();
 
 		@SuppressWarnings("deprecation")
@@ -90,13 +84,13 @@ public class ReminderService extends Service {
 				ctx.getString(R.string.app_name),
 				System.currentTimeMillis());
 
-		Intent intent = new Intent(ctx, ReminderListActivity.class);
-		intent.addFlags(intent_flags);
-		Pair<Bitmap, Intent> list_btn = Pair.create(Bitmaps.list_bmp(ctx, lost), intent);
-		intent = new Intent(ctx, ReminderCreateActivity.class);
-		intent.addFlags(intent_flags);
-		Pair<Bitmap, Intent> new_btn = Pair.create(Bitmaps.add_new_bmp(ctx), intent);
-		n_sym = list.size();
+		Pair<Bitmap, Intent> list_btn = Pair.create(
+				Bitmaps.list_bmp(ctx, lost), new Intent(ctx,
+						ReminderListActivity.class).addFlags(intent_flags));
+		Pair<Bitmap, Intent> new_btn = Pair.create(Bitmaps.add_new_bmp(ctx),
+				new Intent(ctx, ReminderCreateActivity.class)
+						.addFlags(intent_flags));
+		int n_sym = list.size();
 		if (buttons_on_left) {
 			list.add(0, list_btn);
 			list.add(0, new_btn);
