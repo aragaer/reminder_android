@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
+import android.util.Pair;
 import android.widget.RemoteViews;
 
 public class ReminderService extends Service {
@@ -50,7 +51,7 @@ public class ReminderService extends Service {
 		startForeground(1, buildNotification(this));
 	}
 
-	static List<Glyph2Intent> list = new ArrayList<Glyph2Intent>();
+	static List<Pair<Bitmap, Intent>> list = new ArrayList<Pair<Bitmap,Intent>>();
 	static int n_sym;	// number of icons on the left
 
 	static boolean buttons_on_left;
@@ -77,7 +78,7 @@ public class ReminderService extends Service {
 			Intent intent = new Intent(ctx, ReminderViewActivity.class)
 				.putExtra("reminder_id", item._id)
 				.setAction("View " + item._id);
-			list.add(new Glyph2Intent(Bitmaps.memo_bmp(ctx, item), intent));
+			list.add(Pair.create(Bitmaps.memo_bmp(ctx, item), intent));
 		}
 		items.clear();
 
@@ -91,10 +92,10 @@ public class ReminderService extends Service {
 
 		Intent intent = new Intent(ctx, ReminderListActivity.class);
 		intent.addFlags(intent_flags);
-		Glyph2Intent list_btn = new Glyph2Intent(Bitmaps.list_bmp(ctx, lost), intent);
+		Pair<Bitmap, Intent> list_btn = Pair.create(Bitmaps.list_bmp(ctx, lost), intent);
 		intent = new Intent(ctx, ReminderCreateActivity.class);
 		intent.addFlags(intent_flags);
-		Glyph2Intent new_btn = new Glyph2Intent(Bitmaps.add_new_bmp(ctx), intent);
+		Pair<Bitmap, Intent> new_btn = Pair.create(Bitmaps.add_new_bmp(ctx), intent);
 		n_sym = list.size();
 		if (buttons_on_left) {
 			list.add(0, list_btn);
@@ -109,12 +110,12 @@ public class ReminderService extends Service {
 		rv.removeAllViews(R.id.wrap);
 		rv.removeAllViews(R.id.wrap2);
 		for (int i = 0; i < list.size(); i++) {
-			final Glyph2Intent g2i = list.get(i);
+			final Pair<Bitmap, Intent> g2i = list.get(i);
 			final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
 			final PendingIntent pi = PendingIntent.getBroadcast(ctx, i,
 					new Intent(catcher_action).putExtra("what", i), 0);
 			image.setOnClickPendingIntent(R.id.image, pi);
-			image.setImageViewBitmap(R.id.image, g2i.image);
+			image.setImageViewBitmap(R.id.image, g2i.first);
 			if (i < n_sym)
 				rv.addView(R.id.wrap, image);
 			else
@@ -141,7 +142,7 @@ public class ReminderService extends Service {
 			Intent i = ReminderService.list == null
 					|| position >= ReminderService.list.size()
 				? new Intent(context, ReminderListActivity.class)
-				: ReminderService.list.get(position).intent;
+				: ReminderService.list.get(position).second;
 			if (need_collapse)
 				try {
 					Object obj = context.getSystemService("statusbar");
@@ -155,14 +156,5 @@ public class ReminderService extends Service {
 
 	public void onDestroy() {
 		unregisterReceiver(update);
-	}
-
-	public static final class Glyph2Intent {
-		public Bitmap image;
-		public Intent intent;
-		public Glyph2Intent (Bitmap b, Intent i) {
-			image = b;
-			intent = i;
-		}
 	}
 }
