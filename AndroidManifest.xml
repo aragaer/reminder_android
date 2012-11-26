@@ -4,8 +4,9 @@
     android:versionName="0.05a" >
 
     <uses-sdk
-        android:minSdkVersion="11"
-        android:targetSdkVersion="15" />
+        android:minSdkVersion="7"
+        android:targetSdkVersion="10"
+        android:maxSdkVersion="10"/>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />

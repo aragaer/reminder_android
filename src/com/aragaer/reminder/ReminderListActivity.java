@@ -1,6 +1,8 @@
 package com.aragaer.reminder;
 
-import android.app.ActionBar;
+import com.markupartist.android.widget.ActionBar;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -8,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -22,14 +25,17 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.WrapperListAdapter;
 
 public class ReminderListActivity extends Activity {
+	static final boolean actual_action_bar = Build.VERSION.SDK_INT > 10; // Honeycomb+
 	ActionBar ab;
 	ListView list;
 
+	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		startService(new Intent(this, ReminderService.class));
@@ -49,7 +55,7 @@ public class ReminderListActivity extends Activity {
 		});
 
 		View add_new = ViewGroup.inflate(this, android.R.layout.activity_list_item, null);
-		((ImageView) add_new.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.add_new_bmp(this));
+		((ImageView) add_new.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.add_new_bmp(this, false));
 		((TextView) add_new.findViewById(android.R.id.text1)).setText(R.string.add_new);
 		list.addFooterView(add_new);
 
@@ -70,13 +76,20 @@ public class ReminderListActivity extends Activity {
 
 			public void bindView(View view, Context context, Cursor cursor) {
 				ReminderItem item = ReminderProvider.getItem(cursor);
-				((ImageView) view.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.memo_bmp(context, item));
+				((ImageView) view.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.memo_bmp(context, item, false));
 				((TextView) view.findViewById(android.R.id.text1)).setText(item.getText());
 			}
 		});
 
-			ab = getActionBar();
-			setContentView(list);
+			LinearLayout ll = new LinearLayout(this);
+			ll.setOrientation(LinearLayout.VERTICAL);
+			ab = new ActionBar(this, null);
+			ll.addView(ab);
+			ab.setTitle(R.string.title_activity_main);
+			ab.setDisplayUseLogoEnabled(true);
+			ab.setHomeLogo(R.drawable.ic_launcher);
+			ll.addView(list);
+			setContentView(ll);
 		registerReceiver(update, new IntentFilter(ReminderProvider.UPDATE_ACTION));
 	}
 
