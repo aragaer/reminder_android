@@ -1,55 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="ReminderTheme" parent="android:style/Theme">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:textSize">15sp</item>
-                <!-- These are the styles that is needed for tabs. -->
-        <item name="actionBarStyle">@style/HoloActionBar</item>
-        <item name="actionBarItemDivider">@drawable/action_bar_divider</item>
-        <!-- These are the resources needed by the action bar, they all refer
-             to default values. -->
-        <item name="actionBarTitleTextStyle">@style/ActionBar_Title</item>
-        <item name="actionBarSubtitleTextStyle">@style/ActionBar_SubtitleText</item>
-        <item name="actionBarHomeItemStyle">@style/ActionBar_HomeItem</item>
-        <item name="actionBarHomeLogoStyle">@style/ActionBar_HomeLogo</item>
-        <item name="actionBarProgressBarStyle">@style/ActionBar_ProgressBar</item>
-    </style>
-
-    <bool name="invert_notification">true</bool>
-
+    <style name="ReminderTheme" parent="android:style/Theme.Holo"/>
     <style name="ReminderDark" parent="android:style/Theme.NoTitleBar" />
-
-    <!--
-         <style name="ActionBar">
-        <item name="android:displayOptions">useLogo|showHome|showTitle</item>
-        <item name="android:divider">@drawable/action_bar_divider</item>
-        <item name="android:height">?android:attr/actionBarSize</item>
-        <item name="android:paddingStart">0dip</item>
-        <item name="android:paddingTop">0dip</item>
-        <item name="android:paddingEnd">0dip</item>
-        <item name="android:paddingBottom">0dip</item>
-        <item name="android:titleTextStyle">@android:style/TextAppearance.Medium</item>
-        <item name="android:subtitleTextStyle">@android:style/TextAppearance.Small</item>
-        <item name="android:progressBarStyle">@android:style/Widget.ProgressBar.Horizontal</item>
-        <item name="android:indeterminateProgressStyle">@android:style/Widget.ProgressBar.Small</item>
-        <item name="android:background">@drawable/ab_transparent_dark_holo</item>
-        <item name="android:backgroundStacked">@drawable/ab_stacked_transparent_dark_holo</item>
-        <item name="android:backgroundSplit">@drawable/ab_bottom_transparent_dark_holo</item>
-        <item name="android:progressBarPadding">32dip</item>
-        <item name="android:itemPadding">8dip</item>
-    </style>
-    -->
-
-    <style name="HoloActionBar" parent="@style/ActionBar_Container">
-        <item name="android:background">@drawable/ab_transparent_dark_holo</item>
-        <item name="android:titleTextStyle">@android:style/TextAppearance.Medium</item>
-        <item name="android:subtitleTextStyle">@android:style/TextAppearance.Small</item>
-    </style>
-
-     <style name="ActionBar_Title" parent="ActionBar_TitleText">
-        <item name="android:textSize">18sp</item>
-    </style>
 
 </resources>

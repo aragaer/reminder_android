@@ -2,7 +2,6 @@ package com.aragaer.reminder;
 
 import java.io.ByteArrayInputStream;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -42,40 +41,28 @@ public class Bitmaps {
 			{ 0, 0, 0, 0, 0x99, 0, 0, 0, 0, 0xCC, 0, 0, 0, 0, 0x00, 1, 0, 0, 0, 0x00 },
 			{ 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0xBB, 0, 0, 0, 0, 0x33, 1, 0, 0, 0, 0x00 },
 			{ 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0x44, 0, 0, 0, 0, 0x44, 1, 0, 0, 0, 0x00 }, };
-	static final float filters_inv[][] = {
-			{ 0, 0, 0, 0, 0x00, 0, 0, 0, 0, 0x00, 0, 0, 0, 0, 0x00, .6f, 0, 0, 0, 0x00 },
-			{ 0, 0, 0, 0, 0x00, 0, 0, 0, 0, 0x99, 0, 0, 0, 0, 0xCC, 1, 0, 0, 0, 0x00 },
-			{ 0, 0, 0, 0, 0x99, 0, 0, 0, 0, 0x33, 0, 0, 0, 0, 0xCC, 1, 0, 0, 0, 0x00 },
-			{ 0, 0, 0, 0, 0x66, 0, 0, 0, 0, 0x99, 0, 0, 0, 0, 0x00, 1, 0, 0, 0, 0x00 },
-			{ 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0x88, 0, 0, 0, 0, 0x00, 1, 0, 0, 0, 0x00 },
-			{ 0, 0, 0, 0, 0xCC, 0, 0, 0, 0, 0x00, 0, 0, 0, 0, 0x00, 1, 0, 0, 0, 0x00 }, };
 	static final Paint paints[] = new Paint[N_COLORS];
-	static final Paint darker[] = new Paint[N_COLORS];
 	static {
 		for (int i = 0; i < N_COLORS; i++) {
 			paints[i] = new Paint(0x07);
-			paints[i].setColorFilter(filter(i, false));
-			darker[i] = new Paint(0x07);
-			darker[i].setColorFilter(filter(i, true));
+			paints[i].setColorFilter(filter(i));
 		}
 	}
 
-	static ColorMatrixColorFilter filter(int color_num, boolean invert) {
-		return new ColorMatrixColorFilter((invert ? filters_inv : filters)[color_num]);
+	static ColorMatrixColorFilter filter(int color_num) {
+		return new ColorMatrixColorFilter(filters[color_num]);
 	}
 
-	static public Bitmap list_bmp(Context ctx, int extra, boolean invert) {
+	static public Bitmap list_bmp(Context ctx, int extra) {
 		Resources r = ctx.getResources();
 		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		Bitmap t = BitmapFactory.decodeResource(r, R.drawable.list);
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		c.drawBitmap(t, 0, 0, (invert ? darker : paints)[0]);
+		c.drawBitmap(t, 0, 0, paints[0]);
 
-		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width),
-				invert ? Color.argb(255, 0x33, 0xb5, 0xe5)
-						: colors[COLOR_BLUE]);
+		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width), colors[COLOR_BLUE]);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
 		if (extra > 0) {
@@ -115,22 +102,20 @@ public class Bitmaps {
 		return b;
 	}
 
-	static public Bitmap add_new_bmp(Context ctx, boolean invert) {
+	static public Bitmap add_new_bmp(Context ctx) {
 		Resources r = ctx.getResources();
 		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width),
-				invert ? Color.argb(255, 0x33, 0xb5, 0xe5)
-						: colors[COLOR_BLUE]);
+		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width), colors[COLOR_BLUE]);
 		d.setBounds(0, 0, size, size);
 		d.draw(c);
-		c.drawBitmap(draw_char("+", size), 0, 0, (invert ? darker : paints)[0]);
+		c.drawBitmap(draw_char("+", size), 0, 0, paints[0]);
 		return b;
 	}
 
-	static public Bitmap memo_bmp(Context ctx, ReminderItem item, boolean invert) {
+	static public Bitmap memo_bmp(Context ctx, ReminderItem item) {
 		Resources r = ctx.getResources();
 		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
 				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
@@ -140,13 +125,13 @@ public class Bitmaps {
 
 		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
 		Canvas c = new Canvas(b);
-		c.drawBitmap(result, 0, 0, (invert ? darker : paints)[item.color]);
+		c.drawBitmap(result, 0, 0, paints[item.color]);
 		return b;
 	}
 
 	static public BitmapDrawable memo_drawable(Context ctx, ReminderItem item, boolean invert) {
 		BitmapDrawable result = new BitmapDrawable(ctx.getResources(), new ByteArrayInputStream(item.glyph_data));
-		result.setColorFilter(filter(item.color, invert));
+		result.setColorFilter(filter(item.color));
 		return result;
 	}
 
