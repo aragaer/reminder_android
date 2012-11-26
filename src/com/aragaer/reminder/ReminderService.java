@@ -32,7 +32,6 @@ public class ReminderService extends Service implements View.OnTouchListener {
 	private static final int intent_flags = Intent.FLAG_ACTIVITY_NEW_TASK
 			| Intent.FLAG_ACTIVITY_CLEAR_TOP
 			| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
-	static boolean window_created = false;
 
 	public static final String settings_changed = "com.aragaer.reminder.SETTINGS_CHANGE";
 
@@ -51,6 +50,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		return START_STICKY;
 	}
 
+	private static boolean window_created = false;
 	private static View click_catcher;
 	static float x = -1, size;
 
@@ -96,9 +96,8 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		int padding = r
 				.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		int size = height - padding * 2;
-
-		DisplayMetrics dm = r.getDisplayMetrics();
-		int num = dm.widthPixels / height;
+		int screen_width = r.getDisplayMetrics().widthPixels;
+		int num = screen_width / height;
 
 		Cursor cursor = ctx.getContentResolver().query(
 				ReminderProvider.content_uri, null, null, null, null);
@@ -121,14 +120,12 @@ public class ReminderService extends Service implements View.OnTouchListener {
 				: R.drawable.notify_reminder, ctx.getString(R.string.app_name),
 				System.currentTimeMillis());
 
-		Intent intent = new Intent(ctx, ReminderListActivity.class);
-		intent.addFlags(intent_flags);
 		Pair<Bitmap, Intent> list_btn = Pair.create(
-				Bitmaps.list_bmp(ctx, lost, invert), intent);
-		intent = new Intent(ctx, ReminderCreateActivity.class);
-		intent.addFlags(intent_flags);
-		Pair<Bitmap, Intent> new_btn = Pair.create(
-				Bitmaps.add_new_bmp(ctx, invert), intent);
+				Bitmaps.list_bmp(ctx, lost, invert), new Intent(ctx,
+						ReminderListActivity.class).addFlags(intent_flags));
+		Pair<Bitmap, Intent> new_btn = Pair.create(Bitmaps.add_new_bmp(ctx, invert),
+				new Intent(ctx, ReminderCreateActivity.class)
+						.addFlags(intent_flags));
 		n_sym = list.size();
 		if (buttons_on_left) {
 			list.add(0, list_btn);
@@ -142,7 +139,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		RemoteViews rv = new RemoteViews(PKG_NAME, R.layout.notification);
 		rv.removeAllViews(R.id.wrap);
 		RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
-		int imgsize = buttons_on_left ? height * list.size() : dm.widthPixels;
+		int imgsize = buttons_on_left ? height * list.size() : screen_width;
 		Bitmap bmp = Bitmap.createBitmap(imgsize - padding * 2, size,
 				Config.ARGB_8888);
 		Canvas c = new Canvas(bmp);
@@ -150,7 +147,7 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		for (int i = 0; i < list.size(); i++) {
 			final Pair<Bitmap, Intent> item = list.get(i);
 			if (i == n_sym)
-				position += dm.widthPixels - height * list.size();
+				position += screen_width - height * list.size();
 			c.drawBitmap(item.first, position, 0, null);
 			position += height;
 		}
@@ -184,9 +181,9 @@ public class ReminderService extends Service implements View.OnTouchListener {
 				position = list.size() - (scrw - (int) x) / glyph_width - 1;
 			}
 			Intent i = ReminderService.list == null
-					|| position >= ReminderService.list.size() ? new Intent(
-					context, ReminderListActivity.class) : ReminderService.list
-					.get(position).second;
+					|| position >= ReminderService.list.size()
+				? new Intent(context, ReminderListActivity.class)
+				: ReminderService.list.get(position).second;
 			context.startActivity(i.addFlags(intent_flags));
 		}
 	};
