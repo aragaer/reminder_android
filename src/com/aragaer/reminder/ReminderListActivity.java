@@ -105,9 +105,7 @@ public class ReminderListActivity extends Activity {
 				return true;
 			}
 		});
-		BitmapDrawable plus = new BitmapDrawable(getResources(), Bitmaps.draw_char("+", 64));
-		plus.setColorFilter(Bitmaps.filter(0));
-		create.setIcon(plus);
+		create.setIcon(R.drawable.content_new);
 		create.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
