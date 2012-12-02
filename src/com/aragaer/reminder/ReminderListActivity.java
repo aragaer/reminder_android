@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -104,7 +105,9 @@ public class ReminderListActivity extends Activity {
 				return true;
 			}
 		});
-		create.setIcon(android.R.drawable.ic_menu_add);
+		BitmapDrawable plus = new BitmapDrawable(getResources(), Bitmaps.draw_char("+", 64));
+		plus.setColorFilter(Bitmaps.filter(0));
+		create.setIcon(plus);
 		create.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
