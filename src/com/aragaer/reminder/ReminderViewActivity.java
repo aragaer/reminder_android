@@ -1,6 +1,5 @@
 package com.aragaer.reminder;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentUris;
@@ -10,7 +9,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.Menu;
@@ -25,7 +23,6 @@ public class ReminderViewActivity extends Activity {
 	ImageView glyph_view;
 	EditText comment;
 
-	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
 		long id;
 		super.onCreate(savedInstanceState);
@@ -53,8 +50,6 @@ public class ReminderViewActivity extends Activity {
 		((TextView) findViewById(R.id.time)).setText(DateFormat.getTimeFormat(this).format(memo.when));
 
 		ActionBar ab = getActionBar();
-		if (Build.VERSION.SDK_INT >= 14)
-			ab.setHomeButtonEnabled(true);
 		ab.setDisplayShowHomeEnabled(true);
 		ab.setDisplayHomeAsUpEnabled(true);
 	}
