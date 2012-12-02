@@ -3,6 +3,7 @@
     <string name="title_activity_main">Reminder</string>
     <string name="add_new">Create new reminder</string>
     <string name="add_extra">Add extra description</string>
+    <string name="no_extra">No extra description</string>
     <string name="delete">Delete</string>
     <string name="menu_settings">Settings</string>
 

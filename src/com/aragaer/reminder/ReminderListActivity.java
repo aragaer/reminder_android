@@ -1,14 +1,15 @@
 package com.aragaer.reminder;
 
-import android.app.ActionBar;
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -19,15 +20,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.WrapperListAdapter;
 
 public class ReminderListActivity extends Activity {
-	ActionBar ab;
 	ListView list;
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -38,29 +36,12 @@ public class ReminderListActivity extends Activity {
 		list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> adapter, View arg1,
 					int position, long id) {
-				if (position + 1 == adapter.getCount())
-					startActivity(new Intent(ReminderListActivity.this, ReminderCreateActivity.class));
-				else {
-					Intent i = new Intent(ReminderListActivity.this, ReminderViewActivity.class);
-					i.putExtra("reminder_id", id);
-					startActivity(i);
-				}
+				startActivity(new Intent(ReminderListActivity.this,
+						ReminderViewActivity.class).putExtra("reminder_id", id));
 			}
 		});
-
-		View add_new = ViewGroup.inflate(this, android.R.layout.activity_list_item, null);
-		((ImageView) add_new.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.add_new_bmp(this));
-		((TextView) add_new.findViewById(android.R.id.text1)).setText(R.string.add_new);
-		list.addFooterView(add_new);
 
 		registerForContextMenu(list);
-		list.setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-				boolean consume = position + 1 == av.getCount(); // intercept long press for "add new"
-				av.setHapticFeedbackEnabled(!consume);
-				return consume;
-			}
-		});
 
 		Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
 		list.setAdapter(new CursorAdapter(this, cursor) {
@@ -70,20 +51,25 @@ public class ReminderListActivity extends Activity {
 
 			public void bindView(View view, Context context, Cursor cursor) {
 				ReminderItem item = ReminderProvider.getItem(cursor);
-				((ImageView) view.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.memo_bmp(context, item));
+				((ImageView) view.findViewById(android.R.id.icon)).setImageBitmap(Bitmaps.memo_bmp(context, item, 64));
 				((TextView) view.findViewById(android.R.id.text1)).setText(item.getText());
 			}
 		});
 
-			ab = getActionBar();
-			setContentView(list);
-		registerReceiver(update, new IntentFilter(ReminderProvider.UPDATE_ACTION));
+		setContentView(list);
+		getContentResolver().registerContentObserver(ReminderProvider.content_uri, true, observer);
+
 	}
 
-	private final BroadcastReceiver update = new BroadcastReceiver() {
-		public void onReceive(Context context, Intent intent) {
-			((CursorAdapter) ((WrapperListAdapter) list.getAdapter()).getWrappedAdapter())
-			.changeCursor(getContentResolver().query(ReminderProvider.content_uri, null, null, null, null));
+	ContentObserver observer = new ContentObserver(new Handler()) {
+		@SuppressLint("NewApi")
+		public void onChange(boolean selfChange) {
+			this.onChange(selfChange, null);
+		}
+		public void onChange(boolean selfChange, Uri uri) {
+			((CursorAdapter) list.getAdapter())
+					.changeCursor(getContentResolver().query(
+							ReminderProvider.content_uri, null, null, null, null));
 		}
 	};
 
@@ -106,19 +92,20 @@ public class ReminderListActivity extends Activity {
 
 	public void onDestroy() {
 		super.onDestroy();
-		unregisterReceiver(update);
-		((CursorAdapter) ((WrapperListAdapter) list.getAdapter())
-				.getWrappedAdapter()).getCursor().close();
+		getContentResolver().unregisterContentObserver(observer);
+		((CursorAdapter) list.getAdapter()).getCursor().close();
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem settings = menu.add(R.string.menu_settings);
-		settings.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		MenuItem create = menu.add(R.string.add_new);
+		create.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			public boolean onMenuItemClick(MenuItem item) {
-				startActivity(new Intent(ReminderListActivity.this, ReminderSettings.class));
+				startActivity(new Intent(ReminderListActivity.this, ReminderCreateActivity.class));
 				return true;
 			}
 		});
+		create.setIcon(android.R.drawable.ic_menu_add);
+		create.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
 }

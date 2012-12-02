@@ -1,12 +1,16 @@
 package com.aragaer.reminder;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.Menu;
@@ -21,6 +25,7 @@ public class ReminderViewActivity extends Activity {
 	ImageView glyph_view;
 	EditText comment;
 
+	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
 		long id;
 		super.onCreate(savedInstanceState);
@@ -46,6 +51,12 @@ public class ReminderViewActivity extends Activity {
 		comment.setText(memo.text);
 		((TextView) findViewById(R.id.date)).setText(DateFormat.getDateFormat(this).format(memo.when));
 		((TextView) findViewById(R.id.time)).setText(DateFormat.getTimeFormat(this).format(memo.when));
+
+		ActionBar ab = getActionBar();
+		if (Build.VERSION.SDK_INT >= 14)
+			ab.setHomeButtonEnabled(true);
+		ab.setDisplayShowHomeEnabled(true);
+		ab.setDisplayHomeAsUpEnabled(true);
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
@@ -76,6 +87,15 @@ public class ReminderViewActivity extends Activity {
 				return true;
 			}
 		});
+		delete.setIcon(android.R.drawable.ic_menu_delete);
+		delete.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		return true;
+	}
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			startActivity(new Intent(this, ReminderListActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+			finish();
+		}
 		return true;
 	}
 }
