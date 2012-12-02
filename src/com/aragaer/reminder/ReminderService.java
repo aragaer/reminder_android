@@ -95,7 +95,7 @@ public class ReminderService extends Service {
 		list.clear();
 
 		Notification n = new Notification.Builder(ctx).setSmallIcon(
-				R.drawable.notify, list.size()).setContent(rv).getNotification();
+				R.drawable.notify, n_sym).setContent(rv).getNotification();
 		n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR
 				| Notification.FLAG_ONLY_ALERT_ONCE;
 
