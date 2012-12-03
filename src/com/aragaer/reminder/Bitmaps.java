@@ -18,6 +18,7 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 
 public class Bitmaps {
 	public static final int COLOR_WHITE = 0;
@@ -130,22 +131,29 @@ public class Bitmaps {
 		return b;
 	}
 
-	static public Bitmap memo_bmp(Context ctx, ReminderItem item, boolean invert) {
-		Resources r = ctx.getResources();
-		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
-				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
-		Bitmap glyph = BitmapFactory.decodeByteArray(item.glyph_data, 0,
-				item.glyph_data.length);
-		Bitmap result = Bitmap.createScaledBitmap(glyph, size, size, true);
+	static public Bitmap memo_bmp(Context ctx, ReminderItem item,
+			int required_size, boolean invert) {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeByteArray(item.glyph_data, 0,
+				item.glyph_data.length, options);
 
-		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
-		Canvas c = new Canvas(b);
-		c.drawBitmap(result, 0, 0, (invert ? darker : paints)[item.color]);
+		options.inSampleSize = Math.round(1f * options.outHeight
+				/ required_size + 0.5f);
+		options.inJustDecodeBounds = false;
+		Bitmap result = BitmapFactory.decodeByteArray(item.glyph_data, 0,
+				item.glyph_data.length, options);
+		float offset = (required_size - result.getHeight()) * 0.5f;
+
+		Bitmap b = Bitmap.createBitmap(required_size, required_size,
+				Config.ARGB_8888);
+		new Canvas(b).drawBitmap(result, 0, 0, (invert ? darker : paints)[item.color]);
+		result.recycle();
 		return b;
 	}
 
-	static public BitmapDrawable memo_drawable(Context ctx, ReminderItem item, boolean invert) {
-		BitmapDrawable result = new BitmapDrawable(ctx.getResources(), new ByteArrayInputStream(item.glyph_data));
+	static public BitmapDrawable memo_drawable(Resources r, ReminderItem item, boolean invert) {
+		BitmapDrawable result = new BitmapDrawable(r, new ByteArrayInputStream(item.glyph_data));
 		result.setColorFilter(filter(item.color, invert));
 		return result;
 	}

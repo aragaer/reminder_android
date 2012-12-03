@@ -22,6 +22,7 @@ class DrawView extends View implements OnTouchListener {
 	Bitmap bmp, cache;
 	Canvas c = new Canvas(), cc = new Canvas();
 	Matrix m = new Matrix();
+	boolean is_empty = true;
 
 	static {
 		p_grid.setColor(Color.LTGRAY);
@@ -49,7 +50,7 @@ class DrawView extends View implements OnTouchListener {
 	}
 
 	public Bitmap getBitmap() {
-		return bmp;
+		return is_empty ? Bitmaps.draw_char("?", BITMAP_SIZE) : bmp;
 	}
 
 	public void setBitmap(Bitmap b) {
@@ -137,6 +138,7 @@ class DrawView extends View implements OnTouchListener {
 			y = event.getY();
 			c.drawCircle(x, y, radius, p);
 			draw_through_cache((int) x, (int) y, (int) x, (int) y);
+			is_empty = false;
 			break;
 		case MotionEvent.ACTION_MOVE:
 		case MotionEvent.ACTION_UP:

@@ -27,10 +27,6 @@ public class ReminderProvider extends ContentProvider {
 	private static final int DATABASE_VERSION = 1;
 	private SQLiteDatabase db = null;
 
-	public static final String UPDATE_ACTION = "com.aragaer.reminder.ReminderUpdate";
-
-	static final Intent update_broadcast = new Intent(UPDATE_ACTION);
-
 	public static final Uri content_uri = Uri
 			.parse("content://com.aragaer.reminder.provider/reminder");
 
@@ -43,10 +39,6 @@ public class ReminderProvider extends ContentProvider {
 	static {
 		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder",	REMINDER_CODE);
 		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder/#", REMINDER_WITH_ID);
-	}
-
-	void notifyChange() {
-		getContext().sendBroadcast(update_broadcast);
 	}
 
 	public int delete(Uri uri, String arg1, String[] arg2) {
@@ -63,8 +55,8 @@ public class ReminderProvider extends ContentProvider {
 			break;
 		}
 		if (result > 0) {
-			notifyChange();
 			Toast.makeText(getContext(), R.string.toast_deleted, Toast.LENGTH_LONG).show();
+			getContext().getContentResolver().notifyChange(content_uri, null);
 		}
 		return result;
 	}
@@ -78,8 +70,8 @@ public class ReminderProvider extends ContentProvider {
 		case REMINDER_CODE:
 			long id = db.insert("memo", null, arg1);
 			if (id != -1) {
-				notifyChange();
 				Toast.makeText(getContext(), R.string.toast_created, Toast.LENGTH_LONG).show();
+				getContext().getContentResolver().notifyChange(content_uri, null);
 			}
 			return ContentUris.withAppendedId(content_uri, id);
 		default:
@@ -180,8 +172,8 @@ public class ReminderProvider extends ContentProvider {
 			break;
 		}
 		if (result > 0) {
-			notifyChange();
 			Toast.makeText(getContext(), R.string.toast_saved, Toast.LENGTH_LONG).show();
+			getContext().getContentResolver().notifyChange(uri, null);
 		}
 		return result;
 	}

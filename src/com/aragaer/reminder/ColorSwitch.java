@@ -35,25 +35,29 @@ public class ColorSwitch extends RadioGroup {
 	public void onMeasure(int wms, int hms) {
 		int w = MeasureSpec.getSize(wms);
 		int h = MeasureSpec.getSize(hms);
+		final boolean horizontal = getOrientation() == LinearLayout.HORIZONTAL;
 
-		if (w > h)
+		if (horizontal)
 			w /= getChildCount();
 		else
 			h /= getChildCount();
 
-		w -= 2 * margin;
-		h -= 2 * margin;
-		setMeasuredDimension(wms, hms);
-		wms = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
-		hms = MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY);
+		int s = Math.min(w, h);
+
+		int large = s * getChildCount();
+
+		if (horizontal)
+			setMeasuredDimension(large, s);
+		else
+			setMeasuredDimension(s, large);
+
+		s -= 2 * margin;
+		wms = MeasureSpec.makeMeasureSpec(s, MeasureSpec.EXACTLY);
 
 		for (int i = 0; i < getChildCount(); i++)
-			getChildAt(i).measure(wms, hms);
+			getChildAt(i).measure(wms, wms);
 	}
-	public void onLayout(boolean changed, int l, int t, int r, int b) {
-		setOrientation(r - l > b - t ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
-		super.onLayout(changed, l, t, r, b);
-	}
+
 	public int getValue() {
 		return getCheckedRadioButtonId() - ADD;
 	}
