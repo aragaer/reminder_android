@@ -110,6 +110,12 @@ public class ReminderProvider extends ContentProvider {
 		if (db_file.exists()) {
 			try {
 				db.execSQL("attach ? as sd", new String[] {db_file.getAbsolutePath()} );
+			} catch (SQLiteException e) {
+				Log.e(TAG, "Failed to attach old DB: "+e);
+				return false;
+			}
+
+			try {
 				db.beginTransaction();
 				db.execSQL("insert into memo select * from sd.memo");
 				db.delete("sd.memo", null, null);
