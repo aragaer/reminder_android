@@ -58,18 +58,20 @@ public class ReminderService extends Service {
 		if (num > 7) // Hardcoded value, yo!
 			num = 7;
 
+		list.clear();
 		Cursor cursor = ctx.getContentResolver().query(
 				ReminderProvider.content_uri, null, null, null, null);
-		List<ReminderItem> items = ReminderProvider.getAllSublist(cursor, num - 2);
-		int lost = cursor.getCount() - items.size();
-		cursor.close();
-
-		list.clear();
-		for (ReminderItem item : items)
+		int max = num - 2;
+		ReminderItem item = null;
+		while (cursor.moveToNext() && --max > 0) {
+			item = ReminderProvider.getItem(cursor, item);
 			list.add(Pair.create(Bitmaps.memo_bmp(ctx, item, size),
-						new Intent(ctx, ReminderViewActivity.class)
-								.putExtra("reminder_id", item._id)));
-		items.clear();
+					new Intent(ctx, ReminderViewActivity.class)
+							.putExtra("reminder_id", item._id)));
+		}
+		int n_sym = list.size();
+		int lost = cursor.getCount() - n_sym;
+		cursor.close();
 
 		Pair<Bitmap, Intent> list_btn = Pair.create(
 				Bitmaps.list_bmp(ctx, lost),
@@ -77,7 +79,6 @@ public class ReminderService extends Service {
 		Pair<Bitmap, Intent> new_btn = Pair.create(
 				Bitmaps.add_new_bmp(ctx),
 				new Intent(ctx, ReminderCreateActivity.class).addFlags(intent_flags));
-		int n_sym = list.size();
 		list.add(list_btn);
 		list.add(new_btn);
 

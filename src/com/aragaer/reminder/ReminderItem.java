@@ -52,6 +52,15 @@ class ReminderItem {
 		color = c;
 	}
 
+	/* for reuse */
+	public void setTo(long id, byte bb[], String s, Date w, int c) {
+		_id = id;
+		glyph_data = bb;
+		text = s;
+		when = w;
+		color = c;
+	}
+
 	public Bitmap getGlyph(int size) {
 		Bitmap glyph = BitmapFactory.decodeByteArray(glyph_data, 0,
 				glyph_data.length);
