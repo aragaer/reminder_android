@@ -8,10 +8,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -41,14 +39,13 @@ public class ReminderService extends Service {
 
 	private void handleCommand(Intent command) {
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, false, observer);
-		registerReceiver(catcher, new IntentFilter(catcher_action));
 		startForeground(1, buildNotification(this));
 	}
 
 	private static final String PKG_NAME = ReminderService.class.getPackage().getName();
 
-	List<Pair<Bitmap, Intent>> list = new ArrayList<Pair<Bitmap, Intent>>();
-	private Notification buildNotification(Context ctx) {
+	private static Notification buildNotification(Context ctx) {
+		List<Pair<Bitmap, PendingIntent>> list = new ArrayList<Pair<Bitmap, PendingIntent>>();
 		Resources r = ctx.getResources();
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 		int margin = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
@@ -86,16 +83,16 @@ public class ReminderService extends Service {
 		rv.removeAllViews(R.id.wrap);
 		rv.removeAllViews(R.id.wrap2);
 		for (int i = 0; i < list.size(); i++) {
-			final Pair<Bitmap, Intent> g2i = list.get(i);
+			final Pair<Bitmap, PendingIntent> g2i = list.get(i);
 			final RemoteViews image = new RemoteViews(PKG_NAME, R.layout.image);
-			image.setOnClickPendingIntent(R.id.image, PendingIntent.getBroadcast(ctx, i,
-					new Intent(catcher_action).putExtra("what", i), 0));
+			image.setOnClickPendingIntent(R.id.image, g2i.second);
 			image.setImageViewBitmap(R.id.image, g2i.first);
 			if (i < n_sym)
 				rv.addView(R.id.wrap, image);
 			else
 				rv.addView(R.id.wrap2, image);
 		}
+		list.clear();
 
 		Notification n = new Notification.Builder(ctx).setSmallIcon(
 				R.drawable.notify, n_sym).setContent(rv).getNotification();
@@ -104,26 +101,6 @@ public class ReminderService extends Service {
 
 		return n;
 	}
-
-	public static final String catcher_action = "com.aragaer.reminder.CATCH_ACTION";
-	private final BroadcastReceiver catcher = new BroadcastReceiver() {
-		public void onReceive(Context context, Intent intent) {
-			int position = intent.getIntExtra("what", 99);
-			Intent i = list == null || position >= list.size()
-					? new Intent(context, ReminderListActivity.class)
-					: list.get(position).second;
-
-			try {
-				Object obj = context.getSystemService("statusbar");
-				Class.forName("android.app.StatusBarManager")
-						.getMethod("collapse", new Class[0])
-						.invoke(obj, (Object[]) null);
-			} catch (Exception e) {
-				// do nothing, it's OK
-			}
-			context.startActivity(i.addFlags(intent_flags));
-		}
-	};
 
 	ContentObserver observer = new ContentObserver(new Handler()) {
 		@SuppressLint("NewApi")
