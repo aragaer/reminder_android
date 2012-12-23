@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,7 +31,9 @@ public class ReminderViewActivity extends Activity {
 			id = savedInstanceState.getLong("reminder_id");
 		else
 			id = getIntent().getLongExtra("reminder_id", 0);
-		Cursor c = getContentResolver().query(ContentUris.withAppendedId(ReminderProvider.content_uri, id), null, null, null, null);
+		Cursor c = getContentResolver().query(
+				ContentUris.withAppendedId(ReminderProvider.content_uri, id),
+				null, null, null, null);
 		c.moveToFirst();
 		memo = ReminderProvider.getItem(c);
 		c.close();
@@ -68,28 +69,33 @@ public class ReminderViewActivity extends Activity {
 				row.put("comment", new_text);
 			else
 				row.putNull("comment");
-			getContentResolver().update(ContentUris.withAppendedId(ReminderProvider.content_uri, memo._id), row, null, null);
+			getContentResolver().update(
+					ContentUris.withAppendedId(ReminderProvider.content_uri,
+							memo._id), row, null, null);
 		}
 		super.onPause();
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem delete = menu.add(R.string.delete);
-		delete.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			public boolean onMenuItemClick(MenuItem item) {
-				getContentResolver().delete(ContentUris.withAppendedId(ReminderProvider.content_uri, memo._id), null, null);
-				ReminderViewActivity.this.finish();
-				return true;
-			}
-		});
-		delete.setIcon(android.R.drawable.ic_menu_delete);
-		delete.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		menu.add(Menu.NONE, R.string.delete, Menu.NONE, R.string.delete)
+				.setIcon(android.R.drawable.ic_menu_delete)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
+
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == android.R.id.home) {
-			startActivity(new Intent(this, ReminderListActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			startActivity(new Intent(this, ReminderListActivity.class)
+					.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 			finish();
+			break;
+		case R.string.delete:
+			getContentResolver().delete(
+					ContentUris.withAppendedId(ReminderProvider.content_uri,
+							memo._id), null, null);
+			finish();
+			break;
 		}
 		return true;
 	}

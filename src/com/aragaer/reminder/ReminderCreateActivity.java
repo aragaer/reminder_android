@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -71,30 +70,30 @@ public class ReminderCreateActivity extends Activity {
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == android.R.id.home)
+		switch (item.getItemId()) {
+		case android.R.id.home:
 			finish();
+			break;
+		case R.string.no_extra:
+			save(false);
+			break;
+		case R.string.add_extra:
+			save(true);
+			break;
+		default:
+			break;
+		}
+
 		return true;
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem done = menu.add(R.string.no_extra);
-		done.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			public boolean onMenuItemClick(MenuItem item) {
-				save(false);
-				return true;
-			}
-		});
-		done.setIcon(R.drawable.ic_cab_done_holo_dark);
-		done.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-		MenuItem next = menu.add(R.string.add_extra);
-		next.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			public boolean onMenuItemClick(MenuItem item) {
-				save(true);
-				return true;
-			}
-		});
-		next.setIcon(R.drawable.navigation_forward);
-		next.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		menu.add(Menu.NONE, R.string.no_extra, Menu.NONE, R.string.no_extra)
+				.setIcon(R.drawable.ic_cab_done_holo_dark)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		menu.add(Menu.NONE, R.string.add_extra, Menu.NONE, R.string.add_extra)
+				.setIcon(R.drawable.navigation_forward)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
 
@@ -108,8 +107,9 @@ public class ReminderCreateActivity extends Activity {
 		row.put("color", cs.getValue());
 		Uri result_uri = getContentResolver().insert(ReminderProvider.content_uri, row);
 		if (extra)
-			startActivity(new Intent(ReminderCreateActivity.this, ReminderViewActivity.class)
-				.putExtra("reminder_id", ContentUris.parseId(result_uri)));
-		ReminderCreateActivity.this.finish();
+			startActivity(new Intent(ReminderCreateActivity.this,
+					ReminderViewActivity.class).putExtra("reminder_id",
+					ContentUris.parseId(result_uri)));
+		finish();
 	}
 }

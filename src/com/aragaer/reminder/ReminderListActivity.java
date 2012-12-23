@@ -7,14 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -98,15 +95,10 @@ public class ReminderListActivity extends Activity {
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem create = menu.add(R.string.add_new);
-		create.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			public boolean onMenuItemClick(MenuItem item) {
-				startActivity(new Intent(ReminderListActivity.this, ReminderCreateActivity.class));
-				return true;
-			}
-		});
-		create.setIcon(R.drawable.content_new);
-		create.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		menu.add(Menu.NONE, R.string.add_new, Menu.NONE, R.string.add_new)
+				.setIcon(R.drawable.content_new)
+				.setIntent(new Intent(this, ReminderCreateActivity.class))
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
 }
