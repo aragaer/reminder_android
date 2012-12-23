@@ -18,7 +18,6 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 
 public class Bitmaps {
 	public static final int COLOR_WHITE = 0;
@@ -65,6 +64,7 @@ public class Bitmaps {
 		return new ColorMatrixColorFilter((invert ? filters_inv : filters)[color_num]);
 	}
 
+	@SuppressLint("DefaultLocale")
 	static public Bitmap list_bmp(Context ctx, int extra, boolean invert) {
 		Resources r = ctx.getResources();
 		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
@@ -147,7 +147,7 @@ public class Bitmaps {
 
 		Bitmap b = Bitmap.createBitmap(required_size, required_size,
 				Config.ARGB_8888);
-		new Canvas(b).drawBitmap(result, 0, 0, (invert ? darker : paints)[item.color]);
+		new Canvas(b).drawBitmap(result, offset, offset, (invert ? darker : paints)[item.color]);
 		result.recycle();
 		return b;
 	}
