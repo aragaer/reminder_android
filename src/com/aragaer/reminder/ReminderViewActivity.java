@@ -1,8 +1,8 @@
 package com.aragaer.reminder;
 
-import com.markupartist.android.widget.ActionBar;
+import com.aragaer.simpleactionbar.AbActivity;
+import com.aragaer.simpleactionbar.ActionBar;
 
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -12,12 +12,13 @@ import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ReminderViewActivity extends Activity {
+public class ReminderViewActivity extends AbActivity {
 	ReminderItem memo = null;
 	ImageView glyph_view;
 	EditText comment;
@@ -54,28 +55,9 @@ public class ReminderViewActivity extends Activity {
 		((TextView) findViewById(R.id.time)).setText(DateFormat.getTimeFormat(
 				this).format(memo.when));
 
-		ActionBar ab = (ActionBar) findViewById(R.id.actionbar);
+		ActionBar ab = getActionBar();
 		ab.setDisplayHomeAsUpEnabled(true);
-		ab.addAction(new ActionBar.AbstractAction(android.R.drawable.ic_menu_delete) {
-			public void performAction(View view) {
-				getContentResolver().delete(
-						ContentUris.withAppendedId(ReminderProvider.content_uri, memo._id),
-						null, null);
-				finish();
-			}
-		});
-		ab.setHomeAction(new ActionBar.Action() {
-			public void performAction(View view) {
-				startActivity(new Intent(ReminderViewActivity.this,
-						ReminderListActivity.class)
-							.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-				finish();
-			}
-
-			public int getDrawable() {
-				return 0;
-			}
-		});
+		ab.setTitle(R.string.app_name);
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
@@ -97,5 +79,28 @@ public class ReminderViewActivity extends Activity {
 							memo._id), row, null, null);
 		}
 		super.onPause();
+	}
+
+	public boolean onCreateActionBarMenu(Menu menu) {
+		menu.add(R.string.delete).setIcon(
+				android.R.drawable.ic_menu_delete);
+		return true;
+	}
+
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case com.aragaer.simpleactionbar.R.id.home:
+			startActivity(new Intent(this, ReminderListActivity.class)
+					.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+			finish();
+			break;
+		case R.string.delete:
+			getContentResolver().delete(
+					ContentUris.withAppendedId(ReminderProvider.content_uri,
+							memo._id), null, null);
+			finish();
+			break;
+		}
+		return true;
 	}
 }

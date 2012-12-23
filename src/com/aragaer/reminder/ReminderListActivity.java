@@ -1,7 +1,8 @@
 package com.aragaer.reminder;
 
-import com.markupartist.android.widget.ActionBar;
-import android.app.Activity;
+import com.aragaer.simpleactionbar.AbActivity;
+import com.aragaer.simpleactionbar.ActionBar;
+
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -19,11 +20,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ReminderListActivity extends Activity {
+public class ReminderListActivity extends AbActivity {
 	ListView list;
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -54,17 +54,9 @@ public class ReminderListActivity extends Activity {
 			}
 		});
 
-		LinearLayout ll = new LinearLayout(this);
-		ll.setOrientation(LinearLayout.VERTICAL);
-		ActionBar ab = new ActionBar(this, null);
-		ll.addView(ab);
-		ab.setTitle(R.string.title_activity_main);
-		ab.setHomeLogo(R.drawable.ic_launcher);
-		ab.addAction(new ActionBar.IntentAction(this,
-				new Intent(this, ReminderCreateActivity.class),
-				R.drawable.content_new));
-		ll.addView(list);
-		setContentView(ll);
+		ActionBar ab = getActionBar();
+		ab.setTitle(R.string.app_name);
+		setContentView(list);
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, true, observer);
 
 	}
@@ -84,11 +76,26 @@ public class ReminderListActivity extends Activity {
 		menu.add(Menu.NONE, DELETE, Menu.NONE, R.string.delete);
 	}
 
+
+	public boolean onCreateActionBarMenu(Menu menu) {
+		menu.add(R.string.add_new).setIcon(R.drawable.content_new);
+		return true;
+	}
+
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case DELETE:
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 			getContentResolver().delete(ContentUris.withAppendedId(ReminderProvider.content_uri, info.id), null, null);
+			break;
+		}
+		return true;
+	}
+
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.string.add_new:
+			startActivity(new Intent(this, ReminderCreateActivity.class));
 			break;
 		}
 		return true;

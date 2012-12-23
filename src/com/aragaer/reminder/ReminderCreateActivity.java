@@ -1,8 +1,8 @@
 package com.aragaer.reminder;
 
-import com.markupartist.android.widget.ActionBar;
+import com.aragaer.simpleactionbar.AbActivity;
+import com.aragaer.simpleactionbar.ActionBar;
 
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -11,23 +11,21 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
-public class ReminderCreateActivity extends Activity {
+public class ReminderCreateActivity extends AbActivity {
 	DrawView dv;
 	ColorSwitch cs;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		LinearLayout ll = new LinearLayout(this);
-		ll.setOrientation(LinearLayout.VERTICAL);
-		ActionBar ab = new ActionBar(this, null);
+		ActionBar ab = getActionBar();
 		ab.setDisplayHomeAsUpEnabled(true);
-
-		ll.addView(ab);
+		ab.setTitle(R.string.app_name);
 
 		LinearLayout inner = new LinearLayout(this);
 		inner.setGravity(Gravity.CENTER);
@@ -60,28 +58,7 @@ public class ReminderCreateActivity extends Activity {
 
 		inner.addView(cs);
 		inner.addView(dv);
-		ll.addView(inner);
-		setContentView(ll);
-
-		ab.setHomeAction(new ActionBar.Action() {
-			public int getDrawable() {
-				return 0;
-			}
-			public void performAction(View view) {
-				finish();
-			}
-		});
-
-		ab.addAction(new ActionBar.AbstractAction(R.drawable.ic_cab_done_holo_dark) {
-			public void performAction(View view) {
-				save(false);
-			}
-		});
-		ab.addAction(new ActionBar.AbstractAction(R.drawable.navigation_forward) {
-			public void performAction(View view) {
-				save(true);
-			}
-		});
+		setContentView(inner);
 	}
 
 	public void onSaveInstanceState(Bundle outState) {
@@ -97,10 +74,35 @@ public class ReminderCreateActivity extends Activity {
 		row.put("glyph", ReminderItem.bitmap_to_bytes(res));
 		row.put("date", System.currentTimeMillis());
 		row.put("color", cs.getValue());
-		Uri result_uri = getContentResolver().insert(ReminderProvider.content_uri, row);
+		Uri result_uri = getContentResolver().insert(
+				ReminderProvider.content_uri, row);
 		if (extra)
-			startActivity(new Intent(ReminderCreateActivity.this, ReminderViewActivity.class)
-				.putExtra("reminder_id", ContentUris.parseId(result_uri)));
+			startActivity(new Intent(ReminderCreateActivity.this,
+					ReminderViewActivity.class).putExtra("reminder_id",
+					ContentUris.parseId(result_uri)));
 		finish();
+	}
+
+	public boolean onCreateActionBarMenu(Menu menu) {
+		menu.add(R.string.no_extra).setIcon(R.drawable.ic_cab_done_holo_dark);
+		menu.add(R.string.add_extra).setIcon(R.drawable.navigation_forward);
+		return true;
+	}
+
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case com.aragaer.simpleactionbar.R.id.home:
+			finish();
+			break;
+		case R.string.no_extra:
+			save(false);
+			break;
+		case R.string.add_extra:
+			save(true);
+			break;
+		default:
+			break;
+		}
+		return true;
 	}
 }
