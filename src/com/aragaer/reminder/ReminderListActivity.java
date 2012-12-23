@@ -79,11 +79,6 @@ public class ReminderListActivity extends AbActivity {
 	}
 
 
-	public boolean onCreateActionBarMenu(Menu menu) {
-		menu.add(R.string.add_new).setIcon(R.drawable.content_new);
-		return true;
-	}
-
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case DELETE:
@@ -94,6 +89,17 @@ public class ReminderListActivity extends AbActivity {
 		return true;
 	}
 
+	public void onDestroy() {
+		super.onDestroy();
+		getContentResolver().unregisterContentObserver(observer);
+		((CursorAdapter) list.getAdapter()).getCursor().close();
+	}
+
+	public boolean onCreateActionBarMenu(Menu menu) {
+		menu.add(R.string.add_new).setIcon(R.drawable.content_new);
+		return true;
+	}
+
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.string.add_new:
@@ -101,12 +107,6 @@ public class ReminderListActivity extends AbActivity {
 			break;
 		}
 		return true;
-	}
-
-	public void onDestroy() {
-		super.onDestroy();
-		getContentResolver().unregisterContentObserver(observer);
-		((CursorAdapter) list.getAdapter()).getCursor().close();
 	}
 }
 
