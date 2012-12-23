@@ -1,7 +1,7 @@
 package com.aragaer.reminder;
 
-import com.aragaer.simpleactionbar.AbActivity;
 import com.aragaer.simpleactionbar.ActionBar;
+import com.aragaer.simpleactionbar.Activity;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
-public class ReminderCreateActivity extends AbActivity {
+public class ReminderCreateActivity extends Activity {
 	DrawView dv;
 	ColorSwitch cs;
 

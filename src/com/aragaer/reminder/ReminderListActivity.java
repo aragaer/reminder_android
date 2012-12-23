@@ -1,7 +1,7 @@
 package com.aragaer.reminder;
 
-import com.aragaer.simpleactionbar.AbActivity;
 import com.aragaer.simpleactionbar.ActionBar;
+import com.aragaer.simpleactionbar.Activity;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
@@ -24,7 +24,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ReminderListActivity extends AbActivity {
+public class ReminderListActivity extends Activity {
 	ListView list;
 
 	@SuppressLint("NewApi")

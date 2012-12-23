@@ -1,8 +1,9 @@
 package com.aragaer.reminder;
 
-import com.aragaer.simpleactionbar.AbActivity;
 import com.aragaer.simpleactionbar.ActionBar;
+import com.aragaer.simpleactionbar.Activity;
 
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -18,11 +19,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ReminderViewActivity extends AbActivity {
+public class ReminderViewActivity extends Activity {
 	ReminderItem memo = null;
 	ImageView glyph_view;
 	EditText comment;
 
+	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
 		long id;
 		super.onCreate(savedInstanceState);
