@@ -109,6 +109,12 @@ public class ReminderProvider extends ContentProvider {
 		if (db_file.exists()) {
 			try {
 				db.execSQL("attach ? as sd", new String[] {db_file.getAbsolutePath()} );
+			} catch (SQLiteException e) {
+				Log.e(TAG, "Failed to attach old DB: "+e);
+				return false;
+			}
+
+			try {
 				db.beginTransaction();
 				db.execSQL("insert into memo select * from sd.memo");
 				db.delete("sd.memo", null, null);
@@ -177,9 +183,18 @@ public class ReminderProvider extends ContentProvider {
 		return result;
 	}
 
-	public static ReminderItem getItem(Cursor c) {
-		return new ReminderItem(c.getLong(0), c.getBlob(1), c.getString(2),
+	public static ReminderItem getItem(Cursor c, ReminderItem reuse) {
+		if (reuse == null)
+			reuse = new ReminderItem(c.getLong(0), c.getBlob(1), c.getString(2),
 				new Date(c.getLong(3)), c.getInt(4));
+		else
+			reuse.setTo(c.getLong(0), c.getBlob(1), c.getString(2),
+				new Date(c.getLong(3)), c.getInt(4));
+		return reuse;
+	}
+
+	public static ReminderItem getItem(Cursor c) {
+		return getItem(c, null);
 	}
 
 	public static List<ReminderItem> getAll(Cursor c) {

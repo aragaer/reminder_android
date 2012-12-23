@@ -3,6 +3,7 @@ package com.aragaer.reminder;
 import com.aragaer.simpleactionbar.AbActivity;
 import com.aragaer.simpleactionbar.ActionBar;
 
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 public class ReminderListActivity extends AbActivity {
 	ListView list;
 
+	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		startService(new Intent(this, ReminderService.class));

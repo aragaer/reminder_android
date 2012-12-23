@@ -89,31 +89,30 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		int screen_width = r.getDisplayMetrics().widthPixels;
 		int num = screen_width / height;
 
+		list.clear();
 		Cursor cursor = ctx.getContentResolver().query(
 				ReminderProvider.content_uri, null, null, null, null);
-		List<ReminderItem> items = ReminderProvider.getAllSublist(cursor, num - 2);
-		int lost = cursor.getCount() - items.size();
-		cursor.close();
-
-		list.clear();
-		for (ReminderItem item : items)
-			list.add(Pair.create(
-					Bitmaps.memo_bmp(ctx, item, size, invert),
+		int max = num - 2;
+		ReminderItem item = null;
+		while (cursor.moveToNext() && --max > 0) {
+			item = ReminderProvider.getItem(cursor, item);
+			list.add(Pair.create(Bitmaps.memo_bmp(ctx, item, size, invert),
 					new Intent(ctx, ReminderViewActivity.class)
-						.putExtra("reminder_id", item._id)
-						.setAction("View " + item._id)));
-		items.clear();
+							.putExtra("reminder_id", item._id)));
+		}
+		int n_sym = list.size();
+		int lost = cursor.getCount() - n_sym;
+		cursor.close();
 
 		Notification n = new Notification(R.drawable.notify,
 				ctx.getString(R.string.app_name), System.currentTimeMillis());
 
 		Pair<Bitmap, Intent> list_btn = Pair.create(
-				Bitmaps.list_bmp(ctx, lost, invert), new Intent(ctx,
-						ReminderListActivity.class).addFlags(intent_flags));
-		Pair<Bitmap, Intent> new_btn = Pair.create(Bitmaps.add_new_bmp(ctx, invert),
-				new Intent(ctx, ReminderCreateActivity.class)
-					.addFlags(intent_flags));
-		n_sym = list.size();
+				Bitmaps.list_bmp(ctx, lost, invert),
+				new Intent(ctx, ReminderListActivity.class).addFlags(intent_flags));
+		Pair<Bitmap, Intent> new_btn = Pair.create(
+				Bitmaps.add_new_bmp(ctx, invert),
+				new Intent(ctx, ReminderCreateActivity.class).addFlags(intent_flags));
 		list.add(list_btn);
 		list.add(new_btn);
 
@@ -124,12 +123,12 @@ public class ReminderService extends Service implements View.OnTouchListener {
 		Canvas c = new Canvas(bmp);
 		int position = 0;
 		for (int i = 0; i < list.size(); i++) {
-			final Pair<Bitmap, Intent> item = list.get(i);
+			final Pair<Bitmap, Intent> glyph = list.get(i);
 			if (i == n_sym)
 				position += screen_width - height * list.size();
-			c.drawBitmap(item.first, position, 0, null);
+			c.drawBitmap(glyph.first, position, 0, null);
 			position += height;
-			item.first.recycle();
+			glyph.first.recycle();
 		}
 		image.setImageViewBitmap(R.id.image, bmp);
 		rv.addView(R.id.wrap, image);
