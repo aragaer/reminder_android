@@ -59,8 +59,8 @@ public class ReminderCreateActivity extends Activity {
 		setContentView(ll);
 
 		ActionBar ab = getActionBar();
-		ab.setDisplayHomeAsUpEnabled(true);
 		ab.setTitle(R.string.app_name);
+		ab.setDisplayHomeAsUpEnabled(true);
 	}
 
 	public void onSaveInstanceState(Bundle outState) {
@@ -86,8 +86,10 @@ public class ReminderCreateActivity extends Activity {
 	}
 
 	public boolean onCreateActionBarMenu(Menu menu) {
-		menu.add(R.string.no_extra).setIcon(R.drawable.ic_cab_done_holo_dark);
-		menu.add(R.string.add_extra).setIcon(R.drawable.navigation_forward);
+		menu.add(Menu.NONE, R.string.no_extra, Menu.NONE, R.string.no_extra)
+				.setIcon(R.drawable.ic_cab_done_holo_dark);
+		menu.add(Menu.NONE, R.string.add_extra, Menu.NONE, R.string.add_extra)
+				.setIcon(R.drawable.navigation_forward);
 		return true;
 	}
 
@@ -99,8 +101,7 @@ public class ReminderCreateActivity extends Activity {
 		row.put("glyph", ReminderItem.bitmap_to_bytes(res));
 		row.put("date", System.currentTimeMillis());
 		row.put("color", cs.getValue());
-		Uri result_uri = getContentResolver().insert(
-				ReminderProvider.content_uri, row);
+		Uri result_uri = getContentResolver().insert(ReminderProvider.content_uri, row);
 		if (extra)
 			startActivity(new Intent(ReminderCreateActivity.this,
 					ReminderViewActivity.class).putExtra("reminder_id",

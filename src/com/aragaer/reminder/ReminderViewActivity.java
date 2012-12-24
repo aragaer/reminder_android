@@ -43,23 +43,19 @@ public class ReminderViewActivity extends Activity {
 
 		setContentView(R.layout.view);
 		glyph_view = (ImageView) findViewById(R.id.glyph);
-		glyph_view.setImageBitmap(memo.getGlyph(r
-				.getDimensionPixelSize(R.dimen.view_glyph_size)));
-		glyph_view.setColorFilter(new ColorMatrixColorFilter(
-				Bitmaps.filters[memo.color]));
+		glyph_view.setImageBitmap(memo.getGlyph(r.getDimensionPixelSize(R.dimen.view_glyph_size)));
+		glyph_view.setColorFilter(new ColorMatrixColorFilter(Bitmaps.filters[memo.color]));
 		comment = (EditText) findViewById(R.id.comment);
 		comment.setBackgroundDrawable(Bitmaps.border(
 				r.getDimensionPixelSize(R.dimen.notification_glyph_margin),
 				Color.LTGRAY));
 		comment.setText(memo.text);
-		((TextView) findViewById(R.id.date)).setText(DateFormat.getDateFormat(
-				this).format(memo.when));
-		((TextView) findViewById(R.id.time)).setText(DateFormat.getTimeFormat(
-				this).format(memo.when));
+		((TextView) findViewById(R.id.date)).setText(DateFormat.getDateFormat(this).format(memo.when));
+		((TextView) findViewById(R.id.time)).setText(DateFormat.getTimeFormat(this).format(memo.when));
 
 		ActionBar ab = getActionBar();
-		ab.setDisplayHomeAsUpEnabled(true);
 		ab.setTitle(R.string.app_name);
+		ab.setDisplayHomeAsUpEnabled(true);
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
@@ -84,8 +80,8 @@ public class ReminderViewActivity extends Activity {
 	}
 
 	public boolean onCreateActionBarMenu(Menu menu) {
-		menu.add(R.string.delete).setIcon(
-				android.R.drawable.ic_menu_delete);
+		menu.add(Menu.NONE, R.string.delete, Menu.NONE, R.string.delete)
+				.setIcon(android.R.drawable.ic_menu_delete);
 		return true;
 	}
 

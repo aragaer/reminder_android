@@ -96,16 +96,9 @@ public class ReminderListActivity extends Activity {
 	}
 
 	public boolean onCreateActionBarMenu(Menu menu) {
-		menu.add(R.string.add_new).setIcon(R.drawable.content_new);
-		return true;
-	}
-
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.string.add_new:
-			startActivity(new Intent(this, ReminderCreateActivity.class));
-			break;
-		}
+		menu.add(Menu.NONE, R.string.add_new, Menu.NONE, R.string.add_new)
+				.setIcon(R.drawable.content_new)
+				.setIntent(new Intent(this, ReminderCreateActivity.class));
 		return true;
 	}
 }
