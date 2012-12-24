@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.aragaer.reminder"
-    android:versionCode="07000061"
-    android:versionName="0.06a" >
-    <!-- version code: min_api (07):00:version(006):letter(1) -->
+    android:versionCode="07000062"
+    android:versionName="0.06b" >
+    <!-- version code: min_api (07):00:version(006):letter(2) -->
 
     <uses-sdk
         android:minSdkVersion="7"
