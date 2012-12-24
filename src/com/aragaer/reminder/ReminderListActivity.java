@@ -96,6 +96,9 @@ public class ReminderListActivity extends Activity {
 	}
 
 	public boolean onCreateActionBarMenu(Menu menu) {
+		menu.add(Menu.NONE, R.string.menu_settings, Menu.NONE, R.string.menu_settings)
+				.setIcon(R.drawable.ic_sysbar_quicksettings)
+				.setIntent(new Intent(this, ReminderSettings.class));
 		menu.add(Menu.NONE, R.string.add_new, Menu.NONE, R.string.add_new)
 				.setIcon(R.drawable.content_new)
 				.setIntent(new Intent(this, ReminderCreateActivity.class));
