@@ -16,8 +16,7 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo" >
         <activity
-            android:name=".ReminderListActivity"
-            android:label="@string/app_name" >
+            android:name=".ReminderListActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
