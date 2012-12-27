@@ -4,4 +4,6 @@
     <dimen name="notification_glyph_margin">2dip</dimen>
     <dimen name="notification_height">@android:dimen/notification_large_icon_height</dimen>
     <dimen name="view_glyph_size">150dip</dimen>
+    <dimen name="tile_size">64dip</dimen>
+    <dimen name="tile_space">6dip</dimen>
 </resources>

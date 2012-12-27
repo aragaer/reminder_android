@@ -9,7 +9,6 @@ import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -24,7 +23,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class ReminderProvider extends ContentProvider {
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private SQLiteDatabase db = null;
 
 	public static final Uri content_uri = Uri
@@ -218,12 +217,20 @@ public class ReminderProvider extends ContentProvider {
 			super(context, name, factory, version);
 		}
 
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { }
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			if (oldVersion == 1) {
+				try {
+					db.execSQL("ALTER TABLE memo ADD order integer not null default 0");
+				} catch (SQLException e) {
+					Log.e(TAG, e.toString());
+				}
+			}
+		}
 		
 		public void onCreate(SQLiteDatabase db) {
 			Log.d(TAG, "creating DB");
 			try {
-				db.execSQL("CREATE TABLE memo (_id integer primary key autoincrement, glyph blob, comment text, date integer, color integer)");
+				db.execSQL("CREATE TABLE memo (_id integer primary key autoincrement, glyph blob, comment text, date integer, color integer, order integer)");
 			} catch (SQLException e) {
 				Log.e(TAG, e.toString());
 			}
