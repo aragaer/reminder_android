@@ -35,7 +35,6 @@ import android.widget.ImageView;
 public class ReminderListActivity extends Activity {
 	int size, space, drag_size;
 	GridView list;
-	Drawable border_green, border_yellow, border_red;
 	DragDropAdapter adapter;
 	Bitmap dragged;
 
@@ -92,9 +91,6 @@ public class ReminderListActivity extends Activity {
 		list.setHorizontalSpacing(space);
 		list.setVerticalSpacing(space);
 		list.setPadding(space, space, space, space);
-		border_green = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_GREEN]);
-		border_yellow = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
-		border_red = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_RED]);
 
 		int width = r.getDisplayMetrics().widthPixels;
 		int height = r.getDisplayMetrics().heightPixels;
@@ -103,9 +99,6 @@ public class ReminderListActivity extends Activity {
 			width = r.getDisplayMetrics().heightPixels;
 		}
 		int notification_size = r.getDimensionPixelSize(R.dimen.notification_height);
-
-		final int green = ReminderService.n_glyphs(width, notification_size);
-		final int yellow = ReminderService.n_glyphs(height, notification_size);
 
 		list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> adapter, View arg1,
@@ -118,7 +111,7 @@ public class ReminderListActivity extends Activity {
 		list.setOnTouchListener(touch);
 
 		Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
-		adapter = new DragDropAdapter(new CursorAdapter(this, cursor) {
+		adapter = new DragDropAdapter(r, new CursorAdapter(this, cursor) {
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
 				return new ImageView(parent.getContext()) {
 					public void onMeasure(int wms, int hms) {
@@ -130,13 +123,6 @@ public class ReminderListActivity extends Activity {
 			public void bindView(View view, Context context, Cursor cursor) {
 				ReminderItem item = ReminderProvider.getItem(cursor);
 				((ImageView) view).setImageBitmap(Bitmaps.memo_bmp(context, item, size));
-				int position = cursor.getPosition();
-				if (position < green)
-					view.setBackgroundDrawable(border_green);
-				else if (position < yellow)
-					view.setBackgroundDrawable(border_yellow);
-				else
-					view.setBackgroundDrawable(border_red);
 			}
 		});
 		list.setAdapter(adapter);
@@ -153,6 +139,9 @@ public class ReminderListActivity extends Activity {
 				return true;
 			}
 		});
+
+		adapter.green = ReminderService.n_glyphs(width, notification_size);
+		adapter.yellow = ReminderService.n_glyphs(height, notification_size);
 
 		setContentView(list);
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, true, observer);
@@ -204,6 +193,8 @@ class DragDropAdapter extends BaseAdapter {
 	};
 	final BaseAdapter inner;
 	private int from = -1, to = -1;
+	int green, yellow;
+	Drawable border_green, border_yellow, border_red;
 
 	public boolean inDrag() {
 		return from >= 0;
@@ -245,8 +236,11 @@ class DragDropAdapter extends BaseAdapter {
 		notifyDataSetChanged();
 	}
 
-	public DragDropAdapter(BaseAdapter inner) {
+	public DragDropAdapter(Resources r, BaseAdapter inner) {
 		this.inner = inner;
+		border_green = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_GREEN]);
+		border_yellow = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
+		border_red = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_RED]);
 	}
 
 	public int getCount() {
@@ -264,6 +258,13 @@ class DragDropAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View res = inner.getView(translate(position), convertView, parent);
 		res.setAlpha(position == to ? 0.5f : 1);
+		if (position < green)
+			res.setBackgroundDrawable(border_green);
+		else if (position < yellow)
+			res.setBackgroundDrawable(border_yellow);
+		else
+			res.setBackgroundDrawable(border_red);
+
 		return res;
 	}
 
