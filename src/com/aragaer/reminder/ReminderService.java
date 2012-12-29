@@ -65,7 +65,7 @@ public class ReminderService extends Service {
 				ReminderProvider.content_uri, null, null, null, null);
 		int max = num - 2;
 		ReminderItem item = null;
-		while (cursor.moveToNext() && --max > 0) {
+		while (cursor.moveToNext() && max-- > 0) {
 			item = ReminderProvider.getItem(cursor, item);
 			list.add(Pair.create(Bitmaps.memo_bmp(ctx, item, size),
 					new Intent(ctx, ReminderViewActivity.class)
