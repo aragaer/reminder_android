@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.Pair;
 import android.widget.RemoteViews;
 
@@ -40,6 +41,7 @@ public class ReminderService extends Service {
 	}
 
 	private void handleCommand(Intent command) {
+		Log.e("HELLO", "onStart", new Exception());
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, false, observer);
 		registerReceiver(catcher, new IntentFilter(catcher_action));
 		startForeground(1, buildNotification(this));

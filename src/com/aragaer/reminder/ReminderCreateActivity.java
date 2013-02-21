@@ -72,6 +72,7 @@ public class ReminderCreateActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
+			startService(new Intent("com.example.hello_service.SERVICE"));
 			finish();
 			break;
 		case R.string.no_extra:
