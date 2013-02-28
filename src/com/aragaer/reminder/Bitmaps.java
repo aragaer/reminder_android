@@ -16,8 +16,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
+import android.graphics.drawable.LayerDrawable;
 
 public class Bitmaps {
 	public static final int COLOR_WHITE = 0;
@@ -71,7 +72,7 @@ public class Bitmaps {
 			p.setTextSize(size / 5);
 			p.setColor(Color.WHITE);
 			p.setTypeface(Typeface.DEFAULT_BOLD);
-			String draw = String.format("+%d", extra);
+			String draw = "+"+Integer.toString(extra);
 			Rect bounds = new Rect();
 			p.getTextBounds(draw, 0, draw.length(), bounds);
 			RectF border = new RectF(bounds);
@@ -144,11 +145,27 @@ public class Bitmaps {
 	}
 
 	static GradientDrawable border(int stroke, int color) {
+		return border(stroke, color, Color.TRANSPARENT);
+	}
+
+	static GradientDrawable border(int stroke, int color, int fill) {
 		GradientDrawable result = new GradientDrawable();
 		result.setCornerRadius(7);
 		result.setSize(60, 60);
-		result.setColor(Color.TRANSPARENT);
+		result.setColor(fill);
 		result.setStroke(stroke, color);
+		return result;
+	}
+
+	static LayerDrawable inset_border(int stroke, int color, int inset) {
+		LayerDrawable result = new LayerDrawable(new Drawable[] { border(stroke, color) });
+		result.setLayerInset(0, inset, inset, inset, inset);
+		return result;
+	}
+
+	static LayerDrawable inset_border(int stroke, int color, int fill, int inset) {
+		LayerDrawable result = new LayerDrawable(new Drawable[] { border(stroke, color, fill) });
+		result.setLayerInset(0, inset, inset, inset, inset);
 		return result;
 	}
 }

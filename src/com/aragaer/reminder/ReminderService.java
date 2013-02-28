@@ -19,7 +19,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
+import android.support.v4.util.LongSparseArray;
 import android.util.Pair;
 import android.widget.RemoteViews;
 
@@ -29,6 +29,7 @@ public class ReminderService extends Service {
 			| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
 
 	public static final String settings_changed = "com.aragaer.reminder.SETTINGS_CHANGE";
+	final LongSparseArray<Bitmap> cached_bitmaps = new LongSparseArray<Bitmap>();
 
 	public IBinder onBind(Intent i) {
 		return null;
@@ -41,7 +42,6 @@ public class ReminderService extends Service {
 	}
 
 	private void handleCommand(Intent command) {
-		Log.e("HELLO", "onStart", new Exception());
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, false, observer);
 		registerReceiver(catcher, new IntentFilter(catcher_action));
 		startForeground(1, buildNotification(this));
@@ -69,12 +69,19 @@ public class ReminderService extends Service {
 		Cursor cursor = ctx.getContentResolver().query(
 				ReminderProvider.content_uri, null, null, null, null);
 		ReminderItem item = null;
-		while (cursor.moveToNext() && max-- > 0) {
-			item = ReminderProvider.getItem(cursor, item);
-			list.add(Pair.create(Bitmaps.memo_bmp(ctx, item, size),
-					new Intent(ctx, ReminderViewActivity.class)
-							.putExtra("reminder_id", item._id)));
-		}
+		if (cursor.moveToFirst())
+			do {
+				item = ReminderProvider.getItem(cursor, item);
+				final long id = item._id;
+				Bitmap bmp = cached_bitmaps.get(id);
+				if (bmp == null) {
+					bmp = Bitmaps.memo_bmp(ctx, item, size);
+					cached_bitmaps.put(id, bmp);
+				}
+				list.add(Pair.create(bmp,
+						new Intent(ctx, ReminderViewActivity.class)
+								.putExtra("reminder_id", id)));
+			} while (cursor.moveToNext() && --max > 0);
 		int n_sym = list.size();
 		int lost = cursor.getCount() - n_sym;
 		cursor.close();

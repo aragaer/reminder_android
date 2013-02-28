@@ -19,23 +19,33 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 public class ReminderProvider extends ContentProvider {
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private SQLiteDatabase db = null;
+	private final ArrayList<Long> reorder = new ArrayList<Long>(); 
 
 	public static final Uri content_uri = Uri
 			.parse("content://com.aragaer.reminder.provider/reminder");
+	public static final Uri reorder_uri = Uri
+			.parse("content://com.aragaer.reminder.provider/reorder");
+
+	public static final String REORDER_FROM = "from";
+	public static final String REORDER_TO = "to";
 
 	private static final UriMatcher uri_matcher = new UriMatcher(0);
 	private static final int REMINDER_CODE = 1;
 	private static final int REMINDER_WITH_ID = 2;
+	private static final int REORDER_CODE = 3;
 
 	private static final String TAG = ReminderProvider.class.getSimpleName();
+	private static final String PREF_ORDER = "com.aragaer.reminder.order";
 
 	static {
+		uri_matcher.addURI("com.aragaer.reminder.provider", "reorder",	REORDER_CODE);
 		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder",	REMINDER_CODE);
 		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder/#", REMINDER_WITH_ID);
 	}
@@ -73,11 +83,24 @@ public class ReminderProvider extends ContentProvider {
 				getContext().getContentResolver().notifyChange(content_uri, null);
 			}
 			return ContentUris.withAppendedId(content_uri, id);
+		case REORDER_CODE:
+			final int from = arg1.getAsInteger(REORDER_FROM);
+			final int to = arg1.getAsInteger(REORDER_TO);
+			Long moved = reorder.remove(from);
+			reorder.add(to, moved);
+			save_reorder();
+			getContext().getContentResolver().notifyChange(content_uri, null);
+			break;
 		default:
 			Log.e(TAG, "Unknown URI requested: " + uri);
 			break;
 		}
 		return null;
+	}
+
+	final void save_reorder() {
+		final SharedPreferences prefs = getContext().getSharedPreferences("DB", Context.MODE_PRIVATE);
+		prefs.edit().putString(PREF_ORDER, TextUtils.join(",", reorder)).commit();
 	}
 
 	public boolean onCreate() {
@@ -91,6 +114,17 @@ public class ReminderProvider extends ContentProvider {
 		int current_version = prefs.getInt("DATABASE_VERSION", 0);
 		if (current_version > 0 && moveOldData(db))
 			prefs.edit().putInt("DATABASE_VERSION", 0).commit();
+
+		final String reorder_string = prefs.getString(PREF_ORDER, "");
+		if (reorder_string.length() == 0) {
+			final Cursor c = db.query("memo", null, null, null, null, null, null);
+			while (c.moveToNext())
+				reorder.add(c.getLong(0));
+			c.close();
+			save_reorder();
+		} else
+			for (final String id : TextUtils.split(reorder_string, ","))
+				reorder.add(Long.valueOf(id));
 
 		return true;
 	}
@@ -149,7 +183,7 @@ public class ReminderProvider extends ContentProvider {
 			String arg4) {
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
-			return db.query("memo", arg1, arg2, arg3, null, null, arg4);
+			return new ReorderedCursor(db.query("memo", arg1, arg2, arg3, null, null, arg4)).setOrder(reorder);
 		case REMINDER_WITH_ID:
 			return db.query("memo", arg1, "_id=?", uri2selection(uri), null, null, arg4);
 		default:
@@ -199,15 +233,17 @@ public class ReminderProvider extends ContentProvider {
 
 	public static List<ReminderItem> getAll(Cursor c) {
 		ArrayList<ReminderItem> result = new ArrayList<ReminderItem>();
-		while (c.moveToNext())
+		do {
 			result.add(getItem(c));
+		} while (c.moveToNext());
 		return result;
 	}
 
 	public static List<ReminderItem> getAllSublist(Cursor c, int n) {
 		ArrayList<ReminderItem> result = new ArrayList<ReminderItem>();
-		while (c.moveToNext() && n-- > 0)
+		do {
 			result.add(getItem(c));
+		} while (c.moveToNext() && n-- > 0);
 		return result;
 	}
 
@@ -228,4 +264,11 @@ public class ReminderProvider extends ContentProvider {
 			}
 		}
 	};
+
+	public static void reorder(Context c, int from, int to) {
+		final ContentValues row = new ContentValues(2);
+		row.put(REORDER_FROM, from);
+		row.put(REORDER_TO, to);
+		c.getContentResolver().insert(ReminderProvider.reorder_uri, row);
+	}
 }

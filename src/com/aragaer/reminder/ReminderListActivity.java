@@ -10,18 +10,18 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.PorterDuff.Mode;
-import android.graphics.RectF;
 import android.graphics.Region.Op;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.util.LongSparseArray;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -33,7 +33,6 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -43,6 +42,9 @@ public class ReminderListActivity extends Activity {
 	GridView list;
 	DragDropAdapter adapter;
 	Bitmap dragged, background = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+	final LongSparseArray<Bitmap> cached_bitmaps = new LongSparseArray<Bitmap>();
+
+	final RibbonDrawHandler draw = new RibbonDrawHandler();
 
 	int x, y;
 	OnTouchListener touch = new OnTouchListener() {
@@ -75,14 +77,12 @@ public class ReminderListActivity extends Activity {
 		}
 	};
 
-	Paint p = new Paint();
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		p.setStyle(Style.FILL);
-		p.setColor(Color.WHITE);
 		Resources r = getResources();
 		size = r.getDimensionPixelSize(R.dimen.tile_size);
-		space = r.getDimensionPixelSize(R.dimen.tile_space);
+		draw.space = space = r.getDimensionPixelSize(R.dimen.tile_space);
+		draw.ribbon = r.getDimensionPixelSize(R.dimen.tile_ribbon);
 		drag_size = r.getDimensionPixelSize(R.dimen.view_glyph_size);
 		border = r.getDimensionPixelSize(R.dimen.border_width);
 
@@ -98,16 +98,15 @@ public class ReminderListActivity extends Activity {
 			protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 				background.recycle();
 				background = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-				canvas.setBitmap(background);
-				redraw_background();
+				draw.canvas.setBitmap(background);
+				draw.columns = getNumColumns();
+				draw.redraw_background(adapter.getCount());
 			}
 		};
 		list.setNumColumns(-1);
 		list.setColumnWidth(size);
-//		list.setHorizontalSpacing(space);
-//		list.setVerticalSpacing(space);
 		list.setPadding(space, space, space, space);
-		paint.setStrokeWidth(border);
+		draw.paint.setStrokeWidth(border);
 
 		int width = r.getDisplayMetrics().widthPixels;
 		int height = r.getDisplayMetrics().heightPixels;
@@ -128,128 +127,69 @@ public class ReminderListActivity extends Activity {
 		list.setOnTouchListener(touch);
 
 		Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
-		adapter = new DragDropAdapter(r, new CursorAdapter(this, cursor) {
+		final Drawable[] border = { Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_BLUE]) };
+		adapter = new DragDropAdapter(new CursorAdapter(this, cursor, true) {
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
-				return new ImageView(parent.getContext()) {
+				LayerDrawable back = new LayerDrawable(border);
+				back.setLayerInset(0, space, space, space, space);
+				ImageView result = new ImageView(parent.getContext()) {
 					public void onMeasure(int wms, int hms) {
 					    super.onMeasure(wms, wms);
 					}
 				};
+				result.setBackgroundDrawable(back);
+				return result;
 			}
 
 			public void bindView(View view, Context context, Cursor cursor) {
-				ReminderItem item = ReminderProvider.getItem(cursor);
-				((ImageView) view).setImageBitmap(Bitmaps.memo_bmp(context, item, size));
+				final long id = cursor.getLong(0);
+				Bitmap bmp = cached_bitmaps.get(id);
+				if (bmp == null) {
+					final ReminderItem item = ReminderProvider.getItem(cursor);
+					bmp = Bitmaps.memo_bmp(context, item, size);
+					cached_bitmaps.put(id, bmp);
+				}
+				((ImageView) view).setImageBitmap(bmp);
 			}
-		});
+		}) {
+			void handle_drag_drop(int from, int to) {
+				ReminderProvider.reorder(ReminderListActivity.this, from, to);
+			}
+		};
 		list.setAdapter(adapter);
 		list.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> arg0, View view,
-					int position, long arg3) {
+					int position, long id) {
 				adapter.drag_start(position);
-				dragged = Bitmaps.memo_bmp(ReminderListActivity.this, ReminderProvider.getItem((Cursor) adapter.getItem(position)), drag_size);
+				dragged = Bitmap.createScaledBitmap(cached_bitmaps.get(id), drag_size, drag_size, true);
 				list.invalidate();
 				return true;
 			}
 		});
+		list.setSelector(Bitmaps.inset_border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_BLUE], 0x8033b5e5, space));
 
 		adapter.registerDataSetObserver(dso);
-		adapter.green_zone = ReminderService.n_glyphs(width, notification_size);
-		adapter.yellow_zone = ReminderService.n_glyphs(height, notification_size);
+		draw.green_zone = ReminderService.n_glyphs(width, notification_size);
+		draw.yellow_zone = ReminderService.n_glyphs(height, notification_size);
 
 		setContentView(list);
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, true, observer);
 	}
 
-	final Paint paint = new Paint(0x07);
-	final Path path = new Path();
-	final RectF round = new RectF();
-	final Canvas canvas = new Canvas();
-
-	private void draw_background_item(int color, int num, int inset) {
-		int columns = list.getNumColumns();
-		int tile_size = (list.getWidth() - space * 2)/columns;
-		int r = space - inset;
-		round.set(-r, -r, r, r);
-		int col = num % columns;
-		int row = num / columns;
-		int start = space / 2 + inset;
-		int end = tile_size - space * 5 / 2 + inset;
-
-		canvas.setMatrix(null);
-		canvas.translate(space + col * tile_size, space + row * tile_size);
-		canvas.clipRect(0, 0, tile_size, tile_size, Op.REPLACE);
-
-		paint.setColor(color);
-		paint.setAlpha(128);
-		paint.setStyle(Style.STROKE);
-
-		round.offsetTo(start, start);
-		path.addArc(round, 180, 90);
-		round.offsetTo(end, start);
-		path.arcTo(round, 270, 90);
-		round.offsetTo(end, end);
-		path.arcTo(round, 0, 90);
-		round.offsetTo(start, end);
-		path.arcTo(round, 90, 90);
-		path.close();
-
-		canvas.drawPath(path, paint);
-		path.reset();
-	}
-
-	private void draw_ribbon(int color, int num, int inset) {
-		int columns = list.getNumColumns();
-		int tile_size = (list.getWidth() - space * 2)/columns;
-		int col = num % columns;
-		int row = num / columns;
-		int left = space / 2 + inset;
-		int top = space / 2 + inset;
-
-		canvas.setMatrix(null);
-		canvas.translate(space + col * tile_size, space + row * tile_size);
-		canvas.clipRect(0, 0, tile_size, tile_size, Op.REPLACE);
-
-		path.moveTo(left + space, top);
-		path.lineTo(left + space * 2, top);
-		path.lineTo(left, left + space * 2);
-		path.lineTo(left, top + space);
-		path.close();
-
-		paint.setColor(color);
-		paint.setAlpha(192);
-		paint.setStyle(Style.FILL);
-		canvas.clipRect(left, top, left + space * 2, top + space * 2, Op.REPLACE);
-		canvas.drawColor(0, Mode.CLEAR);
-		canvas.drawPath(path, paint);
-		path.reset();
-	}
-
-	@SuppressLint("HandlerLeak")
-	final Handler draw = new Handler() {
-		public void handleMessage(Message msg) {
-			redraw_background();
-		}
-	};
-
-	void redraw_background() {
-		int cnt = adapter.getCount();
-		int inset = border * 2;
-		for (int i = 0; i < cnt; i++) {
-			if (i >= adapter.yellow_zone)
-				draw_ribbon(Bitmaps.colors[Bitmaps.COLOR_RED], i, inset);
-			else if (i >= adapter.green_zone)
-				draw_ribbon(Bitmaps.colors[Bitmaps.COLOR_YELLOW], i, inset);
-			draw_background_item(Bitmaps.colors[Bitmaps.COLOR_BLUE], i, inset);
-		}
-	}
-
 	DataSetObserver dso = new DataSetObserver() {
+		int old_count = 0;
+		private void check_send() {
+			int count = adapter.getCount();
+			if (count == old_count)
+				return;
+			old_count = count;
+			draw.sendEmptyMessage(count);
+		}
 		public void onChanged() {
-			draw.sendEmptyMessage(0);
+			check_send();
 		}
 		public void onInvalidated() {
-			draw.sendEmptyMessage(0);
+			check_send();
 		}
 	};
 
@@ -258,6 +198,7 @@ public class ReminderListActivity extends Activity {
 		public void onChange(boolean selfChange) {
 			this.onChange(selfChange, null);
 		}
+		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
 			((CursorAdapter) ((DragDropAdapter) list.getAdapter()).inner)
 					.changeCursor(getContentResolver().query(
@@ -287,102 +228,52 @@ public class ReminderListActivity extends Activity {
 	}
 }
 
-class DragDropAdapter extends BaseAdapter {
-	private int observers = 0;
-	private final DataSetObserver dso = new DataSetObserver() {
-		public void onChanged() {
-			notifyDataSetChanged();
-		}
-		public void onInvalidated() {
-			notifyDataSetInvalidated();
-		}
-	};
-	final BaseAdapter inner;
-	private int from = -1, to = -1;
+class RibbonDrawHandler extends Handler {
+	final Paint paint = new Paint(0x07);
+	final Path ribbon_path = new Path();
+	int columns;
+	int space, ribbon;
 	int green_zone, yellow_zone;
-	Drawable green, yellow, red, white;
+	final Canvas canvas = new Canvas();
 
-	public boolean inDrag() {
-		return from >= 0;
+	private void draw_ribbon_at(int x, int y) {
+		canvas.setMatrix(null);
+		canvas.translate(x + space * 2, y + space * 2);
+		canvas.clipRect(0, 0, ribbon * 2, ribbon * 2, Op.REPLACE);
+
+		canvas.drawColor(0, Mode.CLEAR);
+		canvas.drawPath(ribbon_path, paint);
 	}
 
-	private final int translate(int position) {
-		int result = position;
-//		Log.d("translate", "from="+from+", to="+to+", pos="+position);
-		if (from < 0)
-			return position;
-		if (position == to)
-			return from;
-		if (position == from)
-			return position + (to < from ? -1 : 1);
-		if (position > from)
-			result++;
-		if (position > to)
-			result--;
-		return result;
-	}
+	void redraw_background(int i) {
+		paint.setAlpha(192);
+		paint.setStyle(Style.FILL);
 
-	public void drag_start(int from) {
-		this.from = from;
-		this.to = from;
-		notifyDataSetChanged();
-	}
+		ribbon_path.reset();
+		ribbon_path.moveTo(ribbon, 0);
+		ribbon_path.lineTo(ribbon * 2, 0);
+		ribbon_path.lineTo(0, ribbon * 2);
+		ribbon_path.lineTo(0, ribbon);
+		ribbon_path.close();
 
-	public void drag_to(int to) {
-		if (this.to == to)
-			return;
-		this.to = to;
-		notifyDataSetChanged();
-	}
+		final int tile_size = (canvas.getWidth() - space * 2)/columns;
+		int x = (i % columns) * tile_size;
+		int y = (i / columns) * tile_size;
 
-	public void drop_at(int to) {
-		// move stuff here!!
-		this.from = -1;
-		this.to = -1;
-		notifyDataSetChanged();
-	}
-
-	public DragDropAdapter(Resources r, BaseAdapter inner) {
-		this.inner = inner;
-		green = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_GREEN]);
-		yellow = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
-		red = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_RED]);
-		white = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_BLUE]);
-	}
-
-	public int getCount() {
-		return inner.getCount();
-	}
-
-	public Object getItem(int position) {
-		return inner.getItem(translate(position));
-	}
-
-	public long getItemId(int position) {
-		return inner.getItemId(translate(position));
-	}
-
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View res = inner.getView(translate(position), convertView, parent);
-		res.setAlpha(position == to ? 0.5f : 1);
-		return res;
-	}
-
-	public void registerDataSetObserver(DataSetObserver observer) {
-		super.registerDataSetObserver(observer);
-		synchronized (this) {
-			if (observers == 0)
-				inner.registerDataSetObserver(dso);
-			observers++;
+		paint.setColor(Bitmaps.colors[Bitmaps.COLOR_RED]);
+		while (i-- > green_zone) {
+			if (x < tile_size) {
+				x = columns * tile_size;
+				y -= tile_size;
+			}
+			x -= tile_size;
+			draw_ribbon_at(x, y);
+			if (i == yellow_zone)
+				paint.setColor(Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
 		}
 	}
 
-	public void unregisterDataSetObserver(DataSetObserver observer) {
-		super.unregisterDataSetObserver(observer);
-		synchronized (this) {
-			observers--;
-			if (observers == 0)
-				inner.unregisterDataSetObserver(dso);
-		}
+	public void handleMessage(Message msg) {
+		redraw_background(msg.what);
 	}
 }
