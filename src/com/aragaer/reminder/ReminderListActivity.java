@@ -88,8 +88,8 @@ public class ReminderListActivity extends Activity {
 		drag_size = r.getDimensionPixelSize(R.dimen.view_glyph_size);
 		list.setNumColumns(-1);
 		list.setColumnWidth(size);
-		list.setHorizontalSpacing(space);
-		list.setVerticalSpacing(space);
+		list.setHorizontalSpacing(0);
+		list.setVerticalSpacing(0);
 		list.setPadding(space, space, space, space);
 
 		int width = r.getDisplayMetrics().widthPixels;
@@ -113,11 +113,13 @@ public class ReminderListActivity extends Activity {
 		Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
 		adapter = new DragDropAdapter(r, new CursorAdapter(this, cursor) {
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
-				return new ImageView(parent.getContext()) {
+				ImageView result = new ImageView(parent.getContext()) {
 					public void onMeasure(int wms, int hms) {
 					    super.onMeasure(wms, wms);
 					}
 				};
+				result.setBackgroundResource(R.drawable.padded_border_normal);
+				return result;
 			}
 
 			public void bindView(View view, Context context, Cursor cursor) {
@@ -125,6 +127,7 @@ public class ReminderListActivity extends Activity {
 				((ImageView) view).setImageBitmap(Bitmaps.memo_bmp(context, item, size));
 			}
 		});
+		list.setSelector(R.drawable.padded_border_pressed);
 		list.setAdapter(adapter);
 		list.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> arg0, View view,
@@ -238,9 +241,6 @@ class DragDropAdapter extends BaseAdapter {
 
 	public DragDropAdapter(Resources r, BaseAdapter inner) {
 		this.inner = inner;
-		border_green = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_GREEN]);
-		border_yellow = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
-		border_red = Bitmaps.border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_RED]);
 	}
 
 	public int getCount() {
@@ -258,12 +258,6 @@ class DragDropAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View res = inner.getView(translate(position), convertView, parent);
 		res.setAlpha(position == to ? 0.5f : 1);
-		if (position < green)
-			res.setBackgroundDrawable(border_green);
-		else if (position < yellow)
-			res.setBackgroundDrawable(border_yellow);
-		else
-			res.setBackgroundDrawable(border_red);
 
 		return res;
 	}
