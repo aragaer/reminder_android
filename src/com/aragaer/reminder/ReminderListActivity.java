@@ -141,14 +141,16 @@ public class ReminderListActivity extends Activity {
 				return result;
 			}
 
+			ReminderItem tmp_item = new ReminderItem(0, null, null, null, 0);
 			public void bindView(View view, Context context, Cursor cursor) {
 				final long id = cursor.getLong(0);
 				Bitmap bmp = cached_bitmaps.get(id);
-				if (bmp == null) {
-					final ReminderItem item = ReminderProvider.getItem(cursor);
-					bmp = Bitmaps.memo_bmp(context, item, size);
-					cached_bitmaps.put(id, bmp);
-				}
+				if (bmp == null)
+					synchronized (tmp_item) {
+						ReminderProvider.getItem(cursor, tmp_item);
+						bmp = Bitmaps.memo_bmp(context, tmp_item, size);
+						cached_bitmaps.put(id, bmp);
+					}
 				((ImageView) view).setImageBitmap(bmp);
 			}
 		}) {
