@@ -115,16 +115,8 @@ public class ReminderProvider extends ContentProvider {
 		if (current_version > 0 && moveOldData(db))
 			prefs.edit().putInt("DATABASE_VERSION", 0).commit();
 
-		final String reorder_string = prefs.getString(PREF_ORDER, "");
-		if (reorder_string.length() == 0) {
-			final Cursor c = db.query("memo", null, null, null, null, null, null);
-			while (c.moveToNext())
-				reorder.add(c.getLong(0));
-			c.close();
-			save_reorder();
-		} else
-			for (final String id : TextUtils.split(reorder_string, ","))
-				reorder.add(Long.valueOf(id));
+		for (final String id : TextUtils.split(prefs.getString(PREF_ORDER, ""), ","))
+			reorder.add(Long.valueOf(id));
 
 		return true;
 	}
@@ -183,7 +175,7 @@ public class ReminderProvider extends ContentProvider {
 			String arg4) {
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
-			return new ReorderedCursor(db.query("memo", arg1, arg2, arg3, null, null, arg4)).setOrder(reorder);
+			return updateReorder(db.query("memo", arg1, arg2, arg3, null, null, arg4));
 		case REMINDER_WITH_ID:
 			return db.query("memo", arg1, "_id=?", uri2selection(uri), null, null, arg4);
 		default:
@@ -191,6 +183,24 @@ public class ReminderProvider extends ContentProvider {
 			break;
 		}
 		return null;
+	}
+
+	private Cursor updateReorder(Cursor c) {
+		if (c == null) {
+			reorder.clear();
+			save_reorder();
+			return null;
+		}
+		ArrayList<Long> ids = new ArrayList<Long>(c.getCount());
+		if (c.moveToFirst())
+			do {
+				ids.add(c.getLong(0));
+			} while (c.moveToNext());
+		reorder.retainAll(ids); // remove all lost entries
+		ids.removeAll(reorder); // check all known entries
+		reorder.addAll(ids); // add all new entries to the end
+		save_reorder();
+		return new ReorderedCursor(c).setOrder(reorder);
 	}
 
 	String[] uri2selection(Uri uri) {
