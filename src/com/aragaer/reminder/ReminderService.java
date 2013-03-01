@@ -17,8 +17,10 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.Pair;
 import android.widget.RemoteViews;
 
@@ -106,6 +108,7 @@ public class ReminderService extends Service {
 	}
 
 	public static final String catcher_action = "com.aragaer.reminder.CATCH_ACTION";
+	private static final String collapse_method = Build.VERSION.SDK_INT > 16 ? "collapsePanels" : "collapse";
 	private final BroadcastReceiver catcher = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			int position = intent.getIntExtra("what", 99);
@@ -116,9 +119,10 @@ public class ReminderService extends Service {
 			try {
 				Object obj = context.getSystemService("statusbar");
 				Class.forName("android.app.StatusBarManager")
-						.getMethod("collapse", new Class[0])
+						.getMethod(collapse_method, new Class[0])
 						.invoke(obj, (Object[]) null);
 			} catch (Exception e) {
+				Log.e("STATUSBAR", "Failed to collapse status panel: "+e);
 				// do nothing, it's OK
 			}
 			context.startActivity(i.addFlags(intent_flags));
