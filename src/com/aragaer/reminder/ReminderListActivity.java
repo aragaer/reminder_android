@@ -235,17 +235,10 @@ class RibbonDrawHandler extends Handler {
 	int space, ribbon;
 	int green_zone, yellow_zone;
 	final Canvas canvas = new Canvas();
+	int last_count;
 
-	private void draw_ribbon_at(int x, int y) {
-		canvas.setMatrix(null);
-		canvas.translate(x + space * 2, y + space * 2);
-		canvas.clipRect(0, 0, ribbon * 2, ribbon * 2, Op.REPLACE);
-
-		canvas.drawColor(0, Mode.CLEAR);
-		canvas.drawPath(ribbon_path, paint);
-	}
-
-	void redraw_background(int i) {
+	void redraw_background(int count) {
+		int i = Math.max(count, last_count);
 		paint.setAlpha(192);
 		paint.setStyle(Style.FILL);
 
@@ -259,18 +252,27 @@ class RibbonDrawHandler extends Handler {
 		final int tile_size = (canvas.getWidth() - space * 2)/columns;
 		int x = (i % columns) * tile_size;
 		int y = (i / columns) * tile_size;
+		Log.d("RIBBON", "Yellow until "+green_zone);
+		Log.d("RIBBON", "Red until "+yellow_zone);
 
-		paint.setColor(Bitmaps.colors[Bitmaps.COLOR_RED]);
+		paint.setColor(i > yellow_zone ? Bitmaps.colors[Bitmaps.COLOR_RED] : Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
 		while (i-- > green_zone) {
 			if (x < tile_size) {
 				x = columns * tile_size;
 				y -= tile_size;
 			}
 			x -= tile_size;
-			draw_ribbon_at(x, y);
+			canvas.setMatrix(null);
+			canvas.translate(x + space * 2, y + space * 2);
+			canvas.clipRect(0, 0, ribbon * 2, ribbon * 2, Op.REPLACE);
+
+			canvas.drawColor(0, Mode.CLEAR);
+			if (i < count)
+				canvas.drawPath(ribbon_path, paint);
 			if (i == yellow_zone)
 				paint.setColor(Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
 		}
+		last_count = count;
 	}
 
 	public void handleMessage(Message msg) {
