@@ -38,7 +38,8 @@
         android:layout_toRightOf="@+id/glyph"
         android:text="" />
 
-    <EditText
+    <view
+        class="com.aragaer.reminder.LinedEditText"
         android:id="@+id/comment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

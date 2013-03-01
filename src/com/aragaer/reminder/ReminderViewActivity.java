@@ -100,3 +100,4 @@ public class ReminderViewActivity extends Activity {
 		return true;
 	}
 }
+

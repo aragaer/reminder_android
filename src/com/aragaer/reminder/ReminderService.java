@@ -131,6 +131,7 @@ public class ReminderService extends Service {
 			this.onChange(selfChange, null);
 		}
 
+		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
 			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
 					.notify(1, buildNotification(ReminderService.this));
