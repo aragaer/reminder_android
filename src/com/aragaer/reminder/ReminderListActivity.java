@@ -17,6 +17,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.Region.Op;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,6 +46,8 @@ public class ReminderListActivity extends Activity {
 	final LongSparseArray<Bitmap> cached_bitmaps = new LongSparseArray<Bitmap>();
 
 	final RibbonDrawHandler draw = new RibbonDrawHandler();
+
+	final StateListDrawable selector = new StateListDrawable();
 
 	int x, y;
 	OnTouchListener touch = new OnTouchListener() {
@@ -168,7 +171,13 @@ public class ReminderListActivity extends Activity {
 				return true;
 			}
 		});
-		list.setSelector(Bitmaps.inset_border(r.getDimensionPixelSize(R.dimen.border_width), Bitmaps.colors[Bitmaps.COLOR_BLUE], 0x8033b5e5, space));
+
+		selector.addState(new int[] { android.R.attr.state_pressed },
+				Bitmaps.inset_border(
+						r.getDimensionPixelSize(R.dimen.border_width),
+						Bitmaps.colors[Bitmaps.COLOR_BLUE],
+						Bitmaps.colors[Bitmaps.COLOR_BLUE] & ~0x80000000, space));
+		list.setSelector(selector);
 
 		adapter.registerDataSetObserver(dso);
 		draw.green_zone = ReminderService.n_glyphs(width, notification_size);
