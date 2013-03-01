@@ -64,6 +64,7 @@ public class ReminderListActivity extends Activity {
 		public void onChange(boolean selfChange) {
 			this.onChange(selfChange, null);
 		}
+		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
 			((CursorAdapter) list.getAdapter())
 					.changeCursor(getContentResolver().query(
