@@ -266,7 +266,7 @@ class RibbonDrawHandler extends Handler {
 		Log.d("RIBBON", "Yellow until "+green_zone);
 		Log.d("RIBBON", "Red until "+yellow_zone);
 
-		paint.setColor(i > yellow_zone ? Bitmaps.colors[Bitmaps.COLOR_RED] : Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
+		paint.setColor(Bitmaps.colors[i > yellow_zone ? Bitmaps.COLOR_RED : Bitmaps.COLOR_YELLOW]);
 		while (i-- > green_zone) {
 			if (x < tile_size) {
 				x = columns * tile_size;
