@@ -26,7 +26,7 @@ import android.widget.Toast;
 public class ReminderProvider extends ContentProvider {
 	private static final int DATABASE_VERSION = 2;
 	private SQLiteDatabase db = null;
-	private final ArrayList<Long> reorder = new ArrayList<Long>(); 
+	private final ArrayList<Long> ordered_ids = new ArrayList<Long>();
 
 	public static final Uri content_uri = Uri
 			.parse("content://com.aragaer.reminder.provider/reminder");
@@ -86,8 +86,8 @@ public class ReminderProvider extends ContentProvider {
 		case REORDER_CODE:
 			final int from = arg1.getAsInteger(REORDER_FROM);
 			final int to = arg1.getAsInteger(REORDER_TO);
-			Long moved = reorder.remove(from);
-			reorder.add(to, moved);
+			Long moved = ordered_ids.remove(from);
+			ordered_ids.add(to, moved);
 			save_reorder();
 			getContext().getContentResolver().notifyChange(content_uri, null);
 			break;
@@ -100,7 +100,7 @@ public class ReminderProvider extends ContentProvider {
 
 	final void save_reorder() {
 		final SharedPreferences prefs = getContext().getSharedPreferences("DB", Context.MODE_PRIVATE);
-		prefs.edit().putString(PREF_ORDER, TextUtils.join(",", reorder)).commit();
+		prefs.edit().putString(PREF_ORDER, TextUtils.join(",", ordered_ids)).commit();
 	}
 
 	public boolean onCreate() {
@@ -116,7 +116,7 @@ public class ReminderProvider extends ContentProvider {
 			prefs.edit().putInt("DATABASE_VERSION", 0).commit();
 
 		for (final String id : TextUtils.split(prefs.getString(PREF_ORDER, ""), ","))
-			reorder.add(Long.valueOf(id));
+			ordered_ids.add(Long.valueOf(id));
 
 		return true;
 	}
@@ -175,7 +175,7 @@ public class ReminderProvider extends ContentProvider {
 			String arg4) {
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
-			return updateReorder(db.query("memo", arg1, arg2, arg3, null, null, arg4));
+			return reorder(db.query("memo", arg1, arg2, arg3, null, null, arg4));
 		case REMINDER_WITH_ID:
 			return db.query("memo", arg1, "_id=?", uri2selection(uri), null, null, arg4);
 		default:
@@ -185,22 +185,23 @@ public class ReminderProvider extends ContentProvider {
 		return null;
 	}
 
-	private Cursor updateReorder(Cursor c) {
+	// TODO: this will work badly if there's any selection condition
+	private Cursor reorder(Cursor c) {
 		if (c == null) {
-			reorder.clear();
+			ordered_ids.clear();
 			save_reorder();
 			return null;
 		}
-		ArrayList<Long> ids = new ArrayList<Long>(c.getCount());
+		final ArrayList<Long> ids = new ArrayList<Long>(c.getCount());
 		if (c.moveToFirst())
 			do {
 				ids.add(c.getLong(0));
 			} while (c.moveToNext());
-		reorder.retainAll(ids); // remove all lost entries
-		ids.removeAll(reorder); // check all known entries
-		reorder.addAll(ids); // add all new entries to the end
+		ordered_ids.retainAll(ids); // remove all ids not in new list
+		ids.removeAll(ordered_ids); // keep whatever is left
+		ordered_ids.addAll(ids);	// add new records at the end
 		save_reorder();
-		return new ReorderedCursor(c).setOrder(reorder);
+		return new ReorderedCursor(c).setOrder(ordered_ids);
 	}
 
 	String[] uri2selection(Uri uri) {
