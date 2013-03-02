@@ -246,10 +246,10 @@ class RibbonDrawHandler extends Handler {
 	int space, ribbon;
 	int green_zone, yellow_zone;
 	final Canvas canvas = new Canvas();
-	int last_count;
+	private int old_count = 0;
 
-	void redraw_background(int count) {
-		int i = Math.max(count, last_count);
+	void redraw_background(final int count) {
+		int i = Math.max(old_count, count);
 		paint.setAlpha(192);
 		paint.setStyle(Style.FILL);
 
@@ -278,12 +278,13 @@ class RibbonDrawHandler extends Handler {
 			canvas.clipRect(0, 0, ribbon * 2, ribbon * 2, Op.REPLACE);
 
 			canvas.drawColor(0, Mode.CLEAR);
+
 			if (i < count)
 				canvas.drawPath(ribbon_path, paint);
 			if (i == yellow_zone)
 				paint.setColor(Bitmaps.colors[Bitmaps.COLOR_YELLOW]);
 		}
-		last_count = count;
+		old_count = count;
 	}
 
 	public void handleMessage(Message msg) {
