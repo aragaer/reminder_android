@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.util.LongSparseArray;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -263,8 +262,6 @@ class RibbonDrawHandler extends Handler {
 		final int tile_size = (canvas.getWidth() - space * 2)/columns;
 		int x = (i % columns) * tile_size;
 		int y = (i / columns) * tile_size;
-		Log.d("RIBBON", "Yellow until "+green_zone);
-		Log.d("RIBBON", "Red until "+yellow_zone);
 
 		paint.setColor(Bitmaps.colors[i > yellow_zone ? Bitmaps.COLOR_RED : Bitmaps.COLOR_YELLOW]);
 		while (i-- > green_zone) {

@@ -1,21 +1,14 @@
 <resources>
     <string name="app_name">Fleeting Memo</string>
-    <string name="title_activity_main">Reminder</string>
     <string name="add_new">Create new reminder</string>
     <string name="add_extra">Add extra description</string>
     <string name="no_extra">No extra description</string>
     <string name="delete">Delete</string>
-    <string name="menu_settings">Settings</string>
 
-    <string name="pref_cat_notification">Notification settings</string>
-    <string name="pref_invert_notif">Dark colors</string>
-    <string name="pref_invert_notif_ex">Check this if your notification background is light</string>
     <string name="created_on">Created on:</string>
-
-    <string name="pref_notification_left">Buttons on the left</string>
-    <string name="pref_notification_left_ex">Put "list" and "add" buttons on the left side of notification</string>
 
     <string name="toast_created">Reminder created</string>
     <string name="toast_saved">Reminder saved</string>
     <string name="toast_deleted">Reminder deleted</string>
+    <string name="glyph_description">Reminder glyph associated with this note</string>
 </resources>

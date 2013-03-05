@@ -1,6 +1,7 @@
 package com.aragaer.reminder;
 
 import java.io.ByteArrayOutputStream;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -15,7 +16,7 @@ class ReminderItem {
 	Date when;
 	int color = Bitmaps.COLOR_WHITE;
 
-	static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	static final DateFormat df = SimpleDateFormat.getDateTimeInstance();
 
 	public ReminderItem(Bitmap b) {
 		this(b, null, new Date());
