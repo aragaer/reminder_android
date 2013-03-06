@@ -67,17 +67,17 @@ public class ReorderedCursor extends CursorWrapper {
 	public ReorderedCursor setOrder(List<Long> ids) {
 		final int id_col = getColumnIndex("_id");
 		int position = 0;
-		super.moveToFirst();
-		do {
-			final long id = super.getLong(id_col);
-			int translated = count;
-			while (translated-- > 0)
-				if (ids.get(translated) == id)
-					break;
-			pos2true[translated] = position;
-			true2pos[position] = translated;
-			position++;
-		} while (super.moveToNext());
+		if (super.moveToFirst())
+			do {
+				final long id = super.getLong(id_col);
+				int translated = count;
+				while (translated-- > 0)
+					if (ids.get(translated) == id)
+						break;
+				pos2true[translated] = position;
+				true2pos[position] = translated;
+				position++;
+			} while (super.moveToNext());
 		return this;
 	}
 }
