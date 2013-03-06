@@ -65,10 +65,10 @@ public class ReorderedCursor extends CursorWrapper {
 	public ReorderedCursor setOrder(final List<Long> ids) {
 		final int id_col = getColumnIndex("_id");
 		int position = 0;
-		super.moveToFirst();
-		do {
-			position_map[ids.indexOf(Long.valueOf(super.getLong(id_col)))] = position++;
-		} while (super.moveToNext());
+		if (super.moveToFirst())
+			do {
+				position_map[ids.indexOf(Long.valueOf(super.getLong(id_col)))] = position++;
+			} while (super.moveToNext());
 		return this;
 	}
 }
