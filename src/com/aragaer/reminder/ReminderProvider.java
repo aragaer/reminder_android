@@ -171,13 +171,16 @@ public class ReminderProvider extends ContentProvider {
 		return true;
 	}
 
-	public Cursor query(Uri uri, String[] arg1, String arg2, String[] arg3,
-			String arg4) {
+	public Cursor query(Uri uri, String[] cols, String selection, String[] sel_args,
+			String group_by) {
 		switch (uri_matcher.match(uri)) {
 		case REMINDER_CODE:
-			return reorder(db.query("memo", arg1, arg2, arg3, null, null, arg4));
+			Cursor result = db.query("memo", cols, selection, sel_args, null, null, group_by);
+			return selection == null && group_by == null
+				? result
+				: reorder(result); // TODO: must ensure there's '_id' field too
 		case REMINDER_WITH_ID:
-			return db.query("memo", arg1, "_id=?", uri2selection(uri), null, null, arg4);
+			return db.query("memo", cols, "_id=?", uri2selection(uri), null, null, group_by);
 		default:
 			Log.e(TAG, "Unknown URI requested: " + uri);
 			break;
@@ -185,7 +188,7 @@ public class ReminderProvider extends ContentProvider {
 		return null;
 	}
 
-	// TODO: this will work badly if there's any selection condition
+	// Use this only if _id field is selected, no selection condition and no groupby
 	private Cursor reorder(Cursor c) {
 		if (c == null) {
 			ordered_ids.clear();
