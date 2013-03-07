@@ -177,8 +177,8 @@ public class ReminderProvider extends ContentProvider {
 		case REMINDER_CODE:
 			Cursor result = db.query("memo", cols, selection, sel_args, null, null, group_by);
 			return selection == null && group_by == null
-				? result
-				: reorder(result); // TODO: must ensure there's '_id' field too
+				? reorder(result) // TODO: must ensure there's '_id' field too
+				: result;
 		case REMINDER_WITH_ID:
 			return db.query("memo", cols, "_id=?", uri2selection(uri), null, null, group_by);
 		default:
