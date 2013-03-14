@@ -27,6 +27,7 @@ import android.widget.ImageView;
 public class ReminderListActivity extends Activity implements OnItemClickListener {
 	int size, space, drag_size, border;
 	GridView list;
+	DragDropAdapter adapter;
 
 	public void onItemClick(AdapterView<?> adapter, View arg1,
 			int position, long id) {
@@ -49,7 +50,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		registerForContextMenu(list);
 
 		Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
-		list.setAdapter(new CursorAdapter(this, cursor, false) {
+		adapter = new DragDropAdapter(new CursorAdapter(this, cursor, false) {
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
 				return new ImageView(parent.getContext());
 			}
@@ -58,7 +59,10 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 				ReminderItem item = ReminderProvider.getItem(cursor);
 				((ImageView) view).setImageBitmap(Bitmaps.memo_bmp(context, item, size));
 			}
-		});
+		}) {
+			void handle_drag_drop(int from, int to) { }
+		};
+		list.setAdapter(adapter);
 
 		setContentView(list);
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, true, observer);
@@ -72,7 +76,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		}
 		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
-			((CursorAdapter) list.getAdapter())
+			((CursorAdapter) ((DragDropAdapter) list.getAdapter()).inner)
 					.changeCursor(getContentResolver().query(
 							ReminderProvider.content_uri, null, null, null, null));
 		}
@@ -98,7 +102,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 	public void onDestroy() {
 		super.onDestroy();
 		getContentResolver().unregisterContentObserver(observer);
-		((CursorAdapter) list.getAdapter()).getCursor().close();
+		((CursorAdapter) ((DragDropAdapter) list.getAdapter()).inner).getCursor().close();
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
