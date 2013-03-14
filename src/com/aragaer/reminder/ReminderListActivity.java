@@ -43,7 +43,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		registerForContextMenu(list);
 
 		Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
-		list.setAdapter(new CursorAdapter(this, cursor) {
+		list.setAdapter(new CursorAdapter(this, cursor, false) {
 			public View newView(Context context, Cursor cursor, ViewGroup parent) {
 				return ViewGroup.inflate(parent.getContext(), android.R.layout.activity_list_item, null);
 			}
