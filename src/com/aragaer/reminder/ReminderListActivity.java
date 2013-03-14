@@ -18,26 +18,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ReminderListActivity extends Activity {
+public class ReminderListActivity extends Activity implements OnItemClickListener {
 	ListView list;
+
+	public void onItemClick(AdapterView<?> adapter, View arg1,
+			int position, long id) {
+		startActivity(new Intent(this,
+				ReminderViewActivity.class).putExtra("reminder_id", id));
+	}
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		startService(new Intent(this, ReminderService.class));
 		list = new ListView(this);
 
-		list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			public void onItemClick(AdapterView<?> adapter, View arg1,
-					int position, long id) {
-				startActivity(new Intent(ReminderListActivity.this,
-						ReminderViewActivity.class).putExtra("reminder_id", id));
-			}
-		});
+		list.setOnItemClickListener(this);
 
 		registerForContextMenu(list);
 
