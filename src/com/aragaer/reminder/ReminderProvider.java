@@ -31,15 +31,22 @@ public class ReminderProvider extends ContentProvider {
 
 	public static final Uri content_uri = Uri
 			.parse("content://com.aragaer.reminder.provider/reminder");
+	public static final Uri reorder_uri = Uri
+			.parse("content://com.aragaer.reminder.provider/reorder");
+
+	public static final String REORDER_FROM = "from";
+	public static final String REORDER_TO = "to";
 
 	private static final UriMatcher uri_matcher = new UriMatcher(0);
 	private static final int REMINDER_CODE = 1;
 	private static final int REMINDER_WITH_ID = 2;
+	private static final int REORDER_CODE = 3;
 
 	private static final String TAG = ReminderProvider.class.getSimpleName();
 	private static final String PREF_ORDER = "com.aragaer.reminder.order";
 
 	static {
+		uri_matcher.addURI("com.aragaer.reminder.provider", "reorder",	REORDER_CODE);
 		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder",	REMINDER_CODE);
 		uri_matcher.addURI("com.aragaer.reminder.provider", "reminder/#", REMINDER_WITH_ID);
 	}
@@ -70,6 +77,14 @@ public class ReminderProvider extends ContentProvider {
 
 	public Uri insert(Uri uri, ContentValues arg1) {
 		switch (uri_matcher.match(uri)) {
+		case REORDER_CODE:
+			final int from = arg1.getAsInteger(REORDER_FROM);
+			final int to = arg1.getAsInteger(REORDER_TO);
+			Long moved = ordered_ids.remove(from);
+			ordered_ids.add(to, moved);
+			save_reorder();
+			getContext().getContentResolver().notifyChange(content_uri, null);
+			break;
 		case REMINDER_CODE:
 			long id = db.insert("memo", null, arg1);
 			if (id != -1) {
@@ -266,4 +281,11 @@ public class ReminderProvider extends ContentProvider {
 			}
 		}
 	};
+
+	public static void reorder(final Context c, final int from, final int to) {
+		final ContentValues row = new ContentValues(2);
+		row.put(REORDER_FROM, from);
+		row.put(REORDER_TO, to);
+		c.getContentResolver().insert(reorder_uri, row);
+	}
 }
