@@ -60,7 +60,9 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 				((ImageView) view).setImageBitmap(Bitmaps.memo_bmp(context, item, size));
 			}
 		}) {
-			void handle_drag_drop(int from, int to) { }
+			void handle_drag_drop(int from, int to) {
+				ReminderProvider.reorder(ReminderListActivity.this, from, to);
+			}
 		};
 		list.setAdapter(adapter);
 
