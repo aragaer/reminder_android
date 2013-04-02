@@ -2,6 +2,8 @@ package com.aragaer.reminder;
 
 import com.aragaer.simpleactionbar.ActionBar;
 import com.aragaer.simpleactionbar.Activity;
+import com.aragaer.simpleactionbar.Menu;
+import com.aragaer.simpleactionbar.MenuItem;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
@@ -13,8 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -78,7 +78,6 @@ public class ReminderListActivity extends Activity {
 		menu.add(Menu.NONE, DELETE, Menu.NONE, R.string.delete);
 	}
 
-
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case DELETE:
@@ -95,13 +94,15 @@ public class ReminderListActivity extends Activity {
 		((CursorAdapter) list.getAdapter()).getCursor().close();
 	}
 
-	public boolean onCreateActionBarMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, R.string.menu_settings, Menu.NONE, R.string.menu_settings)
 				.setIcon(R.drawable.ic_sysbar_quicksettings)
-				.setIntent(new Intent(this, ReminderSettings.class));
+				.setIntent(new Intent(this, ReminderSettings.class))
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 		menu.add(Menu.NONE, R.string.add_new, Menu.NONE, R.string.add_new)
 				.setIcon(R.drawable.content_new)
-				.setIntent(new Intent(this, ReminderCreateActivity.class));
+				.setIntent(new Intent(this, ReminderCreateActivity.class))
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
 }

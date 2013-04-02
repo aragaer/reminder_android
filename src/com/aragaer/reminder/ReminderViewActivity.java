@@ -2,6 +2,8 @@ package com.aragaer.reminder;
 
 import com.aragaer.simpleactionbar.ActionBar;
 import com.aragaer.simpleactionbar.Activity;
+import com.aragaer.simpleactionbar.Menu;
+import com.aragaer.simpleactionbar.MenuItem;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
@@ -13,8 +15,6 @@ import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -79,9 +79,10 @@ public class ReminderViewActivity extends Activity {
 		super.onPause();
 	}
 
-	public boolean onCreateActionBarMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, R.string.delete, Menu.NONE, R.string.delete)
-				.setIcon(android.R.drawable.ic_menu_delete);
+				.setIcon(android.R.drawable.ic_menu_delete)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
 

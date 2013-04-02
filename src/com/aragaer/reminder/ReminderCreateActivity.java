@@ -2,6 +2,8 @@ package com.aragaer.reminder;
 
 import com.aragaer.simpleactionbar.ActionBar;
 import com.aragaer.simpleactionbar.Activity;
+import com.aragaer.simpleactionbar.Menu;
+import com.aragaer.simpleactionbar.MenuItem;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
@@ -12,8 +14,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -85,11 +85,13 @@ public class ReminderCreateActivity extends Activity {
 		return true;
 	}
 
-	public boolean onCreateActionBarMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, R.string.no_extra, Menu.NONE, R.string.no_extra)
-				.setIcon(R.drawable.ic_cab_done_holo_dark);
+				.setIcon(R.drawable.ic_cab_done_holo_dark)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		menu.add(Menu.NONE, R.string.add_extra, Menu.NONE, R.string.add_extra)
-				.setIcon(R.drawable.navigation_forward);
+				.setIcon(R.drawable.navigation_forward)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		return true;
 	}
 
