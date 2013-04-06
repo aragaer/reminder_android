@@ -27,7 +27,22 @@ import android.widget.ImageView;
 public class ReminderListActivity extends Activity implements OnItemClickListener {
 	int size, space, drag_size, border;
 	GridView list;
-	DragDropAdapter adapter;
+	final private CursorAdapter ca = new CursorAdapter(this, null, false) {
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			return new ImageView(parent.getContext());
+		}
+
+		public void bindView(View view, Context context, Cursor cursor) {
+			ReminderItem item = ReminderProvider.getItem(cursor);
+			((ImageView) view).setImageBitmap(Bitmaps.memo_bmp(context, item, size));
+		}
+	};
+
+	final private DragDropAdapter adapter = new DragDropAdapter(ca) {
+		void handle_drag_drop(int from, int to) {
+			ReminderProvider.reorder(ReminderListActivity.this, from, to);
+		}
+	};
 
 	public void onItemClick(AdapterView<?> adapter, View arg1,
 			int position, long id) {
@@ -48,27 +63,12 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		list.setOnItemClickListener(this);
 
 		registerForContextMenu(list);
-
-		Cursor cursor = getContentResolver().query(ReminderProvider.content_uri, null, null, null, null);
-		adapter = new DragDropAdapter(new CursorAdapter(this, cursor, false) {
-			public View newView(Context context, Cursor cursor, ViewGroup parent) {
-				return new ImageView(parent.getContext());
-			}
-
-			public void bindView(View view, Context context, Cursor cursor) {
-				ReminderItem item = ReminderProvider.getItem(cursor);
-				((ImageView) view).setImageBitmap(Bitmaps.memo_bmp(context, item, size));
-			}
-		}) {
-			void handle_drag_drop(int from, int to) {
-				ReminderProvider.reorder(ReminderListActivity.this, from, to);
-			}
-		};
 		list.setAdapter(adapter);
 
 		setContentView(list);
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, true, observer);
 
+		observer.onChange(true);
 	}
 
 	ContentObserver observer = new ContentObserver(new Handler()) {
@@ -78,9 +78,8 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		}
 		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
-			((CursorAdapter) ((DragDropAdapter) list.getAdapter()).inner)
-					.changeCursor(getContentResolver().query(
-							ReminderProvider.content_uri, null, null, null, null));
+			ca.changeCursor(getContentResolver().query(
+				ReminderProvider.content_uri, null, null, null, null));
 		}
 	};
 
@@ -104,7 +103,9 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 	public void onDestroy() {
 		super.onDestroy();
 		getContentResolver().unregisterContentObserver(observer);
-		((CursorAdapter) ((DragDropAdapter) list.getAdapter()).inner).getCursor().close();
+		final Cursor c = ca.getCursor();
+		if (c != null)
+			c.close();
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
