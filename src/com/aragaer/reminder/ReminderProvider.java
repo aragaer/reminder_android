@@ -194,7 +194,7 @@ public class ReminderProvider extends ContentProvider {
 
 	// Use this only if no selection condition, no groupby
 	// and first column is _id
-	private Cursor reorder(final Cursor c) {
+	private synchronized Cursor reorder(final Cursor c) {
 		if (c == null) {
 			ordered_ids.clear();
 			save_reorder();
