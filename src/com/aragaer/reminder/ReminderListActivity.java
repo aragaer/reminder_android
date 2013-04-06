@@ -68,8 +68,6 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		list.setColumnWidth(size);
 
 		list.setOnItemClickListener(this);
-
-		registerForContextMenu(list);
 		list.setAdapter(adapter);
 
 		setContentView(list);
@@ -89,23 +87,6 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 				ReminderProvider.content_uri, null, null, null, null));
 		}
 	};
-
-	private static final int DELETE = 1;
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		menu.add(Menu.NONE, DELETE, Menu.NONE, R.string.delete);
-	}
-
-	public boolean onContextItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case DELETE:
-			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-			getContentResolver().delete(ContentUris.withAppendedId(ReminderProvider.content_uri, info.id), null, null);
-			break;
-		}
-		return true;
-	}
 
 	public void onDestroy() {
 		super.onDestroy();
