@@ -69,12 +69,12 @@ public class ReminderService extends Service {
 		Cursor cursor = ctx.getContentResolver().query(
 				ReminderProvider.content_uri, null, null, null, null);
 		ReminderItem item = null;
-		while (cursor.moveToNext() && max-- > 0) {
+		if (cursor.moveToFirst()) do {
 			item = ReminderProvider.getItem(cursor, item);
 			list.add(Pair.create(Bitmaps.memo_bmp(ctx, item, size),
 					new Intent(ctx, ReminderViewActivity.class)
 							.putExtra("reminder_id", item._id)));
-		}
+		} while (cursor.moveToNext() && --max > 0);
 		int n_sym = list.size();
 		int lost = cursor.getCount() - n_sym;
 		cursor.close();
