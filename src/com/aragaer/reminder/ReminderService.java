@@ -19,6 +19,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -48,7 +49,7 @@ public class ReminderService extends Service {
 	private void handleCommand(Intent command) {
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, false, observer);
 		registerReceiver(catcher, new IntentFilter(catcher_action));
-		startForeground(1, buildNotification(this));
+		new NotificationBuilderTask().execute(this);
 	}
 
 	private static final String PKG_NAME = ReminderService.class.getPackage().getName();
@@ -123,6 +124,17 @@ public class ReminderService extends Service {
 		return n;
 	}
 
+	private final class NotificationBuilderTask extends AsyncTask<Context, Void, Notification> {
+		@Override
+		protected Notification doInBackground(Context... params) {
+			return buildNotification(params[0]);
+		}
+
+		protected void onPostExecute(Notification n) {
+			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, n);
+		}
+	}
+
 	public static final String catcher_action = "com.aragaer.reminder.CATCH_ACTION";
 	private static final String collapse_method = Build.VERSION.SDK_INT > 16 ? "collapsePanels" : "collapse";
 	private final BroadcastReceiver catcher = new BroadcastReceiver() {
@@ -153,8 +165,7 @@ public class ReminderService extends Service {
 
 		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
-			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
-					.notify(1, buildNotification(ReminderService.this));
+			new NotificationBuilderTask().execute(getApplicationContext());
 		}
 	};
 
