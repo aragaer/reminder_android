@@ -21,12 +21,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 
 public class ReminderListActivity extends Activity implements OnItemClickListener {
-	int size, space, drag_size, border;
-	GridView list;
+	private int size, drag_size;
+	private DraggableGridView list;
 	final private CursorAdapter ca = new CursorAdapter(this, null, false) {
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			ImageView view = new ImageView(parent.getContext());
@@ -58,9 +57,16 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		super.onCreate(savedInstanceState);
 		Resources r = getResources();
 		size = r.getDimensionPixelSize(R.dimen.tile_size);
+		drag_size = r.getDimensionPixelSize(R.dimen.view_glyph_size);
 
 		startService(new Intent(this, ReminderService.class));
-		list = new GridView(this);
+		list = new DraggableGridView(this) {
+			public Drawable getDragDrawable(View view, int position, long id) {
+				final Drawable res = cached_drawables.get(id).getConstantState().newDrawable();
+				res.setBounds(0, 0, drag_size, drag_size);
+				return res;
+			}
+		};
 		list.setNumColumns(-1);
 		list.setColumnWidth(size);
 
