@@ -55,7 +55,6 @@ abstract class DragDropAdapter extends BaseAdapter {
 		handle_drag_drop(this.from, to);
 		this.from = -1;
 		this.to = -1;
-		notifyDataSetInvalidated();
 	}
 
 	public DragDropAdapter(BaseAdapter inner) {

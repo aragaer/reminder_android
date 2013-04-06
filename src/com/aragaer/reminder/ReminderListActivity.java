@@ -1,5 +1,8 @@
 package com.aragaer.reminder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentUris;
@@ -10,6 +13,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
@@ -26,6 +30,7 @@ import android.widget.ImageView;
 public class ReminderListActivity extends Activity implements OnItemClickListener {
 	private int size, drag_size;
 	private DraggableGridView list;
+	final private Map<Long, Drawable> cached_drawables = new HashMap<Long, Drawable>();
 	final private CursorAdapter ca = new CursorAdapter(this, null, false) {
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			ImageView view = new ImageView(parent.getContext());
@@ -34,9 +39,13 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		}
 
 		public void bindView(View view, Context context, Cursor cursor) {
-			ReminderItem item = ReminderProvider.getItem(cursor);
-			Drawable image = Bitmaps.memo_drawable(getResources(), item, false);
-			image.setBounds(0, 0, size, size);
+			final ReminderItem item = ReminderProvider.getItem(cursor);
+			Drawable image = cached_drawables.get(item._id);
+			if (image == null) {
+				image = Bitmaps.memo_drawable(getResources(), item, false);
+				image.setBounds(0, 0, size, size);
+				cached_drawables.put(item._id, image);
+			}
 			((ImageView) view).setImageDrawable(image);
 		}
 	};
@@ -88,8 +97,15 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		}
 		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
-			ca.changeCursor(getContentResolver().query(
-				ReminderProvider.content_uri, null, null, null, null));
+			new AsyncTask<Void, Void, Cursor>() {
+				protected Cursor doInBackground(Void... params) {
+					return getContentResolver().query(
+							ReminderProvider.content_uri, null, null, null, null);
+				}
+				protected void onPostExecute(Cursor c) {
+					ca.changeCursor(c);
+				}
+			}.execute();
 		}
 	};
 
