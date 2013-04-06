@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
 import android.widget.GridView;
@@ -29,12 +29,16 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 	GridView list;
 	final private CursorAdapter ca = new CursorAdapter(this, null, false) {
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			return new ImageView(parent.getContext());
+			ImageView view = new ImageView(parent.getContext());
+			view.setAdjustViewBounds(true);
+			return view;
 		}
 
 		public void bindView(View view, Context context, Cursor cursor) {
 			ReminderItem item = ReminderProvider.getItem(cursor);
-			((ImageView) view).setImageBitmap(Bitmaps.memo_bmp(context, item, size));
+			Drawable image = Bitmaps.memo_drawable(getResources(), item, false);
+			image.setBounds(0, 0, size, size);
+			((ImageView) view).setImageDrawable(image);
 		}
 	};
 
