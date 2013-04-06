@@ -24,7 +24,6 @@ abstract class DragDropAdapter extends BaseAdapter {
 
 	private final int translate(int position) {
 		int result = position;
-//		Log.d("translate", "from="+from+", to="+to+", pos="+position);
 		if (from < 0)
 			return position;
 		if (position == to)
