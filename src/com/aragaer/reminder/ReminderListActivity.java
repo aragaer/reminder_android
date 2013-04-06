@@ -52,7 +52,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Resources r = getResources();
+		final Resources r = getResources();
 		size = r.getDimensionPixelSize(R.dimen.tile_size);
 		drag_size = r.getDimensionPixelSize(R.dimen.view_glyph_size);
 
@@ -76,7 +76,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		observer.onChange(true);
 	}
 
-	ContentObserver observer = new ContentObserver(new Handler()) {
+	private final ContentObserver observer = new ContentObserver(new Handler()) {
 		@SuppressLint("NewApi")
 		public void onChange(boolean selfChange) {
 			this.onChange(selfChange, null);
