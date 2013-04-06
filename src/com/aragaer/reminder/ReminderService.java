@@ -1,7 +1,9 @@
 package com.aragaer.reminder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -17,6 +19,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,6 +33,8 @@ public class ReminderService extends Service {
 			| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
 
 	public static final String settings_changed = "com.aragaer.reminder.SETTINGS_CHANGE";
+	final Map<Long, Bitmap> cached_bitmaps = new HashMap<Long, Bitmap>();
+	Bitmap list_bmp, new_bmp;
 
 	public IBinder onBind(Intent i) {
 		return null;
@@ -44,7 +49,7 @@ public class ReminderService extends Service {
 	private void handleCommand(Intent command) {
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, false, observer);
 		registerReceiver(catcher, new IntentFilter(catcher_action));
-		startForeground(1, buildNotification(this));
+		new NotificationBuilderTask().execute(this);
 	}
 
 	private static final String PKG_NAME = ReminderService.class.getPackage().getName();
@@ -69,21 +74,29 @@ public class ReminderService extends Service {
 		Cursor cursor = ctx.getContentResolver().query(
 				ReminderProvider.content_uri, null, null, null, null);
 		ReminderItem item = null;
-		while (cursor.moveToNext() && max-- > 0) {
+		if (cursor.moveToFirst()) do {
 			item = ReminderProvider.getItem(cursor, item);
-			list.add(Pair.create(Bitmaps.memo_bmp(ctx, item, size),
+			Bitmap image = cached_bitmaps.get(item._id);
+			if (image == null) {
+				image = Bitmaps.memo_bmp(ctx, item, size);
+				cached_bitmaps.put(item._id, image);
+			}
+			list.add(Pair.create(image,
 					new Intent(ctx, ReminderViewActivity.class)
 							.putExtra("reminder_id", item._id)));
-		}
+		} while (cursor.moveToNext() && --max > 0);
 		int n_sym = list.size();
 		int lost = cursor.getCount() - n_sym;
 		cursor.close();
 
-		Pair<Bitmap, Intent> list_btn = Pair.create(
-				Bitmaps.list_bmp(ctx, lost),
+		if (list_bmp == null)
+			list_bmp = Bitmaps.list_bmp(ctx, lost);
+		if (new_bmp == null)
+			new_bmp = Bitmaps.add_new_bmp(ctx);
+
+		Pair<Bitmap, Intent> list_btn = Pair.create(list_bmp,
 				new Intent(ctx, ReminderListActivity.class).addFlags(intent_flags));
-		Pair<Bitmap, Intent> new_btn = Pair.create(
-				Bitmaps.add_new_bmp(ctx),
+		Pair<Bitmap, Intent> new_btn = Pair.create(new_bmp,
 				new Intent(ctx, ReminderCreateActivity.class).addFlags(intent_flags));
 		list.add(list_btn);
 		list.add(new_btn);
@@ -109,6 +122,17 @@ public class ReminderService extends Service {
 				| Notification.FLAG_ONLY_ALERT_ONCE;
 
 		return n;
+	}
+
+	private final class NotificationBuilderTask extends AsyncTask<Context, Void, Notification> {
+		@Override
+		protected Notification doInBackground(Context... params) {
+			return buildNotification(params[0]);
+		}
+
+		protected void onPostExecute(Notification n) {
+			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, n);
+		}
 	}
 
 	public static final String catcher_action = "com.aragaer.reminder.CATCH_ACTION";
@@ -141,8 +165,7 @@ public class ReminderService extends Service {
 
 		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
-			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
-					.notify(1, buildNotification(ReminderService.this));
+			new NotificationBuilderTask().execute(getApplicationContext());
 		}
 	};
 
