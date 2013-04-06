@@ -10,6 +10,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
@@ -88,8 +89,15 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		}
 		@SuppressLint("Override")
 		public void onChange(boolean selfChange, Uri uri) {
-			ca.changeCursor(getContentResolver().query(
-				ReminderProvider.content_uri, null, null, null, null));
+			new AsyncTask<Void, Void, Cursor>() {
+				protected Cursor doInBackground(Void... params) {
+					return getContentResolver().query(
+							ReminderProvider.content_uri, null, null, null, null);
+				}
+				protected void onPostExecute(Cursor c) {
+					ca.changeCursor(c);
+				}
+			}.execute();
 		}
 	};
 
