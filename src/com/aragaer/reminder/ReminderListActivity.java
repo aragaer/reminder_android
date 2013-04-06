@@ -5,7 +5,6 @@ import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -16,8 +15,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,7 +61,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Resources r = getResources();
+		final Resources r = getResources();
 		size = r.getDimensionPixelSize(R.dimen.tile_size);
 		drag_size = r.getDimensionPixelSize(R.dimen.view_glyph_size);
 
@@ -80,8 +77,6 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		list.setColumnWidth(size);
 
 		list.setOnItemClickListener(this);
-
-		registerForContextMenu(list);
 		list.setAdapter(adapter);
 
 		setContentView(list);
@@ -90,7 +85,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		observer.onChange(true);
 	}
 
-	ContentObserver observer = new ContentObserver(new Handler()) {
+	private final ContentObserver observer = new ContentObserver(new Handler()) {
 		@SuppressLint("NewApi")
 		public void onChange(boolean selfChange) {
 			this.onChange(selfChange, null);
@@ -108,23 +103,6 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 			}.execute();
 		}
 	};
-
-	private static final int DELETE = 1;
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		menu.add(Menu.NONE, DELETE, Menu.NONE, R.string.delete);
-	}
-
-	public boolean onContextItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case DELETE:
-			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-			getContentResolver().delete(ContentUris.withAppendedId(ReminderProvider.content_uri, info.id), null, null);
-			break;
-		}
-		return true;
-	}
 
 	public void onDestroy() {
 		super.onDestroy();
