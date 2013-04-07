@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.aragaer.reminder.resources.ReminderResources;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -54,21 +56,15 @@ public class ReminderService extends Service {
 
 	private static final String PKG_NAME = ReminderService.class.getPackage().getName();
 
-	public static int n_glyphs(int display_size, int glyph_size) {
-		int num = display_size / glyph_size;
-		if (num > 7) // Hardcoded value, yo!
-			num = 7;
-		return num - 2;
-	}
-
 	List<Pair<Bitmap, Intent>> list = new ArrayList<Pair<Bitmap, Intent>>();
 	private Notification buildNotification(Context ctx) {
 		Resources r = ctx.getResources();
+		final ReminderResources rr = ReminderResources.getInstance(r);
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 		int margin = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		int size = height - 2 * margin;
 
-		int max = n_glyphs(r.getDisplayMetrics().widthPixels, height);
+		int max = rr.getNumGlyphs();
 
 		list.clear();
 		Cursor cursor = ctx.getContentResolver().query(
