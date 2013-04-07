@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.aragaer.reminder.resources.ReminderResources;
+import com.aragaer.reminder.resources.NotificationResources;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -36,7 +36,6 @@ public class ReminderService extends Service {
 
 	public static final String settings_changed = "com.aragaer.reminder.SETTINGS_CHANGE";
 	final Map<Long, Bitmap> cached_bitmaps = new HashMap<Long, Bitmap>();
-	Bitmap list_bmp, new_bmp;
 
 	public IBinder onBind(Intent i) {
 		return null;
@@ -59,12 +58,12 @@ public class ReminderService extends Service {
 	List<Pair<Bitmap, Intent>> list = new ArrayList<Pair<Bitmap, Intent>>();
 	private Notification buildNotification(Context ctx) {
 		Resources r = ctx.getResources();
-		final ReminderResources rr = ReminderResources.getInstance(r);
+		final NotificationResources nr = NotificationResources.getInstance(r);
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 		int margin = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		int size = height - 2 * margin;
 
-		int max = rr.getNumGlyphs();
+		int max = nr.getNumGlyphs();
 
 		list.clear();
 		Cursor cursor = ctx.getContentResolver().query(
@@ -85,14 +84,9 @@ public class ReminderService extends Service {
 		int lost = cursor.getCount() - n_sym;
 		cursor.close();
 
-		if (list_bmp == null)
-			list_bmp = Bitmaps.list_bmp(ctx, lost);
-		if (new_bmp == null)
-			new_bmp = Bitmaps.add_new_bmp(ctx);
-
-		Pair<Bitmap, Intent> list_btn = Pair.create(list_bmp,
+		Pair<Bitmap, Intent> list_btn = Pair.create(nr.list(lost),
 				new Intent(ctx, ReminderListActivity.class).addFlags(intent_flags));
-		Pair<Bitmap, Intent> new_btn = Pair.create(new_bmp,
+		Pair<Bitmap, Intent> new_btn = Pair.create(nr.add_new(),
 				new Intent(ctx, ReminderCreateActivity.class).addFlags(intent_flags));
 		list.add(list_btn);
 		list.add(new_btn);
