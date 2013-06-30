@@ -1,5 +1,6 @@
 #TODO: fetch data from manifest
-APP_NAME=com.aragaer.jtt
-MAIN_ACTIVITY=$(APP_NAME)/.JTTMainActivity
+APP_NAME=reminder
+PKG_NAME=com.aragaer.reminder
+MAIN_ACTIVITY=$(PKG_NAME)/.ReminderListActivity
 KEYSTORE=PATH_TO_KEYSTORE
 TOOLS=PATH_TO_SDK
