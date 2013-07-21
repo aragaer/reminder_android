@@ -11,13 +11,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
-import android.graphics.Paint.Style;
 import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 
 public class Bitmaps {
 	public static final int COLOR_WHITE = 0;
@@ -54,42 +50,6 @@ public class Bitmaps {
 		return new ColorMatrixColorFilter(filters[color_num]);
 	}
 
-	static public Bitmap list_bmp(Context ctx, int extra) {
-		Resources r = ctx.getResources();
-		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
-				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
-		Bitmap t = BitmapFactory.decodeResource(r, R.drawable.list);
-		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
-		Canvas c = new Canvas(b);
-		c.drawBitmap(t, 0, 0, paints[0]);
-
-		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width), colors[COLOR_BLUE]);
-		d.setBounds(0, 0, size, size);
-		d.draw(c);
-		if (extra > 0) {
-			Paint p = new Paint(0x07);
-			p.setTextSize(size / 5);
-			p.setColor(Color.WHITE);
-			p.setTypeface(Typeface.DEFAULT_BOLD);
-			String draw = String.format("+%d", extra);
-			Rect bounds = new Rect();
-			p.getTextBounds(draw, 0, draw.length(), bounds);
-			RectF border = new RectF(bounds);
-			border.inset(-2, -2);
-			border.offsetTo(size * 0.9f - bounds.width() - 2, size * 0.9f
-					- bounds.height() - 2);
-			p.setColor(Color.argb(200, 255, 136, 0));
-			p.setStyle(Style.FILL);
-			c.drawRoundRect(border, size / 20, size / 20, p);
-			p.setColor(Color.argb(255, 255, 136, 0));
-			p.setStyle(Style.STROKE);
-			c.drawRoundRect(border, size / 20, size / 20, p);
-			p.setColor(Color.WHITE);
-			c.drawText(draw, size * 0.9f - bounds.width(), size * 0.9f, p);
-		}
-		return b;
-	}
-
 	static public Bitmap draw_char(String str, int size) {
 		Bitmap b = Bitmap.createBitmap(size, size, Config.RGB_565);
 		Canvas c = new Canvas(b);
@@ -100,19 +60,6 @@ public class Bitmaps {
 		p.getTextBounds(str, 0, str.length(), bounds);
 		c.drawText(str, size / 2 - bounds.centerX(),
 				size / 2 - bounds.centerY(), p);
-		return b;
-	}
-
-	static public Bitmap add_new_bmp(Context ctx) {
-		Resources r = ctx.getResources();
-		int size = r.getDimensionPixelSize(R.dimen.notification_height) - 2
-				* r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
-		Bitmap b = Bitmap.createBitmap(size, size, Config.ARGB_8888);
-		Canvas c = new Canvas(b);
-		GradientDrawable d = border(r.getDimensionPixelSize(R.dimen.border_width), colors[COLOR_BLUE]);
-		d.setBounds(0, 0, size, size);
-		d.draw(c);
-		c.drawBitmap(draw_char("+", size), 0, 0, paints[0]);
 		return b;
 	}
 
