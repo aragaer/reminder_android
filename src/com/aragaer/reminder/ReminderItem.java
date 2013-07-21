@@ -8,12 +8,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-class ReminderItem {
+public class ReminderItem {
 	long _id = -1;
-	byte glyph_data[];
+	public byte glyph_data[];
 	String text;
 	Date when;
-	int color = Bitmaps.COLOR_WHITE;
+	public int color = Bitmaps.COLOR_WHITE;
 
 	static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
