@@ -15,6 +15,10 @@ public class ColorResources {
 
 	public static final int N_COLORS = 6;
 
+	public enum COLOR {
+		WHITE, BLUE, PURPLE, GREEN, YELLOW, RED
+	}
+
 	public static final int colors[] = {
 		Color.WHITE,
 		Color.argb(0xff, 0x33, 0xb5, 0xe5),
