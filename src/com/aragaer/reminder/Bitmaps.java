@@ -84,12 +84,6 @@ public class Bitmaps {
 		return b;
 	}
 
-	static public BitmapDrawable memo_drawable(Resources r, ReminderItem item, boolean invert) {
-		BitmapDrawable result = new BitmapDrawable(r, new ByteArrayInputStream(item.glyph_data));
-		result.setColorFilter(filter(item.color));
-		return result;
-	}
-
 	static GradientDrawable border(int stroke, int color) {
 		GradientDrawable result = new GradientDrawable();
 		result.setCornerRadius(7);
