@@ -1,14 +1,15 @@
 JAVA_FILES=$(shell find src -name *.java)
 include config.mk
 
+ADB_FLAGS := -e
+
 all: debug
 
 run: deploy
-	adb -e shell am start $(MAIN_ACTIVITY)
+	adb $(ADB_FLAGS) shell am start $(MAIN_ACTIVITY)
 
 deploy: debug
-#	-adb -e shell pm uninstall -k $(APP_NAME)
-	adb -e install -r bin/$(APP_NAME)-debug.apk
+	adb $(ADB_FLAGS) install -r bin/$(APP_NAME)-debug.apk
 	touch $@
 
 debug: bin/$(APP_NAME)-debug.apk
@@ -27,10 +28,14 @@ bin/$(APP_NAME)-release-unsigned.apk: $(JAVA_FILES) build.xml
 
 release: bin/$(APP_NAME)-release.apk
 
+configure:
+	-rm build.xml
+	$(MAKE) build.xml
+
 build.xml:
 	$(TOOLS)/android update project -p . -n $(APP_NAME)
 
 clean:
 	ant clean
 
-.PHONY: clean run release debug
+.PHONY: all configure clean run release debug
