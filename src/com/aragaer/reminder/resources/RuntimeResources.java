@@ -5,44 +5,40 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.util.Log;
-import android.util.Pair;
 
-final class RHKey extends Pair<Constructor<? extends RuntimeResources>, Resources> {
-	public RHKey(Constructor<? extends RuntimeResources> first, Resources second) {
-		super(first, second);
-	}
-}
+public class RuntimeResources {
+	protected final Context context;
+	private final static Map<Context, RuntimeResources> rr_singletons = new HashMap<Context, RuntimeResources>();
+	private final static Map<Class<?>, Object> singletons = new HashMap<Class<?>, Object>();
 
-abstract class RuntimeResources {
-	protected final Resources r;
-
-	protected RuntimeResources(final Resources base) {
-		r = base;
+	private RuntimeResources(final Context ctx) {
+		context = ctx;
+		rr_singletons.put(context, this);
 	}
 
-	private final static Map<RHKey, RuntimeResources> singletons = new HashMap<RHKey, RuntimeResources>();
-	private final static Map<Class<? extends RuntimeResources>, Constructor<? extends RuntimeResources>> constructors = new HashMap<Class<? extends RuntimeResources>, Constructor<? extends RuntimeResources>>();
+	public static RuntimeResources get(final Context c) {
+		final Context app_c = c.getApplicationContext();
+		return rr_singletons.containsKey(app_c)
+				? rr_singletons.get(app_c)
+				: new RuntimeResources(app_c);
+	}
 
 	@SuppressWarnings("unchecked")
-	protected static final <E extends RuntimeResources> E getInstance(
-			Class<E> clazz, Resources r) {
-		Constructor<E> ctor = (Constructor<E>) constructors.get(clazz);
-		if (ctor == null)
-			try {
-				ctor = clazz.getDeclaredConstructor(Resources.class);
-				constructors.put(clazz, ctor);
-			} catch (NoSuchMethodException e) {
-				Log.e("RR", "Failed to find constructor", e);
-				return null;
-			}
-		final RHKey key = new RHKey(ctor, r);
-		E res = (E) singletons.get(key);
+	public final <E> E getInstance(final Class<E> clazz) {
+		Constructor<E> ctor;
+		try {
+			ctor = clazz.getDeclaredConstructor(Context.class);
+		} catch (NoSuchMethodException e) {
+			Log.e("RR", "Failed to find constructor", e);
+			return null;
+		}
+		E res = (E) singletons.get(clazz);
 		if (res == null)
 			try {
-				res = ctor.newInstance(r);
-				singletons.put(key, res);
+				res = ctor.newInstance(context);
+				singletons.put(clazz, res);
 			} catch (IllegalArgumentException e) {
 				Log.e("RR", "Failed to call constructor", e);
 			} catch (InstantiationException e) {

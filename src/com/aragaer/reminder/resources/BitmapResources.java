@@ -2,6 +2,7 @@ package com.aragaer.reminder.resources;
 
 import com.aragaer.reminder.R;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,13 +16,13 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 
-public class BitmapResources extends RuntimeResources {
-	protected BitmapResources(final Resources base) {
-		super(base);
-	}
+public class BitmapResources {
+	private final Context c;
+	private final Resources r;
 
-	public static final BitmapResources getInstance(final Resources r) {
-		return getInstance(BitmapResources.class, r);
+	BitmapResources(final Context context) {
+		c = context;
+		r = c.getResources();
 	}
 
 	private Bitmap res2bmp(final int resource, final int required_size) {

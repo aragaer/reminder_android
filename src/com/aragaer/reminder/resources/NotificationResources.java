@@ -1,18 +1,22 @@
 package com.aragaer.reminder.resources;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 
 import com.aragaer.reminder.R;
 
-public final class NotificationResources extends RuntimeResources {
+public final class NotificationResources {
+	private final Context c;
+	private final Resources r;
 	private final BitmapResources br;
 	private final int notification_height, symbol_margin, symbol_size, border_stroke;
 
-	protected NotificationResources(final Resources base) {
-		super(base);
-		br = BitmapResources.getInstance(base);
+	NotificationResources(final Context context) {
+		c = context;
+		r = c.getResources();
+		br = RuntimeResources.get(c).getInstance(BitmapResources.class);
 		notification_height = r.getDimensionPixelSize(R.dimen.notification_height);
 		symbol_margin = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		symbol_size = notification_height - 2 * symbol_margin;
@@ -28,10 +32,6 @@ public final class NotificationResources extends RuntimeResources {
 
 	public final int getNumGlyphs() {
 		return n_glyphs(r.getDisplayMetrics().widthPixels, notification_height);
-	}
-
-	public static final NotificationResources getInstance(final Resources r) {
-		return getInstance(NotificationResources.class, r);
 	}
 
 	private Bitmap list_bmp, list_bmp2, new_bmp;
