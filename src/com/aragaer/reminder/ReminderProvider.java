@@ -24,7 +24,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class ReminderProvider extends ContentProvider {
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private SQLiteDatabase db = null;
 	private final ArrayList<Long> ordered_ids = new ArrayList<Long>();
 
