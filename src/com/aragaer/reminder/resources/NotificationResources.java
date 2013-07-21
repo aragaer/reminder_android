@@ -13,6 +13,8 @@ public final class NotificationResources {
 	private final BitmapResources br;
 	private final int notification_height, symbol_margin, symbol_size, border_stroke;
 
+	public final int yellow, red;
+
 	NotificationResources(final Context context) {
 		c = context;
 		r = c.getResources();
@@ -21,6 +23,15 @@ public final class NotificationResources {
 		symbol_margin = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		symbol_size = notification_height - 2 * symbol_margin;
 		border_stroke = r.getDimensionPixelSize(R.dimen.border_width);
+
+		final int w = r.getDisplayMetrics().widthPixels, h = r.getDisplayMetrics().heightPixels;
+		if (w > h) {
+			red = n_glyphs(w, notification_height);
+			yellow = n_glyphs(h, notification_height);
+		} else {
+			red = n_glyphs(h, notification_height);
+			yellow = n_glyphs(w, notification_height);
+		}
 	}
 
 	private final static int n_glyphs(final int display_size, final int glyph_size) {
