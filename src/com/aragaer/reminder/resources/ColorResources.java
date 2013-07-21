@@ -1,11 +1,11 @@
 package com.aragaer.reminder.resources;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 
-public class ColorResources extends RuntimeResources {
+public class ColorResources {
 	public static final int COLOR_WHITE = 0;
 	public static final int COLOR_BLUE = 1;
 	public static final int COLOR_PURPLE = 2;
@@ -38,15 +38,9 @@ public class ColorResources extends RuntimeResources {
 		}
 	}
 
-	static ColorMatrixColorFilter filter(final int color_num) {
+	private static ColorMatrixColorFilter filter(final int color_num) {
 		return new ColorMatrixColorFilter(filters[color_num]);
 	}
 
-	protected ColorResources(Resources base) {
-		super(base);
-	}
-
-	public static final ColorResources getInstance(final Resources r) {
-		return getInstance(ColorResources.class, r);
-	}
+	ColorResources(final Context context) { }
 }

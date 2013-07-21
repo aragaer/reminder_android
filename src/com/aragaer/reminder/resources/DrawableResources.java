@@ -1,10 +1,12 @@
 package com.aragaer.reminder.resources;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 
-public class DrawableResources extends RuntimeResources {
+public class DrawableResources {
+	private final Context c;
+
 	final static GradientDrawable border(final int stroke, final int color) {
 		GradientDrawable result = new GradientDrawable();
 		result.setCornerRadius(7);
@@ -14,11 +16,8 @@ public class DrawableResources extends RuntimeResources {
 		return result;
 	}
 
-	protected DrawableResources(final Resources base) {
-		super(base);
-	}
 
-	public static final DrawableResources getInstance(final Resources r) {
-		return getInstance(DrawableResources.class, r);
+	DrawableResources(final Context context) {
+		c = context;
 	}
 }

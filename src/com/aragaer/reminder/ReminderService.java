@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.aragaer.reminder.resources.NotificationResources;
+import com.aragaer.reminder.resources.RuntimeResources;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -58,7 +59,7 @@ public class ReminderService extends Service {
 	List<Pair<Bitmap, Intent>> list = new ArrayList<Pair<Bitmap, Intent>>();
 	private Notification buildNotification(Context ctx) {
 		Resources r = ctx.getResources();
-		final NotificationResources nr = NotificationResources.getInstance(r);
+		final NotificationResources nr = RuntimeResources.get(this).getInstance(NotificationResources.class);
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 		int margin = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		int size = height - 2 * margin;
