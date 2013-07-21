@@ -17,6 +17,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -119,7 +120,15 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		list.setNumColumns(-1);
 		list.setColumnWidth(size);
 
-		list.setSelector(dr.inset(dr.border(border_width, ColorResources.colors[ColorResources.COLOR_BLUE], 0x8033b5e5), space / 2));
+		final StateListDrawable selector = new StateListDrawable();
+		selector.addState(new int[] { android.R.attr.state_pressed },
+				dr.inset(
+					dr.border(
+						border_width,
+						ColorResources.colors[ColorResources.COLOR_BLUE],
+						ColorResources.colors[ColorResources.COLOR_BLUE] & ~0x80000000
+					), space / 2));
+		list.setSelector(selector);
 
 		list.setOnItemClickListener(this);
 		list.setAdapter(adapter);
