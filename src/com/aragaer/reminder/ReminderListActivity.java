@@ -3,6 +3,11 @@ package com.aragaer.reminder;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.aragaer.reminder.resources.ColorResources;
+import com.aragaer.reminder.resources.DrawableResources;
+import com.aragaer.reminder.resources.NotificationResources;
+import com.aragaer.reminder.resources.RuntimeResources;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +16,7 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,9 +29,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.util.Log;
 
 public class ReminderListActivity extends Activity implements OnItemClickListener {
-	private int size, drag_size;
+	private int size, drag_size, space, glyph_inset;
+	private int red, yellow;
+	private DrawableResources dr;
+
 	private DraggableGridView list;
 	final private Map<Long, Drawable> cached_drawables = new HashMap<Long, Drawable>();
 	final private CursorAdapter ca = new CursorAdapter(this, null, false) {
@@ -39,24 +49,35 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 			final ReminderItem item = ReminderProvider.getItem(cursor);
 			Drawable image = cached_drawables.get(item._id);
 			if (image == null) {
-				image = Bitmaps.memo_drawable(getResources(), item, false);
-				image.setBounds(0, 0, size, size);
+				image = dr.memo_drawable(item);
+				image.setBounds(glyph_inset, glyph_inset, size - glyph_inset, size - glyph_inset);
 				cached_drawables.put(item._id, image);
 			}
 			((ImageView) view).setImageDrawable(image);
 		}
 	};
 
+	private Drawable border, yellow_ribbon, red_ribbon;
+	private LayerDrawable[] backgrounds;
+
 	final private DragDropAdapter adapter = new DragDropAdapter(ca) {
 		void handle_drag_drop(int from, int to) {
 			ReminderProvider.reorder(ReminderListActivity.this, from, to);
 		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view = super.getView(position, convertView, parent);
+
+			Drawable back = backgrounds[position < yellow ? 0 : position < red ? 1 : 2];
+			view.setBackgroundDrawable(back);
+			view.setPadding(glyph_inset, glyph_inset, glyph_inset, glyph_inset);
+
+			return view;
+		}
 	};
 
-	public void onItemClick(AdapterView<?> adapter, View arg1,
-			int position, long id) {
-		startActivity(new Intent(this,
-				ReminderViewActivity.class).putExtra("reminder_id", id));
+	public void onItemClick(AdapterView<?> adapter, View arg1, int position, long id) {
+		startActivity(new Intent(this, ReminderViewActivity.class).putExtra("reminder_id", id));
 	}
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +85,28 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		final Resources r = getResources();
 		size = r.getDimensionPixelSize(R.dimen.tile_size);
 		drag_size = r.getDimensionPixelSize(R.dimen.view_glyph_size);
+		space = r.getDimensionPixelSize(R.dimen.tile_space);
+		glyph_inset = r.getDimensionPixelSize(R.dimen.tile_inset);
+
+		final int border_width = r.getDimensionPixelSize(R.dimen.border_width);
+
+		final NotificationResources nr = RuntimeResources.get(this).getInstance(NotificationResources.class);
+		yellow = nr.yellow;
+		red = nr.red;
+
+		dr = RuntimeResources.get(this).getInstance(DrawableResources.class);
+		border = dr.border(border_width, ColorResources.colors[ColorResources.COLOR_BLUE]);
+		yellow_ribbon = dr.ribbon(ColorResources.colors[ColorResources.COLOR_YELLOW]);
+		red_ribbon = dr.ribbon(ColorResources.colors[ColorResources.COLOR_RED]);
+
+		backgrounds = new LayerDrawable[] {
+			new LayerDrawable(new Drawable[] {border}),
+			new LayerDrawable(new Drawable[] {yellow_ribbon, border}),
+			new LayerDrawable(new Drawable[] {red_ribbon, border})
+		};
+
+		for (LayerDrawable back : backgrounds)
+			dr.inset(back, space / 2);
 
 		startService(new Intent(this, ReminderService.class));
 		list = new DraggableGridView(this) {
@@ -75,6 +118,8 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		};
 		list.setNumColumns(-1);
 		list.setColumnWidth(size);
+
+		list.setSelector(dr.inset(dr.border(border_width, ColorResources.colors[ColorResources.COLOR_BLUE], 0x8033b5e5), space / 2));
 
 		list.setOnItemClickListener(this);
 		list.setAdapter(adapter);

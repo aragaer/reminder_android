@@ -6,4 +6,5 @@
     <dimen name="view_glyph_size">150dip</dimen>
     <dimen name="tile_size">64dip</dimen>
     <dimen name="tile_space">6dip</dimen>
+    <dimen name="tile_inset">5dip</dimen>
 </resources>
