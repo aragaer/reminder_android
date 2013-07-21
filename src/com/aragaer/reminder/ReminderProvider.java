@@ -106,69 +106,14 @@ public class ReminderProvider extends ContentProvider {
 	}
 
 	public boolean onCreate() {
-		db = new ReminderSQLHelper(getContext(), "MEMO", null, DATABASE_VERSION).getWritableDatabase();
+		final Context context = getContext();
+		db = new ReminderSQLHelper(context, "MEMO", null, DATABASE_VERSION).getWritableDatabase();
 		if (db == null || db.isReadOnly())
 			return false;
 
-		Log.d(TAG, "Created. Checking if we need to move old data");
-
-		SharedPreferences prefs = getContext().getSharedPreferences("DB", Context.MODE_PRIVATE);
-		int current_version = prefs.getInt("DATABASE_VERSION", 0);
-		if (current_version > 0 && moveOldData(db))
-			prefs.edit().putInt("DATABASE_VERSION", 0).commit();
-
+		final SharedPreferences prefs = context.getSharedPreferences("DB", Context.MODE_PRIVATE);
 		for (final String id : TextUtils.split(prefs.getString(PREF_ORDER, ""), ","))
 			ordered_ids.add(Long.valueOf(id));
-
-		return true;
-	}
-
-	boolean moveOldData(SQLiteDatabase db) {
-		Log.d(TAG, "Converting old database");
-		File sdcard = Environment.getExternalStorageDirectory();
-		File dir = new File(sdcard, "Android");
-		dir = new File(new File(dir, "data"), ReminderProvider.class
-				.getPackage().getName());
-		if (!dir.exists())
-			return true;
-
-		File db_file = new File(dir, "memo.db");
-
-		if (db_file.exists()) {
-			try {
-				db.execSQL("attach ? as sd", new String[] {db_file.getAbsolutePath()} );
-			} catch (SQLiteException e) {
-				Log.e(TAG, "Failed to attach old DB: "+e);
-				return false;
-			}
-
-			try {
-				db.beginTransaction();
-				db.execSQL("insert into memo select * from sd.memo");
-				db.delete("sd.memo", null, null);
-				db.setTransactionSuccessful();
-			} catch (SQLiteException e) {
-				Log.e(TAG, "Failed to move old DB: "+e);
-				if (db.inTransaction())
-					db.endTransaction();
-				return false;
-			} finally {
-				db.endTransaction();
-			}
-
-			Log.d(TAG, "Data moved");
-
-			try {
-				db.execSQL("detach sd");
-			} catch (SQLiteException e) {
-				Log.w(TAG, "Failed to detach database");
-				return false;
-			}
-
-			db_file.delete();
-		}
-
-		dir.delete();
 
 		return true;
 	}
