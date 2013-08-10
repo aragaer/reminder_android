@@ -1,5 +1,9 @@
 package com.aragaer.reminder;
 
+import com.aragaer.reminder.resources.ColorResources;
+import com.aragaer.reminder.resources.DrawableResources;
+import com.aragaer.reminder.resources.RuntimeResources;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -18,15 +22,14 @@ public class ColorSwitch extends RadioGroup {
 		super(context, attrs);
 		margin = context.getResources().getDimensionPixelSize(R.dimen.notification_glyph_margin);
 
+		final DrawableResources dr = RuntimeResources.get(context).getInstance(DrawableResources.class);
+
 		LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1);
 		lp.setMargins(margin, margin, margin, margin);
-		for (int i = 0; i < Bitmaps.N_COLORS; i++) {
-			final int c = Bitmaps.colors[i];
+		for (ColorResources.COLOR c: ColorResources.COLOR.values()) {
 			RadioButton rb = new RadioButton(context);
-			GradientDrawable border = Bitmaps.border(margin, c);
-			rb.setId(ADD + i);
-			border.setColor(Color.argb(192, Color.red(c), Color.green(c), Color.blue(c)));
-			rb.setBackgroundDrawable(border);
+			rb.setId(ADD + c.ordinal());
+			rb.setBackgroundDrawable(dr.border(margin, c.getColor(), ColorResources.alpha50(c.getColor())));
 			rb.setButtonDrawable(android.R.color.transparent);
 			addView(rb, lp);
 		}
