@@ -1,7 +1,6 @@
 package com.aragaer.reminder;
 
 import java.io.ByteArrayOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.graphics.Bitmap;
@@ -14,8 +13,6 @@ public class ReminderItem {
 	String text;
 	Date when;
 	public int color = Bitmaps.COLOR_WHITE;
-
-	static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public ReminderItem(Bitmap b) {
 		this(b, null, new Date());
@@ -66,9 +63,5 @@ public class ReminderItem {
 				glyph_data.length);
 		Bitmap result = Bitmap.createScaledBitmap(glyph, size, size, true);
 		return result;
-	}
-
-	public String getText() {
-		return text == null ? df.format(when) : text;
 	}
 }
