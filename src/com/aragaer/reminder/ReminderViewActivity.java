@@ -79,7 +79,7 @@ public class ReminderViewActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, R.string.delete, Menu.NONE, R.string.delete)
 				.setIcon(android.R.drawable.ic_menu_delete)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		return true;
 	}
 

@@ -90,10 +90,10 @@ public class ReminderCreateActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, R.string.no_extra, Menu.NONE, R.string.no_extra)
 				.setIcon(R.drawable.ic_cab_done_holo_dark)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		menu.add(Menu.NONE, R.string.add_extra, Menu.NONE, R.string.add_extra)
 				.setIcon(R.drawable.navigation_forward)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		return true;
 	}
 

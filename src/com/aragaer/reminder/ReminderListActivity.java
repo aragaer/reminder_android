@@ -170,7 +170,7 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		menu.add(Menu.NONE, R.string.add_new, Menu.NONE, R.string.add_new)
 				.setIcon(R.drawable.content_new)
 				.setIntent(new Intent(this, ReminderCreateActivity.class))
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		return true;
 	}
 }
