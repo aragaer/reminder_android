@@ -61,7 +61,7 @@ public class ColorSwitch extends RadioGroup {
 			getChildAt(i).measure(wms, wms);
 	}
 
-	public int getValue() {
-		return getCheckedRadioButtonId() - ADD;
+	public ColorResources.COLOR getValue() {
+		return ColorResources.COLOR.values()[getCheckedRadioButtonId() - ADD];
 	}
 }

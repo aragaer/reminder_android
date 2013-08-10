@@ -1,6 +1,7 @@
 package com.aragaer.reminder.resources;
 
 import com.aragaer.reminder.R;
+import com.aragaer.reminder.ReminderItem;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -17,12 +18,31 @@ import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 
 public class BitmapResources {
-	private final Context c;
 	private final Resources r;
 
 	BitmapResources(final Context context) {
-		c = context;
-		r = c.getResources();
+		r = context.getResources();
+	}
+
+	static public Bitmap memo_bmp(ReminderItem item, int required_size) {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeByteArray(item.glyph_data, 0,
+				item.glyph_data.length, options);
+
+		options.inSampleSize = Math.round(1f * options.outHeight
+				/ required_size + 0.5f);
+		options.inJustDecodeBounds = false;
+		Bitmap result = BitmapFactory.decodeByteArray(item.glyph_data, 0,
+				item.glyph_data.length, options);
+		float offset = (required_size - result.getHeight()) * 0.5f;
+
+		Bitmap b = Bitmap.createBitmap(required_size, required_size,
+				Config.ARGB_8888);
+		new Canvas(b).drawBitmap(result, offset, offset,
+				ColorResources.paints[item.color]);
+		result.recycle();
+		return b;
 	}
 
 	private Bitmap res2bmp(final int resource, final int required_size) {
@@ -31,12 +51,12 @@ public class BitmapResources {
 		BitmapFactory.decodeResource(r, resource, options);
 
 		if (options.outHeight > required_size)
-			options.inSampleSize = Math.round(1f * options.outHeight / required_size + 0.5f);
+			options.inSampleSize = Math.round(1f * options.outHeight
+					/ required_size + 0.5f);
 		else
 			options.inSampleSize = 1;
 		options.inJustDecodeBounds = false;
-		Bitmap result = BitmapFactory.decodeResource(r, R.drawable.list,
-				options);
+		Bitmap result = BitmapFactory.decodeResource(r, resource, options);
 		float offset = (required_size - result.getHeight()) * 0.5f;
 
 		Bitmap b = Bitmap.createBitmap(required_size, required_size,
@@ -61,7 +81,7 @@ public class BitmapResources {
 		return bitmap;
 	}
 
-	static private Bitmap draw_char(final String str, final int size) {
+	static public Bitmap draw_char(final String str, final int size) {
 		final Bitmap b = Bitmap.createBitmap(size, size, Config.RGB_565);
 		final Canvas c = new Canvas(b);
 		final Paint p = new Paint(0x07);

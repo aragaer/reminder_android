@@ -13,7 +13,7 @@ public class ReminderItem {
 	public byte glyph_data[];
 	String text;
 	Date when;
-	public int color = Bitmaps.COLOR_WHITE;
+	public int color = 0; // ColorResources.COLOR.WHITE.ordinal()
 
 	static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

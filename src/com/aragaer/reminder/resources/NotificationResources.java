@@ -52,7 +52,7 @@ public final class NotificationResources {
 			list_bmp = br.list_bmp(symbol_size);
 			list_bmp = br.add_layer(list_bmp, DrawableResources.border(
 					border_stroke,
-					ColorResources.colors[ColorResources.COLOR_BLUE]));
+					ColorResources.COLOR.BLUE.getColor()));
 		}
 		return list_bmp;
 	}
@@ -82,7 +82,7 @@ public final class NotificationResources {
 			new_bmp = br.add_new_bmp(symbol_size);
 			new_bmp = br.add_layer(new_bmp, DrawableResources.border(
 					border_stroke,
-					ColorResources.colors[ColorResources.COLOR_BLUE]));
+					ColorResources.COLOR.BLUE.getColor()));
 		}
 		return new_bmp;
 	}
