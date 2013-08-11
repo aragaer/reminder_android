@@ -1,5 +1,7 @@
 package com.aragaer.reminder;
 
+import com.aragaer.reminder.resources.BitmapResources;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -50,7 +52,7 @@ class DrawView extends View implements OnTouchListener {
 	}
 
 	public Bitmap getBitmap() {
-		return is_empty ? Bitmaps.draw_char("?", BITMAP_SIZE) : bmp;
+		return is_empty ? BitmapResources.draw_char("?", BITMAP_SIZE) : bmp;
 	}
 
 	public void setBitmap(Bitmap b) {

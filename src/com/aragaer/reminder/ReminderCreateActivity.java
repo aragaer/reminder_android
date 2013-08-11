@@ -32,7 +32,7 @@ public class ReminderCreateActivity extends Activity {
 		cs.setId(3);
 
 		dv = new DrawView(this);
-		dv.setPaint(Bitmaps.paints[cs.getValue()]);
+		dv.setPaint(cs.getValue().getPaint());
 		dv.setId(1);
 
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -50,7 +50,7 @@ public class ReminderCreateActivity extends Activity {
 
 		cs.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				dv.setPaint(Bitmaps.paints[cs.getValue()]);
+				dv.setPaint(cs.getValue().getPaint());
 			}
 		});
 
@@ -90,10 +90,10 @@ public class ReminderCreateActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, R.string.no_extra, Menu.NONE, R.string.no_extra)
 				.setIcon(R.drawable.ic_cab_done_holo_dark)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		menu.add(Menu.NONE, R.string.add_extra, Menu.NONE, R.string.add_extra)
 				.setIcon(R.drawable.navigation_forward)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		return true;
 	}
 
@@ -104,7 +104,7 @@ public class ReminderCreateActivity extends Activity {
 		ContentValues row = new ContentValues();
 		row.put("glyph", ReminderItem.bitmap_to_bytes(res));
 		row.put("date", System.currentTimeMillis());
-		row.put("color", cs.getValue());
+		row.put("color", cs.getValue().ordinal());
 		Uri result_uri = getContentResolver().insert(ReminderProvider.content_uri, row);
 		if (extra)
 			startActivity(new Intent(ReminderCreateActivity.this,

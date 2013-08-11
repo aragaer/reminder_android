@@ -1,5 +1,9 @@
 package com.aragaer.reminder;
 
+import com.aragaer.reminder.resources.ColorResources;
+import com.aragaer.reminder.resources.DrawableResources;
+import com.aragaer.reminder.resources.RuntimeResources;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentUris;
@@ -38,12 +42,13 @@ public class ReminderViewActivity extends Activity {
 		memo = ReminderProvider.getItem(c);
 		c.close();
 
+		final DrawableResources dr = RuntimeResources.get(this).getInstance(DrawableResources.class);
+
 		setContentView(R.layout.view);
 		glyph_view = (ImageView) findViewById(R.id.glyph);
-		glyph_view.setImageBitmap(memo.getGlyph(r.getDimensionPixelSize(R.dimen.view_glyph_size)));
-		glyph_view.setColorFilter(new ColorMatrixColorFilter(Bitmaps.filters[memo.color]));
+		glyph_view.setImageDrawable(dr.memo_drawable(memo));
 		comment = (EditText) findViewById(R.id.comment);
-		comment.setBackgroundDrawable(Bitmaps.border(
+		comment.setBackgroundDrawable(dr.border(
 				r.getDimensionPixelSize(R.dimen.notification_glyph_margin),
 				Color.LTGRAY));
 		comment.setText(memo.text);
@@ -79,7 +84,7 @@ public class ReminderViewActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(Menu.NONE, R.string.delete, Menu.NONE, R.string.delete)
 				.setIcon(android.R.drawable.ic_menu_delete)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		return true;
 	}
 

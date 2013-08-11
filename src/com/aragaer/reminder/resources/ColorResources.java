@@ -16,7 +16,15 @@ public class ColorResources {
 	public static final int N_COLORS = 6;
 
 	public enum COLOR {
-		WHITE, BLUE, PURPLE, GREEN, YELLOW, RED
+		WHITE, BLUE, PURPLE, GREEN, YELLOW, RED;
+
+		public int getColor() {
+			return colors[ordinal()];
+		}
+
+		public Paint getPaint() {
+			return paints[ordinal()];
+		}
 	}
 
 	public static final int colors[] = {
@@ -44,6 +52,10 @@ public class ColorResources {
 
 	private static ColorMatrixColorFilter filter(final int color_num) {
 		return new ColorMatrixColorFilter(filters[color_num]);
+	}
+
+	public static final int alpha50(final int color) {
+		return color & ~0x80000000;
 	}
 
 	ColorResources(final Context context) { }

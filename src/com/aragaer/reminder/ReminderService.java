@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.aragaer.reminder.resources.BitmapResources;
 import com.aragaer.reminder.resources.NotificationResources;
 import com.aragaer.reminder.resources.RuntimeResources;
 
@@ -59,7 +60,9 @@ public class ReminderService extends Service {
 	List<Pair<Bitmap, Intent>> list = new ArrayList<Pair<Bitmap, Intent>>();
 	private Notification buildNotification(Context ctx) {
 		Resources r = ctx.getResources();
-		final NotificationResources nr = RuntimeResources.get(this).getInstance(NotificationResources.class);
+		final RuntimeResources rr = RuntimeResources.get(ctx);
+		final BitmapResources br = rr.getInstance(BitmapResources.class);
+		final NotificationResources nr = rr.getInstance(NotificationResources.class);
 		int height = r.getDimensionPixelSize(R.dimen.notification_height);
 		int margin = r.getDimensionPixelSize(R.dimen.notification_glyph_margin);
 		int size = height - 2 * margin;
@@ -74,7 +77,7 @@ public class ReminderService extends Service {
 			item = ReminderProvider.getItem(cursor, item);
 			Bitmap image = cached_bitmaps.get(item._id);
 			if (image == null) {
-				image = Bitmaps.memo_bmp(ctx, item, size);
+				image = br.memo_bmp(item, size);
 				cached_bitmaps.put(item._id, image);
 			}
 			list.add(Pair.create(image,

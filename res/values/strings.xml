@@ -4,9 +4,7 @@
     <string name="add_extra">Add extra description</string>
     <string name="no_extra">No extra description</string>
     <string name="delete">Delete</string>
-    <string name="menu_settings">Settings</string>
 
-    <string name="pref_cat_notification">Notification settings</string>
     <string name="created_on">Created on:</string>
 
     <string name="toast_created">Reminder created</string>
