@@ -38,7 +38,7 @@ public class BitmapResources {
 		float offset = (required_size - result.getHeight()) * 0.5f;
 
 		Bitmap b = Bitmap.createBitmap(required_size, required_size,
-				Config.ARGB_8888);
+				Config.ARGB_4444);
 		new Canvas(b).drawBitmap(result, offset, offset,
 				ColorResources.paints[item.color]);
 		result.recycle();
@@ -60,7 +60,7 @@ public class BitmapResources {
 		float offset = (required_size - result.getHeight()) * 0.5f;
 
 		Bitmap b = Bitmap.createBitmap(required_size, required_size,
-				Config.ARGB_8888);
+				Config.ARGB_4444);
 		new Canvas(b).drawBitmap(result, offset, offset, ColorResources.paints[0]);
 		result.recycle();
 		return b;
@@ -76,7 +76,7 @@ public class BitmapResources {
 		return add_layer(bitmap, layer, 0, 0);
 	}
 
-	public Bitmap add_layer(final Bitmap bitmap, final Bitmap layer, final int ox, final int oy) {
+	static public Bitmap add_layer(final Bitmap bitmap, final Bitmap layer, final int ox, final int oy) {
 		new Canvas(bitmap).drawBitmap(layer, ox, oy, null);
 		return bitmap;
 	}
@@ -107,7 +107,7 @@ public class BitmapResources {
 		final Bitmap result = Bitmap.createBitmap(
 				bounds.width() + extra_inset * 2,
 				bounds.height() + extra_inset * 2,
-				Config.ARGB_8888);
+				Config.ARGB_4444);
 		final Canvas c = new Canvas(result);
 		RectF border = new RectF(bounds);
 		border.inset(-2, -2);
@@ -128,7 +128,7 @@ public class BitmapResources {
 	}
 
 	public Bitmap add_new_bmp(final int required_size) {
-		final Bitmap b = Bitmap.createBitmap(required_size, required_size, Config.ARGB_8888);
+		final Bitmap b = Bitmap.createBitmap(required_size, required_size, Config.ARGB_4444);
 		final Bitmap plus = draw_char("+", required_size);
 		new Canvas(b).drawBitmap(plus, 0, 0, ColorResources.paints[ColorResources.COLOR_WHITE]);
 		plus.recycle();

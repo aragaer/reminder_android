@@ -57,22 +57,23 @@ public final class NotificationResources {
 		return list_bmp;
 	}
 
-	private int prev_extra = -1;
-	private final Bitmap extras[] = new Bitmap[5];
+	private int prev_extra = 0;
 	public final Bitmap list(final int extra) {
 		if (prev_extra == extra && list_bmp2 != null)
 			return list_bmp2;
 
+		if (extra <= 0)
+			return list();
+
 		if (list_bmp2 != null)
 			list_bmp2.recycle();
 		list_bmp2 = list().copy(Config.ARGB_8888, true);
-		if (extra > 0) {
-			if (extras[extra] == null)
-				extras[extra] = BitmapResources.extra_bmp(extra, symbol_size / 5, symbol_size / 20);
-			final int x_offset = Math.round(symbol_size * 0.9f) - extras[extra].getWidth();
-			final int y_offset = Math.round(symbol_size * 0.9f) - extras[extra].getHeight();
-			list_bmp2 = br.add_layer(list_bmp2, extras[extra], x_offset, y_offset);
-		}
+
+		final Bitmap bmp = BitmapResources.extra_bmp(extra, symbol_size / 5, symbol_size / 20);
+		final int x_offset = Math.round(symbol_size * 0.9f) - bmp.getWidth();
+		final int y_offset = Math.round(symbol_size * 0.9f) - bmp.getHeight();
+		BitmapResources.add_layer(list_bmp2, bmp, x_offset, y_offset);
+		bmp.recycle();
 		prev_extra = extra;
 		return list_bmp2;
 	}
