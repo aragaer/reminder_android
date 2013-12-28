@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
@@ -137,6 +138,8 @@ public class ReminderListActivity extends Activity implements OnItemClickListene
 		getContentResolver().registerContentObserver(ReminderProvider.content_uri, true, observer);
 
 		observer.onChange(true);
+
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 	}
 
 	private final ContentObserver observer = new ContentObserver(new Handler()) {
